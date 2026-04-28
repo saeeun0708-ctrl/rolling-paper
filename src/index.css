@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 모바일 웹 기본값 - 시스템 폰트, 안티앨리어싱 */
+html,
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 모바일에서 스크롤 바운스 시 배경이 보이지 않도록 */
+body {
+  overscroll-behavior-y: none;
+}
