@@ -5,7 +5,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        // 풀숲 테마 기본 색상 (이후 단계에서 확장)
+        // 카네이션 포인트 컬러
+        carnation: {
+          50:  '#fff1f3',
+          100: '#ffe4e9',
+          200: '#fecdd6',
+          300: '#fda4b5',
+          400: '#fb6f8e',
+          500: '#f43f67',
+          600: '#e11d48',
+          700: '#be123c',
+        },
+        // 풀숲 테마 기본 색상
         grass: {
           50: '#f3faf2',
           100: '#e3f4e0',
