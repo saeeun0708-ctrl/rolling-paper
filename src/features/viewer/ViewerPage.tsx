@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../lib/supabase'
@@ -6,6 +6,7 @@ import UnwrapAnimation from './UnwrapAnimation'
 import MeadowView      from './MeadowView'
 import MessageModal    from './MessageModal'
 import ListMode        from './ListMode'
+import ExportModal     from '../image-export/ExportModal'
 
 interface Room { id: string; recipient_name: string; expires_at: string; status: string; open_key: string }
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
@@ -21,6 +22,11 @@ export default function ViewerPage() {
   const [messages, setMessages]     = useState<Message[]>([])
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [isListMode, setIsListMode] = useState(false)
+  const [showExport, setShowExport] = useState(false)
+
+  // 캡처 대상 ref
+  const meadowRef = useRef<HTMLDivElement>(null)
+  const listRef   = useRef<HTMLDivElement>(null)
 
   // ─── 방 + 메시지 로드 ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -66,11 +72,37 @@ export default function ViewerPage() {
 
   // ─── 전체 리스트 모드 ─────────────────────────────────────────────────────
   if (isListMode) return (
-    <ListMode
-      messages={messages}
-      recipientName={room?.recipient_name ?? ''}
-      onClose={() => setIsListMode(false)}
-    />
+    <>
+      <div ref={listRef}>
+        <ListMode
+          messages={messages}
+          recipientName={room?.recipient_name ?? ''}
+          onClose={() => setIsListMode(false)}
+        />
+      </div>
+      {/* 이미지 저장 버튼 */}
+      <button
+        onClick={() => setShowExport(true)}
+        data-export-hide
+        className="fixed bottom-5 right-5 z-20 flex items-center gap-2
+                   px-4 py-2.5 bg-white rounded-full shadow-lg
+                   text-[13px] font-bold text-black/70 hover:text-black
+                   border border-black/10 hover:border-black/20 transition-all"
+      >
+        📥 이미지 저장
+      </button>
+      <AnimatePresence>
+        {showExport && (
+          <ExportModal
+            recipientName={room?.recipient_name ?? ''}
+            messages={messages}
+            meadowRef={meadowRef}
+            listRef={listRef}
+            onClose={() => setShowExport(false)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   )
 
   // ─── 애니메이션 + 풀숲 뷰 ─────────────────────────────────────────────────
@@ -89,6 +121,7 @@ export default function ViewerPage() {
         {viewState === 'meadow' && (
           <motion.div
             key="meadow"
+            ref={meadowRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
@@ -104,6 +137,20 @@ export default function ViewerPage() {
         )}
       </AnimatePresence>
 
+      {/* 이미지 저장 버튼 (풀숲 모드) */}
+      {viewState === 'meadow' && (
+        <button
+          onClick={() => setShowExport(true)}
+          data-export-hide
+          className="fixed bottom-20 right-5 z-20 flex items-center gap-2
+                     px-4 py-2.5 bg-white/90 rounded-full shadow-lg
+                     text-[13px] font-bold text-black/70 hover:text-black
+                     border border-black/10 backdrop-blur-sm transition-all"
+        >
+          📥 저장
+        </button>
+      )}
+
       {/* 메시지 모달 */}
       <AnimatePresence>
         {selectedIdx !== null && viewState === 'meadow' && (
@@ -112,6 +159,19 @@ export default function ViewerPage() {
             currentIndex={selectedIdx}
             onNavigate={setSelectedIdx}
             onClose={() => setSelectedIdx(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* 이미지 저장 모달 */}
+      <AnimatePresence>
+        {showExport && (
+          <ExportModal
+            recipientName={room?.recipient_name ?? ''}
+            messages={messages}
+            meadowRef={meadowRef}
+            listRef={listRef}
+            onClose={() => setShowExport(false)}
           />
         )}
       </AnimatePresence>

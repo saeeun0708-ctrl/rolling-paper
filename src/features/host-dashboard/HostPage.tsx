@@ -5,11 +5,40 @@ import { supabase } from '../../lib/supabase'
 import { shareKakao } from '../../lib/kakao'
 import { FlowerShape, FLOWER_EMOJIS } from '../message-write/utils'
 import WrapModal from '../gift-wrap/WrapModal'
+import Footer from '../../components/Footer'
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
 interface Room {
   id: string; recipient_name: string; host_name: string
-  host_pin_hash: string; status: string; open_key: string
+  host_pin_hash: string; status: string; open_key: string; expires_at?: string
+}
+
+/** 만료까지 남은 일수 계산 */
+function daysUntilExpiry(expiresAt?: string): number | null {
+  if (!expiresAt) return null
+  const ms = new Date(expiresAt).getTime() - Date.now()
+  return Math.ceil(ms / (1000 * 60 * 60 * 24))
+}
+
+/** 삭제 예정 경고 배너 */
+function ExpiryBanner({ expiresAt }: { expiresAt?: string }) {
+  const days = daysUntilExpiry(expiresAt)
+  if (days === null || days > 14) return null
+  const urgent = days <= 7
+  return (
+    <div className={`rounded-2xl px-4 py-3.5 mb-4 flex items-start gap-3
+      ${urgent ? 'bg-red-50 border border-red-200' : 'bg-amber-50 border border-amber-200'}`}>
+      <span className="text-xl">{urgent ? '⚠️' : '🕐'}</span>
+      <div>
+        <p className={`text-[13px] font-bold ${urgent ? 'text-red-700' : 'text-amber-700'}`}>
+          {days <= 0 ? '오늘 만료예정이에요!' : `${days}일 후 사라져요`}
+        </p>
+        <p className={`text-[12px] mt-0.5 ${urgent ? 'text-red-600/70' : 'text-amber-600/70'}`}>
+          받는 분께 빨리 전달하거나 이미지로 저장해주세요.
+        </p>
+      </div>
+    </div>
+  )
 }
 interface Message { id: string; author_name: string; shape: string; created_at: string; body: string }
 type HostView = 'loading' | 'error' | 'auth' | 'dashboard' | 'wrapped'
@@ -63,7 +92,7 @@ export default function HostPage() {
     setLockoutUntil(parseInt(localStorage.getItem(LOCKOUT_KEY) ?? '0'))
 
     supabase.from('rooms')
-      .select('id, recipient_name, host_name, host_pin_hash, status, open_key')
+      .select('id, recipient_name, host_name, host_pin_hash, status, open_key, expires_at')
       .eq('slug', slug).single()
       .then(({ data, error }) => {
         if (error || !data) { setErrorMsg('존재하지 않는 롤링페이퍼예요.'); setView('error'); return }
@@ -207,6 +236,9 @@ export default function HostPage() {
       <main className="min-h-dvh bg-white px-5 py-12">
         <div className="w-full max-w-md mx-auto space-y-6">
 
+          {/* 만료 배너 */}
+          <ExpiryBanner expiresAt={room?.expires_at}/>
+
           {/* 헤더 */}
           <div>
             <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-3">Dashboard</p>
@@ -308,6 +340,7 @@ export default function HostPage() {
             </div>
           )}
         </div>
+        <Footer className="mt-8" light/>
       </main>
 
       {showWrap && (

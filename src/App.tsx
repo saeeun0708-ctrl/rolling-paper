@@ -6,6 +6,8 @@ import SharePage         from './features/room-create/SharePage'
 import WriteMessagePage  from './features/message-write/WriteMessagePage'
 import HostPage          from './features/host-dashboard/HostPage'
 import ViewerPage        from './features/viewer/ViewerPage'
+import Terms             from './pages/Terms'
+import Privacy           from './pages/Privacy'
 
 function App() {
   useEffect(() => {
@@ -26,6 +28,9 @@ function App() {
         <Route path="/r/:slug/host"    element={<HostPage />} />
         {/* 받는 분 열람 페이지 */}
         <Route path="/r/:slug/open"    element={<ViewerPage />} />
+        {/* 법적 고지 */}
+        <Route path="/terms"           element={<Terms />} />
+        <Route path="/privacy"         element={<Privacy />} />
         {/* 루트 → 방 만들기로 리다이렉트 */}
         <Route path="/"                element={<Navigate to="/create" replace />} />
       </Routes>

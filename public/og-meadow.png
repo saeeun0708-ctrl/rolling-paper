@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef6ea"/>
+      <stop offset="55%" stop-color="#e8f3e0"/>
+      <stop offset="100%" stop-color="#d8ecd0"/>
+    </linearGradient>
+    <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9ed18e"/>
+      <stop offset="100%" stop-color="#7cbd76"/>
+    </linearGradient>
+    <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7cbd76"/>
+      <stop offset="100%" stop-color="#5fa861"/>
+    </linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#86c47e"/>
+      <stop offset="100%" stop-color="#5fa861"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 하늘 -->
+  <rect width="1200" height="630" fill="url(#sky)"/>
+
+  <!-- 산 -->
+  <path d="M0 340 Q120 280 240 308 Q380 268 520 303 Q680 273 820 308 Q970 281 1120 308 Q1200 300 1200 315 L1200 450 L0 450 Z" fill="#b8d4c2" opacity="0.7"/>
+  <path d="M0 380 Q140 330 280 360 Q440 322 600 360 Q760 330 920 365 Q1080 338 1200 368 L1200 480 L0 480 Z" fill="#8fbfa0" opacity="0.85"/>
+
+  <!-- 언덕 -->
+  <path d="M0 460 Q200 430 400 455 Q600 430 800 455 Q1000 430 1200 458 L1200 570 L0 570 Z" fill="url(#hill1)"/>
+  <path d="M0 505 Q220 475 440 500 Q660 475 880 500 Q1100 480 1200 505 L1200 630 L0 630 Z" fill="url(#hill2)" opacity="0.95"/>
+
+  <!-- 풀밭 -->
+  <path d="M0 540 Q200 515 400 538 Q600 515 800 538 Q1000 515 1200 540 L1200 630 L0 630 Z" fill="url(#grass)"/>
+
+  <!-- 꽃들 (단순화) -->
+  <!-- 데이지 -->
+  <g transform="translate(200, 500) scale(0.9)">
+    <circle cx="0" cy="-30" r="12" fill="#ffd76b"/>
+    <ellipse cx="-18" cy="-38" rx="6" ry="13" fill="white" transform="rotate(-30 -18 -38)"/>
+    <ellipse cx="18" cy="-38" rx="6" ry="13" fill="white" transform="rotate(30 18 -38)"/>
+    <ellipse cx="0" cy="-50" rx="6" ry="13" fill="white"/>
+    <ellipse cx="-15" cy="-22" rx="6" ry="13" fill="white" transform="rotate(-60 -15 -22)"/>
+    <ellipse cx="15" cy="-22" rx="6" ry="13" fill="white" transform="rotate(60 15 -22)"/>
+    <line x1="0" y1="0" x2="0" y2="-18" stroke="#5a9858" stroke-width="3"/>
+  </g>
+
+  <!-- 카네이션 -->
+  <g transform="translate(400, 490) scale(0.8)">
+    <circle cx="0" cy="-35" r="22" fill="#f8a8c4" opacity="0.85"/>
+    <circle cx="0" cy="-35" r="16" fill="#ffc0d0" opacity="0.7"/>
+    <line x1="0" y1="-13" x2="0" y2="0" stroke="#5a9858" stroke-width="3"/>
+  </g>
+
+  <!-- 클로버 -->
+  <g transform="translate(600, 505) scale(0.75)">
+    <circle cx="0" cy="-45" r="16" fill="#7cbd76"/>
+    <circle cx="-14" cy="-31" r="16" fill="#7cbd76"/>
+    <circle cx="14" cy="-31" r="16" fill="#7cbd76"/>
+    <circle cx="0" cy="-31" r="16" fill="#86c47e"/>
+    <line x1="0" y1="-15" x2="0" y2="0" stroke="#5a9858" stroke-width="3"/>
+  </g>
+
+  <!-- 별 -->
+  <g transform="translate(800, 495) scale(0.8)">
+    <polygon points="0,-40 9,-12 38,-12 16,6 24,34 0,18 -24,34 -16,6 -38,-12 -9,-12" fill="#ffd76b" stroke="#e8a838" stroke-width="1.5"/>
+    <line x1="0" y1="18" x2="0" y2="0" stroke="#5a9858" stroke-width="3"/>
+  </g>
+
+  <!-- 튤립 -->
+  <g transform="translate(1000, 500) scale(0.85)">
+    <path d="M0 -50 Q-18 -30 -20 -10 Q0 -5 20 -10 Q18 -30 0 -50 Z" fill="#f490b0"/>
+    <line x1="0" y1="-10" x2="0" y2="0" stroke="#5a9858" stroke-width="3"/>
+  </g>
+
+  <!-- 텍스트 영역 배경 -->
+  <rect x="350" y="80" width="500" height="200" rx="20" fill="rgba(255,255,255,0.85)"/>
+
+  <!-- 서비스명 -->
+  <text x="600" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#7a9676" letter-spacing="4">ROLLING PAPER</text>
+  <text x="600" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="900" fill="#2d4a2d">소중한 분께</text>
+  <text x="600" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="900" fill="#c25a7e">마음을 모아요</text>
+</svg>

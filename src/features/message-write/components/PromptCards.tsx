@@ -17,9 +17,6 @@ export default function PromptCards({ recipientName, onSelect }: Props) {
 
   return (
     <div>
-      <p className="text-[13px] font-medium text-black/40 mb-2.5">
-        💡 아이디어가 필요하다면 탭해보세요
-      </p>
       <div className="flex flex-wrap gap-2">
         {prompts.map((prompt, i) => (
           <button

@@ -1,4 +1,5 @@
-import { FlowerShape, FLOWER_EMOJIS, FLOWER_LABELS, FLOWER_SHAPES } from '../utils'
+import { FlowerShape, FLOWER_LABELS, FLOWER_SHAPES } from '../utils'
+import { FLOWER_SVG_COMPONENTS } from '../../viewer/FlowerSvg'
 
 interface Props {
   value: FlowerShape | null
@@ -16,19 +17,22 @@ export default function FlowerPicker({ value, onChange }: Props) {
       <div className="flex gap-2">
         {FLOWER_SHAPES.map(shape => {
           const selected = value === shape
+          const FlowerComp = FLOWER_SVG_COMPONENTS[shape] ?? FLOWER_SVG_COMPONENTS.daisy
           return (
             <button
               key={shape}
               type="button"
               onClick={() => onChange(shape)}
-              className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl
-                          transition-colors min-h-[44px]
+              className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-xl
+                          transition-all min-h-[44px]
                           ${selected
-                            ? 'bg-black text-white'
-                            : 'bg-[#f5f5f5] hover:bg-[#ebebeb] text-black'}`}
+                            ? 'bg-[#f3ede0] ring-2 ring-[#c25a7e]'
+                            : 'bg-[#f5f5f5] hover:bg-[#ebebeb]'}`}
             >
-              <span className="text-xl leading-none">{FLOWER_EMOJIS[shape]}</span>
-              <span className="text-[11px] font-medium">{FLOWER_LABELS[shape]}</span>
+              <FlowerComp size={34}/>
+              <span className={`text-[11px] font-medium ${selected ? 'text-[#c25a7e]' : 'text-black/60'}`}>
+                {FLOWER_LABELS[shape]}
+              </span>
             </button>
           )
         })}
