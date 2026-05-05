@@ -1,0 +1,82 @@
+import { motion } from 'framer-motion'
+import { FLOWER_COMPONENTS, FLOWER_COLORS } from '../../components/flowers'
+import type { FlowerShape } from '../message-write/utils'
+
+interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
+interface Props {
+  messages:      Message[]
+  recipientName: string
+  onClose:       () => void
+}
+
+export default function ListMode({ messages, recipientName, onClose }: Props) {
+  const honorific = recipientName.endsWith('님') ? '께' : '님께'
+
+  return (
+    <motion.main
+      className="min-h-dvh bg-white px-5 py-12"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="w-full max-w-md mx-auto">
+
+        {/* 헤더 */}
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-1">
+              All Messages
+            </p>
+            <h1 className="text-[1.6rem] font-black text-black leading-tight">
+              {recipientName}{honorific}<br />보내는 마음들
+            </h1>
+            <p className="text-black/40 text-[14px] mt-1">{messages.length}개의 메시지</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="shrink-0 mt-1 px-4 py-2 rounded-full border border-[#e6e6e6]
+                       hover:border-black/30 text-[13px] text-black/50 hover:text-black
+                       transition-colors focus:outline-none focus:ring-2 focus:ring-black/20"
+            aria-label="풀숲 뷰로 돌아가기"
+          >
+            풀숲으로 ↩
+          </button>
+        </div>
+
+        {/* 메시지 리스트 */}
+        <div className="space-y-4" role="list" aria-label="전체 메시지 목록">
+          {messages.map((msg, i) => {
+            const shape  = msg.shape as FlowerShape
+            const Flower = FLOWER_COMPONENTS[shape] ?? FLOWER_COMPONENTS.carnation
+            const color  = FLOWER_COLORS[shape]  ?? '#f43f67'
+            return (
+              <motion.article
+                key={msg.id}
+                role="listitem"
+                className="rounded-2xl bg-[#f5f5f5] px-5 py-4"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04 }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <Flower size={32} color={color} label={shape} />
+                  <div>
+                    <p className="text-[14px] font-bold text-black">{msg.author_name}</p>
+                    <p className="text-[11px] text-black/35">
+                      {new Date(msg.created_at).toLocaleDateString('ko-KR', {
+                        month: 'long', day: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-[16px] text-black leading-relaxed whitespace-pre-wrap">
+                  {msg.body}
+                </p>
+              </motion.article>
+            )
+          })}
+        </div>
+      </div>
+    </motion.main>
+  )
+}
