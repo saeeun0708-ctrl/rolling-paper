@@ -1,16 +1,27 @@
+/* Inter 폰트 — 400(본문), 600(강조), 700(소제목), 900(디스플레이) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 모바일 웹 기본값 - 시스템 폰트, 안티앨리어싱 */
-html,
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
+@layer base {
+  /* Wise 디자인 시스템: 모든 텍스트에 contextual alternates("calt") 활성화 */
+  * {
+    font-feature-settings: "calt" 1;
+  }
 
-/* 모바일에서 스크롤 바운스 시 배경이 보이지 않도록 */
-body {
-  overscroll-behavior-y: none;
+  html,
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* 기본 텍스트 컬러: Wise Near Black */
+    color: #0e0f0c;
+  }
+
+  /* 모바일 스크롤 바운스 시 배경 공백 방지 */
+  body {
+    overscroll-behavior-y: none;
+  }
 }
