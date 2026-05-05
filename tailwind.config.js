@@ -42,9 +42,9 @@ export default {
         },
       },
       fontFamily: {
-        // Inter를 기본 폰트로 사용 (Wise Sans 대체)
-        sans:    ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
-        display: ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
+        // 나눔바른고딕을 기본 폰트로 사용
+        sans:    ['NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
+        display: ['NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
       },
     },
   },

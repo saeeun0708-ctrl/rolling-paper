@@ -1,5 +1,39 @@
-/* Inter 폰트 — 400(본문), 600(강조), 700(소제목), 900(디스플레이) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+/* ─── 나눔바른고딕 로컬 폰트 등록 ───────────────────────────────────── */
+@font-face {
+  font-family: 'NanumBarunGothic';
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/NanumBarunGothicUltraLight.otf') format('opentype'),
+       url('/fonts/NanumBarunGothicUltraLight.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'NanumBarunGothic';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/NanumBarunGothicLight.otf') format('opentype'),
+       url('/fonts/NanumBarunGothicLight.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'NanumBarunGothic';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/NanumBarunGothic.otf') format('opentype'),
+       url('/fonts/NanumBarunGothic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'NanumBarunGothic';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/NanumBarunGothicBold.otf') format('opentype'),
+       url('/fonts/NanumBarunGothicBold.ttf') format('truetype');
+}
 
 @tailwind base;
 @tailwind components;
@@ -16,7 +50,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    /* 기본 텍스트 컬러: Wise Near Black */
     color: #0e0f0c;
   }
 
