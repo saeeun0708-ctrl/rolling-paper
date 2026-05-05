@@ -50,7 +50,9 @@ function distributeFlowers(messages: Message[], seed = 7): PlacedFlower[] {
     const x = 4 + c * cellW + cellW / 2 + xJitter
     const y = yMin + r * cellH + cellH / 2 + yJitter
     const depth = (y - yMin) / (yMax - yMin)
-    const size  = 38 * (0.55 + depth * 0.7)
+    // 메시지 수에 따라 자동 크기 조절: 적을수록 크게, 많을수록 작게
+    const baseSize = Math.max(44, 110 - n * 3.5)
+    const size = baseSize * (0.6 + depth * 0.65)
     placed.push({ ...messages[i], x, y, size, depth, sway: rand() * 6 - 3 })
   }
   return placed.sort((a, b) => a.depth - b.depth)
