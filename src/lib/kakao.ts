@@ -22,33 +22,43 @@ export function initKakao(): void {
 
 /**
  * 카카오톡 공유
- * - objectType 'text': 이미지 없이 텍스트 + 링크 버튼으로 안정적으로 공유
- * - SDK 미로드 또는 키 미설정 시 URL 복사로 폴백
+ * 1순위: 카카오 SDK (text 타입, URL을 텍스트에 직접 포함 → 카카오톡이 링크 미리보기 자동 생성)
+ * 2순위: Web Share API (모바일 기본 공유 시트)
+ * 3순위: 클립보드 복사
  */
 export function shareKakao(title: string, description: string, url: string): void {
-  if (!window.Kakao || !KAKAO_KEY) {
-    navigator.clipboard.writeText(url).catch(() => {})
-    alert('카카오 키가 설정되지 않았어요.\nURL을 클립보드에 복사했어요.')
-    return
-  }
-
-  initKakao()
-
-  window.Kakao.Share.sendDefault({
-    objectType: 'text',
-    text: `🌸 ${title}\n${description}`,
-    link: {
-      mobileWebUrl: url,
-      webUrl:       url,
-    },
-    buttons: [
-      {
-        title: '마음 보러 가기 →',
+  // ── 1. 카카오 SDK ─────────────────────────────────────────────────────────
+  if (window.Kakao && KAKAO_KEY) {
+    initKakao()
+    try {
+      window.Kakao.Share.sendDefault({
+        objectType: 'text',
+        // URL을 텍스트에 직접 포함 → 카카오톡이 URL 인식 후 링크 미리보기 생성
+        text: `🌸 ${title}\n${description}\n\n${url}`,
         link: {
           mobileWebUrl: url,
           webUrl:       url,
         },
-      },
-    ],
-  })
+      })
+      return
+    } catch (e) {
+      console.warn('카카오 공유 실패, Web Share API로 폴백:', e)
+    }
+  }
+
+  // ── 2. Web Share API (모바일 카카오톡 앱 등 선택 가능) ─────────────────
+  if (navigator.share) {
+    navigator.share({ title, text: description, url }).catch(() => {
+      copyFallback(url)
+    })
+    return
+  }
+
+  // ── 3. 클립보드 복사 폴백 ─────────────────────────────────────────────────
+  copyFallback(url)
+}
+
+function copyFallback(url: string) {
+  navigator.clipboard.writeText(url).catch(() => {})
+  alert('링크를 클립보드에 복사했어요! 카카오톡에 직접 붙여넣기 해주세요.')
 }
