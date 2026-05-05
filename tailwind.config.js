@@ -1,20 +1,27 @@
 /** @type {import('tailwindcss').Config} */
-// Tailwind CSS 설정 - Wise 디자인 시스템 + 풀숲 테마 컬러 포함
+// Tailwind CSS 설정 - Figma 디자인 시스템 + 풀숲 테마 컬러 포함
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // ─── Wise 디자인 시스템 컬러 ───────────────────────────
-        wise: {
-          green:         '#9fe870', // 주 CTA 버튼 배경
-          'dark-green':  '#163300', // 버튼 텍스트, 딥 그린 액센트
-          'light-mint':  '#e2f6d5', // 배지·소프트 서피스
-          'pastel-green':'#cdffad', // 호버 액센트
-          black:         '#0e0f0c', // 기본 텍스트 / 다크 배경
-          'warm-dark':   '#454745', // 보조 텍스트·보더
-          gray:          '#868685', // 뮤트 텍스트·플레이스홀더
-          'light-surface':'#e8ebe6',// 그린 틴트 연한 서피스
+        // ─── Figma 디자인 시스템 컬러 ───────────────────────────
+        figma: {
+          ink:            '#000000', // 기본 텍스트·CTA 배경
+          canvas:         '#ffffff', // 기본 페이지 배경
+          'surface-soft': '#f7f7f5', // 아이콘 버튼·카드 타일 배경
+          hairline:       '#e6e6e6', // 인풋·카드 보더
+          'hairline-soft':'#f1f1f1', // 테이블 구분선
+          // 파스텔 컬러 블록 (페이지 스토리텔링 구간)
+          'block-lime':   '#dceeb1', // 시스템·FAQ·연락 섹션
+          'block-lilac':  '#c5b0f4', // 디자인·FigJam 하이라이트
+          'block-cream':  '#f4ecd6', // 소프트 웜 섹션
+          'block-mint':   '#c8e6cd', // FigJam 파스텔
+          'block-pink':   '#efd4d4', // FigJam 파스텔
+          'block-coral':  '#f3c9b6', // 스토리 섹션
+          'block-navy':   '#1f1d3d', // 다크 인버스 섹션
+          'magenta':      '#ff3d8b', // 프로모 전용 CTA
+          success:        '#1ea64a', // 성공 상태
         },
         // ─── 롤링페이퍼 뷰어 전용 (풀숲 테마) ──────────────────
         grass: {
@@ -33,18 +40,17 @@ export default {
         carnation: {
           50:  '#fff1f3',
           100: '#ffe4e9',
-          200: '#fecdd6',
-          300: '#fda4b5',
           400: '#fb6f8e',
           500: '#f43f67',
           600: '#e11d48',
-          700: '#be123c',
         },
       },
       fontFamily: {
-        // GmarketSans를 기본 폰트로 사용
-        sans:    ['GmarketSans', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
-        display: ['GmarketSans', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
+        // 나눔바른고딕 (본문·헤딩)
+        sans:    ['NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
+        display: ['NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
+        // 시스템 모노 (아이브로우·캡션 — figmaMono 대체)
+        mono:    ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
     },
   },

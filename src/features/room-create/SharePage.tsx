@@ -2,18 +2,14 @@ import { useState, useEffect } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 
-// 버튼 공통 클래스 — Wise 필 + scale 호버
-const pillBtn = `
-  w-full py-4 font-bold text-base rounded-full
-  transition-transform duration-150
-  hover:scale-[1.02] active:scale-[0.97]
-  flex items-center justify-center gap-2
-`.trim()
+// 필 버튼 공통 클래스 — Figma rounded.pill(50px)
+const pillBtn = `w-full py-[10px] font-bold text-base rounded-full transition-colors
+                 flex items-center justify-center gap-2`.trim()
 
 export default function SharePage() {
-  const { slug }   = useParams<{ slug: string }>()
-  const location   = useLocation()
-  const navigate   = useNavigate()
+  const { slug }  = useParams<{ slug: string }>()
+  const location  = useLocation()
+  const navigate  = useNavigate()
 
   const [recipientName, setRecipientName] = useState<string>(
     (location.state as { recipientName?: string })?.recipientName ?? ''
@@ -22,7 +18,7 @@ export default function SharePage() {
 
   const shareUrl = `${window.location.origin}/r/${slug}`
 
-  // 새로고침 등으로 state가 없을 때 Supabase에서 recipient_name 조회
+  // 새로고침 시 Supabase에서 recipient_name 조회
   useEffect(() => {
     if (recipientName || !slug) return
     supabase
@@ -30,17 +26,13 @@ export default function SharePage() {
       .select('recipient_name')
       .eq('slug', slug)
       .single()
-      .then(({ data }) => {
-        if (data) setRecipientName(data.recipient_name)
-      })
+      .then(({ data }) => { if (data) setRecipientName(data.recipient_name) })
   }, [slug, recipientName])
 
-  /** 클립보드 복사 */
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(shareUrl)
     } catch {
-      // fallback
       const el = document.createElement('input')
       el.value = shareUrl
       document.body.appendChild(el)
@@ -52,44 +44,40 @@ export default function SharePage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  /** 카카오 공유 — 5단계에서 SDK 연동 예정 */
   function handleKakao() {
-    // TODO: 5단계 — 카카오 SDK initWithWebKey + sendDefault 연동
+    // TODO: 5단계 — 카카오 SDK 연동
     console.log('[카카오 공유 stub] 공유 URL:', shareUrl)
     alert('카카오톡 공유는 5단계에서 연동됩니다 🙏')
   }
 
   return (
-    <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
+    <main className="min-h-dvh bg-figma-canvas flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 완성 배지 */}
-        <div className="inline-flex items-center gap-1.5 bg-wise-light-mint text-wise-dark-green
-                        text-sm font-semibold px-4 py-1.5 rounded-full mb-7">
-          ✨ 완성됐어요
-        </div>
+        {/* 아이브로우 */}
+        <p className="font-mono text-xs tracking-[0.54px] uppercase text-figma-ink/40 mb-6">
+          Link Ready
+        </p>
 
         {/* 디스플레이 헤딩 */}
-        <h1 className="text-[2.6rem] font-black text-wise-black leading-[0.92] tracking-tight mb-4">
+        <h1 className="text-[2.6rem] font-black text-figma-ink leading-[1.1] tracking-[-1px] mb-3">
           {recipientName
             ? <>{recipientName}님께<br />보내는 롤링페이퍼</>
             : <>롤링페이퍼가<br />완성됐어요</>}
         </h1>
-        <p className="text-wise-warm-dark text-base mb-8">
+        <p className="text-figma-ink/50 text-base leading-relaxed mb-8">
           아래 링크를 공유해서 마음을 모아보세요 💌
         </p>
 
-        {/* 링크 카드 — Wise 링 쉐도우 */}
-        <div className="rounded-[24px] border border-[rgba(14,15,12,0.12)]
-                        shadow-[rgba(14,15,12,0.08)_0px_0px_0px_1px]
-                        p-5 mb-6 bg-wise-light-surface">
-          <p className="text-xs font-semibold text-wise-gray uppercase tracking-widest mb-2">
+        {/* 라임 컬러 블록 — 링크 표시 */}
+        <div className="rounded-[24px] bg-figma-block-lime px-5 py-5 mb-6">
+          <p className="font-mono text-[10px] tracking-[0.6px] uppercase text-figma-ink/50 mb-2">
             작성용 링크
           </p>
-          <p className="text-sm text-wise-black break-all font-mono leading-relaxed">
+          <p className="text-sm text-figma-ink break-all leading-relaxed">
             {shareUrl}
           </p>
-          <p className="mt-2 text-xs text-wise-gray">
+          <p className="mt-2 text-xs text-figma-ink/50">
             이 링크를 받으면 누구나 메시지를 작성할 수 있어요
           </p>
         </div>
@@ -102,37 +90,35 @@ export default function SharePage() {
             onClick={handleKakao}
             className={`${pillBtn} bg-[#FEE500] hover:bg-[#f5db00] text-[#3c1e1e]`}
           >
-            <span className="text-lg">💬</span>
-            카카오톡으로 공유
+            <span>💬</span> 카카오톡으로 공유
           </button>
 
-          {/* URL 복사 — 복사 후 Wise Green으로 전환 */}
+          {/* URL 복사 — Figma button-primary (블랙) */}
           <button
             onClick={handleCopy}
             className={`${pillBtn} ${
               copied
-                ? 'bg-wise-green text-wise-dark-green'
-                : 'bg-wise-light-mint text-wise-dark-green hover:bg-wise-pastel-green'
+                ? 'bg-figma-success text-white'
+                : 'bg-figma-ink hover:bg-figma-ink/80 text-figma-canvas'
             }`}
           >
             <span>{copied ? '✅' : '🔗'}</span>
             {copied ? '복사됐어요!' : 'URL 복사'}
           </button>
 
-          {/* 주최자 대시보드 */}
+          {/* 주최자 대시보드 — Figma button-secondary (화이트 아웃라인) */}
           <button
             onClick={() => navigate(`/r/${slug}/host`)}
-            className={`${pillBtn} border border-[rgba(14,15,12,0.2)]
-                         hover:border-wise-black text-wise-black`}
+            className={`${pillBtn} border border-figma-hairline hover:border-figma-ink
+                         bg-figma-canvas text-figma-ink`}
           >
-            <span>📋</span>
-            주최자 대시보드 가기
+            <span>📋</span> 주최자 대시보드 가기
           </button>
         </div>
 
-        {/* 유효기간 */}
-        <p className="mt-8 text-center text-xs text-wise-gray">
-          🌿 롤링페이퍼 링크는 90일간 유효합니다
+        {/* 캡션 — figmaMono 스타일 */}
+        <p className="mt-8 text-center font-mono text-[10px] tracking-[0.6px] uppercase text-figma-ink/30">
+          링크 유효기간 · 90일
         </p>
       </div>
     </main>
