@@ -42,9 +42,9 @@ export default {
         },
       },
       fontFamily: {
-        // 나눔바른고딕을 기본 폰트로 사용
-        sans:    ['NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
-        display: ['NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
+        // GmarketSans를 기본 폰트로 사용
+        sans:    ['GmarketSans', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
+        display: ['GmarketSans', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
       },
     },
   },

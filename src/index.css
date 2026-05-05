@@ -1,38 +1,26 @@
-/* ─── 나눔바른고딕 로컬 폰트 등록 ───────────────────────────────────── */
+/* ─── GmarketSans 로컬 폰트 등록 ────────────────────────────────────── */
 @font-face {
-  font-family: 'NanumBarunGothic';
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NanumBarunGothicUltraLight.otf') format('opentype'),
-       url('/fonts/NanumBarunGothicUltraLight.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'NanumBarunGothic';
+  font-family: 'GmarketSans';
   font-weight: 300;
   font-style: normal;
   font-display: swap;
-  src: url('/fonts/NanumBarunGothicLight.otf') format('opentype'),
-       url('/fonts/NanumBarunGothicLight.ttf') format('truetype');
+  src: url('/fonts/GmarketSansTTFLight.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'NanumBarunGothic';
-  font-weight: 400;
+  font-family: 'GmarketSans';
+  font-weight: 500;
   font-style: normal;
   font-display: swap;
-  src: url('/fonts/NanumBarunGothic.otf') format('opentype'),
-       url('/fonts/NanumBarunGothic.ttf') format('truetype');
+  src: url('/fonts/GmarketSansTTFMedium.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'NanumBarunGothic';
+  font-family: 'GmarketSans';
   font-weight: 700;
   font-style: normal;
   font-display: swap;
-  src: url('/fonts/NanumBarunGothicBold.otf') format('opentype'),
-       url('/fonts/NanumBarunGothicBold.ttf') format('truetype');
+  src: url('/fonts/GmarketSansTTFBold.ttf') format('truetype');
 }
 
 @tailwind base;
