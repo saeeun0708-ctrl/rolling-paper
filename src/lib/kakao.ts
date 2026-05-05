@@ -20,6 +20,9 @@ export function initKakao(): void {
   window.Kakao.init(KAKAO_KEY)
 }
 
+// 배포된 OG 이미지 URL (카카오 피드 공유에 imageUrl 필수)
+const OG_IMAGE_URL = `${window.location.origin}/og-meadow.svg`
+
 /**
  * 카카오톡 피드 공유
  * SDK 미로드 또는 키 미설정 시 URL 복사로 폴백
@@ -38,11 +41,15 @@ export function shareKakao(title: string, description: string, url: string): voi
     content: {
       title,
       description,
+      // imageUrl은 카카오 피드에서 필수 — 없으면 링크가 표시되지 않음
+      imageUrl:    OG_IMAGE_URL,
+      imageWidth:  1200,
+      imageHeight: 630,
       link: { mobileWebUrl: url, webUrl: url },
     },
     buttons: [
       {
-        title: '바로 가기',
+        title: '마음 보러 가기',
         link: { mobileWebUrl: url, webUrl: url },
       },
     ],
