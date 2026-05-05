@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { shareKakao } from '../../lib/kakao'
 
-// 필 버튼 공통 클래스 — Figma rounded.pill(50px)
+// 필 버튼 공통 클래스
 const pillBtn = `w-full py-[10px] font-bold text-base rounded-full transition-colors
-                 flex items-center justify-center gap-2`.trim()
+                 flex items-center justify-center`.trim()
 
 export default function SharePage() {
   const { slug }  = useParams<{ slug: string }>()
@@ -15,6 +16,9 @@ export default function SharePage() {
     (location.state as { recipientName?: string })?.recipientName ?? ''
   )
   const [copied, setCopied] = useState(false)
+
+  // "부모님" → "부모님께", "엄마" → "엄마님께" (중복 존칭 방지)
+  const honorific = recipientName.endsWith('님') ? '께' : '님께'
 
   const shareUrl = `${window.location.origin}/r/${slug}`
 
@@ -45,81 +49,80 @@ export default function SharePage() {
   }
 
   function handleKakao() {
-    // TODO: 5단계 — 카카오 SDK 연동
-    console.log('[카카오 공유 stub] 공유 URL:', shareUrl)
-    alert('카카오톡 공유는 5단계에서 연동됩니다 🙏')
+    shareKakao(
+      `${recipientName}${honorific} 보내는 롤링페이퍼`,
+      '한 마디 남겨주세요 🌿',
+      shareUrl
+    )
   }
 
   return (
-    <main className="min-h-dvh bg-figma-canvas flex items-start justify-center px-5 py-14">
+    <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
         {/* 아이브로우 */}
-        <p className="font-mono text-xs tracking-[0.54px] uppercase text-figma-ink/40 mb-6">
+        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">
           Link Ready
         </p>
 
         {/* 디스플레이 헤딩 */}
-        <h1 className="text-[2.6rem] font-black text-figma-ink leading-[1.1] tracking-[-1px] mb-3">
+        <h1 className="text-[2.4rem] font-black text-black leading-[1.15] tracking-[-0.5px] mb-2">
           {recipientName
-            ? <>{recipientName}님께<br />보내는 롤링페이퍼</>
+            ? <>
+                <span className="text-[#5cb054]">{recipientName}</span>{honorific}<br />보내는 롤링페이퍼
+              </>
             : <>롤링페이퍼가<br />완성됐어요</>}
         </h1>
-        <p className="text-figma-ink/50 text-base leading-relaxed mb-8">
-          아래 링크를 공유해서 마음을 모아보세요 💌
+        <p className="text-black/40 text-[15px] mb-7">
+          아래 링크를 공유해서 마음을 모아보세요
         </p>
 
-        {/* 라임 컬러 블록 — 링크 표시 */}
-        <div className="rounded-[24px] bg-figma-block-lime px-5 py-5 mb-6">
-          <p className="font-mono text-[10px] tracking-[0.6px] uppercase text-figma-ink/50 mb-2">
+        {/* 링크 카드 */}
+        <div className="rounded-2xl bg-[#f5f5f5] px-5 py-4 mb-4">
+          <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-black/30 mb-1.5">
             작성용 링크
           </p>
-          <p className="text-sm text-figma-ink break-all leading-relaxed">
+          <p className="text-[13px] text-black break-all leading-relaxed">
             {shareUrl}
           </p>
-          <p className="mt-2 text-xs text-figma-ink/50">
-            이 링크를 받으면 누구나 메시지를 작성할 수 있어요
+          <p className="mt-1.5 text-[12px] text-black/30">
+            이 링크를 받으면 누구나 메시지를 작성할 수 있어요 · 90일 유효
           </p>
         </div>
 
-        {/* 버튼 3개 */}
-        <div className="space-y-3">
+        {/* 버튼 3개 — 2번: URL 복사 최우선, 이모지 정리 */}
+        <div className="space-y-2.5">
 
-          {/* 카카오톡 */}
-          <button
-            onClick={handleKakao}
-            className={`${pillBtn} bg-[#FEE500] hover:bg-[#f5db00] text-[#3c1e1e]`}
-          >
-            <span>💬</span> 카카오톡으로 공유
-          </button>
-
-          {/* URL 복사 — Figma button-primary (블랙) */}
+          {/* URL 복사 — 1순위 (블랙 필) */}
           <button
             onClick={handleCopy}
             className={`${pillBtn} ${
               copied
-                ? 'bg-figma-success text-white'
-                : 'bg-figma-ink hover:bg-figma-ink/80 text-figma-canvas'
+                ? 'bg-[#5cb054] text-white'
+                : 'bg-black hover:bg-black/80 text-white'
             }`}
           >
-            <span>{copied ? '✅' : '🔗'}</span>
             {copied ? '복사됐어요!' : 'URL 복사'}
           </button>
 
-          {/* 주최자 대시보드 — Figma button-secondary (화이트 아웃라인) */}
+          {/* 카카오톡 — 2순위 */}
+          <button
+            onClick={handleKakao}
+            className={`${pillBtn} bg-[#FEE500] hover:bg-[#f5db00] text-[#3c1e1e]`}
+          >
+            카카오톡으로 공유
+          </button>
+
+          {/* 내 대시보드 — 3순위 (아웃라인) */}
           <button
             onClick={() => navigate(`/r/${slug}/host`)}
-            className={`${pillBtn} border border-figma-hairline hover:border-figma-ink
-                         bg-figma-canvas text-figma-ink`}
+            className={`${pillBtn} border border-[#e6e6e6] hover:border-black
+                         bg-white text-black`}
           >
-            <span>📋</span> 주최자 대시보드 가기
+            내 대시보드 가기
           </button>
         </div>
 
-        {/* 캡션 — figmaMono 스타일 */}
-        <p className="mt-8 text-center font-mono text-[10px] tracking-[0.6px] uppercase text-figma-ink/30">
-          링크 유효기간 · 90일
-        </p>
       </div>
     </main>
   )
