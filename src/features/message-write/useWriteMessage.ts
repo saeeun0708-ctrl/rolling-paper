@@ -1,0 +1,170 @@
+import { useState } from 'react'
+import { supabase } from '../../lib/supabase'
+import { containsProfanity } from '../../lib/profanity'
+import {
+  FlowerShape,
+  StoredAuthor,
+  generateToken,
+  randomFlower,
+  storeAuthor,
+  removeStoredAuthor,
+} from './utils'
+
+interface FormValues {
+  name: string
+  body: string
+  shape: FlowerShape | null
+}
+
+interface FormErrors {
+  name?:   string
+  body?:   string
+  submit?: string
+}
+
+interface SubmitResult {
+  messageId:   string
+  authorToken: string
+  shape:       FlowerShape
+}
+
+export function useWriteMessage(roomId: string, slug: string) {
+  const [values, setValues]         = useState<FormValues>({ name: '', body: '', shape: null })
+  const [errors, setErrors]         = useState<FormErrors>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [editingId, setEditingId]   = useState<string | null>(null)
+
+  function handleChange<K extends keyof FormValues>(field: K, value: FormValues[K]) {
+    setValues(prev => ({ ...prev, [field]: value }))
+    setErrors(prev => ({ ...prev, [field]: undefined }))
+  }
+
+  /** 프롬프트 카드 탭 → textarea에 채우기 */
+  function fillPrompt(text: string) {
+    handleChange('body', text)
+  }
+
+  /** 수정 모드 진입: 기존 데이터로 폼 미리채우기 */
+  function prefillForEdit(stored: StoredAuthor) {
+    setValues({ name: stored.name, body: stored.body, shape: stored.shape })
+    setEditingId(stored.messageId)
+    setErrors({})
+  }
+
+  /** 폼 리셋 */
+  function resetForm() {
+    setValues({ name: '', body: '', shape: null })
+    setErrors({})
+    setEditingId(null)
+  }
+
+  function validate(): FormErrors {
+    const errs: FormErrors = {}
+    if (!values.name.trim())       errs.name = '이름을 입력해주세요.'
+    else if (values.name.length > 12) errs.name = '12자 이내로 입력해주세요.'
+
+    if (!values.body.trim())        errs.body = '마음을 담은 메시지를 입력해주세요.'
+    else if (values.body.length > 500) errs.body = '500자 이내로 입력해주세요.'
+    else if (containsProfanity(values.body)) errs.body = '부적절한 내용이 포함되어 있어요. 다시 작성해주세요.'
+    return errs
+  }
+
+  /** 제출 (신규 INSERT 또는 수정 UPDATE) */
+  async function handleSubmit(existingToken?: string): Promise<SubmitResult | null> {
+    const errs = validate()
+    if (Object.keys(errs).length > 0) { setErrors(errs); return null }
+
+    setIsSubmitting(true)
+    try {
+      const finalShape = values.shape ?? randomFlower()
+      const trimmedName = values.name.trim()
+      const trimmedBody = values.body.trim()
+
+      // ─── 수정 모드 ───────────────────────────────────────────────────────
+      if (editingId && existingToken) {
+        const { error } = await supabase
+          .from('messages')
+          .update({ body: trimmedBody, shape: finalShape })
+          .eq('id', editingId)
+          .eq('author_token', existingToken)
+
+        if (error) throw error
+
+        // localStorage 캐시 갱신
+        storeAuthor(slug, {
+          token:     existingToken,
+          name:      trimmedName,
+          messageId: editingId,
+          body:      trimmedBody,
+          shape:     finalShape,
+        })
+
+        return { messageId: editingId, authorToken: existingToken, shape: finalShape }
+      }
+
+      // ─── 신규 INSERT ─────────────────────────────────────────────────────
+      const token = generateToken()
+
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          room_id:     roomId,
+          author_name: trimmedName,
+          author_token: token,
+          body:        trimmedBody,
+          shape:       finalShape,
+        })
+        .select('id')
+        .single()
+
+      if (error) throw error
+
+      storeAuthor(slug, {
+        token,
+        name:      trimmedName,
+        messageId: data.id,
+        body:      trimmedBody,
+        shape:     finalShape,
+      })
+
+      return { messageId: data.id, authorToken: token, shape: finalShape }
+    } catch (err) {
+      console.error('메시지 저장 오류:', err)
+      setErrors({ submit: '저장 중 오류가 발생했어요. 다시 시도해주세요.' })
+      return null
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  /** 삭제 (status = 'deleted' 로 소프트 삭제) */
+  async function handleDelete(messageId: string, token: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({ status: 'deleted' })
+        .eq('id', messageId)
+        .eq('author_token', token)
+
+      if (error) throw error
+      removeStoredAuthor(slug)
+      return true
+    } catch (err) {
+      console.error('삭제 오류:', err)
+      return false
+    }
+  }
+
+  return {
+    values,
+    errors,
+    isSubmitting,
+    editingId,
+    handleChange,
+    fillPrompt,
+    prefillForEdit,
+    resetForm,
+    handleSubmit,
+    handleDelete,
+  }
+}

@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { testSupabaseConnection } from './lib/supabase'
-import CreateRoomPage from './features/room-create/CreateRoomPage'
-import SharePage      from './features/room-create/SharePage'
+import CreateRoomPage    from './features/room-create/CreateRoomPage'
+import SharePage         from './features/room-create/SharePage'
+import WriteMessagePage  from './features/message-write/WriteMessagePage'
 
 function App() {
   useEffect(() => {
@@ -17,6 +18,8 @@ function App() {
         <Route path="/create"          element={<CreateRoomPage />} />
         {/* 링크 공유 페이지 */}
         <Route path="/r/:slug/share"   element={<SharePage />} />
+        {/* 메시지 작성 페이지 */}
+        <Route path="/r/:slug"         element={<WriteMessagePage />} />
         {/* 루트 → 방 만들기로 리다이렉트 */}
         <Route path="/"                element={<Navigate to="/create" replace />} />
       </Routes>

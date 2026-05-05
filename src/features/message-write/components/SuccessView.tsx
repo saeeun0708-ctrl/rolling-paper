@@ -1,0 +1,51 @@
+import { FlowerShape, FLOWER_EMOJIS } from '../utils'
+import PinSetupSection from './PinSetupSection'
+
+interface Props {
+  name: string
+  body: string
+  shape: FlowerShape
+  messageId: string
+  authorToken: string
+  onEdit: () => void
+}
+
+export default function SuccessView({ name, body, shape, messageId, authorToken, onEdit }: Props) {
+  return (
+    <div className="animate-[fadeIn_0.4s_ease]">
+      {/* 성공 헤딩 */}
+      <div className="text-center mb-8">
+        <div className="text-6xl mb-4">{FLOWER_EMOJIS[shape]}</div>
+        <h2 className="text-2xl font-black text-black leading-snug">
+          내 꽃이 풀숲에<br />피어났어요
+        </h2>
+        <p className="mt-2 text-[14px] text-black/40">
+          롤링페이퍼가 포장되면 받는 분께 전달될 거예요
+        </p>
+      </div>
+
+      {/* 작성한 메시지 미리보기 */}
+      <div className="rounded-2xl bg-[#f5f5f5] px-5 py-4 mb-2">
+        <p className="text-[12px] font-mono uppercase tracking-[0.1em] text-black/30 mb-2">
+          {name}의 메시지
+        </p>
+        <p className="text-[15px] text-black leading-relaxed whitespace-pre-wrap line-clamp-4">
+          {body}
+        </p>
+      </div>
+
+      {/* 수정 버튼 */}
+      <button
+        type="button"
+        onClick={onEdit}
+        className="w-full py-3 text-[13px] text-black/40 hover:text-black
+                   transition-colors text-center"
+      >
+        내용 수정하기
+      </button>
+
+      {/* PIN 설정 섹션 */}
+      <PinSetupSection messageId={messageId} authorToken={authorToken} />
+    </div>
+  )
+}
