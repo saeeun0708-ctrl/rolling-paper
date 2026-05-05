@@ -15,13 +15,14 @@ interface Props {
 
 // ── 꽃 shape → SVG 컴포넌트 매핑 (없으면 daisy 폴백) ──────────────────────
 const SHAPE_MAP: Record<string, FlowerSvgShape> = {
-  carnation: 'carnation',
-  daisy:     'daisy',
-  tulip:     'tulip',
-  clover:    'clover',
-  star:      'star',
-  sunflower: 'sunflower',
-  cherry:    'cherry',
+  carnation:  'carnation',
+  daisy:      'daisy',
+  tulip:      'tulip',
+  clover:     'clover',
+  sunflower:  'sunflower',
+  // 구버전 데이터 호환
+  star:       'star',
+  cherry:     'cherry',
 }
 
 // ── 원근감 있는 꽃 배치 (Y 아래쪽이 더 크고 앞) ──────────────────────────

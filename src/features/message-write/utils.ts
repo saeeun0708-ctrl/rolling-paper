@@ -1,23 +1,23 @@
 // 꽃 셰이프 타입 및 관련 상수
 
-export type FlowerShape = 'carnation' | 'daisy' | 'tulip' | 'clover' | 'star'
+export type FlowerShape = 'carnation' | 'daisy' | 'tulip' | 'clover' | 'sunflower'
 
-export const FLOWER_SHAPES: FlowerShape[] = ['carnation', 'daisy', 'tulip', 'clover', 'star']
+export const FLOWER_SHAPES: FlowerShape[] = ['carnation', 'daisy', 'tulip', 'clover', 'sunflower']
 
 export const FLOWER_EMOJIS: Record<FlowerShape, string> = {
-  carnation: '🌸',
-  daisy:     '🌼',
-  tulip:     '🌷',
-  clover:    '🍀',
-  star:      '⭐',
+  carnation:  '🌸',
+  daisy:      '🌼',
+  tulip:      '🌷',
+  clover:     '🍀',
+  sunflower:  '🌻',
 }
 
 export const FLOWER_LABELS: Record<FlowerShape, string> = {
-  carnation: '카네이션',
-  daisy:     '데이지',
-  tulip:     '튤립',
-  clover:    '클로버',
-  star:      '별',
+  carnation:  '카네이션',
+  daisy:      '데이지',
+  tulip:      '튤립',
+  clover:     '클로버',
+  sunflower:  '해바라기',
 }
 
 export function randomFlower(): FlowerShape {
