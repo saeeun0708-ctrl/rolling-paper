@@ -5,7 +5,6 @@ import { getStoredAuthor, StoredAuthor, FlowerShape } from './utils'
 import { useWriteMessage } from './useWriteMessage'
 import HeartGauge   from './components/HeartGauge'
 import FlowerPicker from './components/FlowerPicker'
-import PromptCards  from './components/PromptCards'
 import SuccessView  from './components/SuccessView'
 import FindMyMessage from './components/FindMyMessage'
 
@@ -19,6 +18,7 @@ export default function WriteMessagePage() {
 
   const [room, setRoom]               = useState<Room | null>(null)
   const [view, setView]               = useState<PageView>('loading')
+  const [deleteError, setDeleteError] = useState('')
   const [errorMsg, setErrorMsg]       = useState('')
   const [stored, setStored]           = useState<StoredAuthor | null>(null)
   const [successData, setSuccessData] = useState<{
@@ -38,11 +38,6 @@ export default function WriteMessagePage() {
       .then(({ data, error }) => {
         if (error || !data) {
           setErrorMsg('존재하지 않는 롤링페이퍼예요.')
-          setView('error')
-          return
-        }
-        if (data.status === 'wrapped') {
-          setErrorMsg('이미 포장이 완료된 롤링페이퍼예요. 새 메시지를 작성할 수 없어요.')
           setView('error')
           return
         }
@@ -67,10 +62,14 @@ export default function WriteMessagePage() {
   // ─── 삭제 ───────────────────────────────────────────────────────────────
   async function onDelete() {
     if (!stored) return
+    if (!window.confirm('작성한 메시지를 삭제할까요?')) return
+    setDeleteError('')
     const ok = await form.handleDelete(stored.messageId, stored.token)
     if (ok) {
       setStored(null)
       form.resetForm()
+    } else {
+      setDeleteError('삭제 중 오류가 발생했어요. 다시 시도해주세요.')
     }
   }
 
@@ -138,8 +137,8 @@ export default function WriteMessagePage() {
 
         {/* 인트로 헤딩 */}
         <h1 className="text-[2rem] font-black text-black leading-[1.2] tracking-tight mb-2">
-          <span className="text-[#5cb054]">{recipientName}</span>{honorific}<br />
-          보내는 마음이에요
+          <span className="text-[#5cb054]">{recipientName}</span>{honorific} 보내는<br />
+          롤링페이퍼를 작성해주세요
         </h1>
         <p className="text-black/40 text-[14px] mb-8">
           한 마디 남겨주세요
@@ -147,18 +146,23 @@ export default function WriteMessagePage() {
 
         {/* 이미 작성한 경우 — 배너 표시 */}
         {stored && (
-          <div className="rounded-2xl bg-[#dceeb1] px-5 py-4 mb-6 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[13px] font-bold text-black">이미 작성하셨어요</p>
-              <p className="text-[12px] text-black/50 mt-0.5 line-clamp-1">{stored.body}</p>
+          <div className="mb-6">
+            <div className="rounded-2xl bg-[#dceeb1] px-5 py-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[13px] font-bold text-black">이미 작성하셨어요</p>
+                <p className="text-[12px] text-black/50 mt-0.5 line-clamp-1">{stored.body}</p>
+              </div>
+              <button
+                type="button"
+                onClick={onDelete}
+                className="shrink-0 text-[12px] text-black/40 hover:text-red-500 transition-colors"
+              >
+                삭제
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={onDelete}
-              className="shrink-0 text-[12px] text-black/40 hover:text-red-500 transition-colors"
-            >
-              삭제
-            </button>
+            {deleteError && (
+              <p className="mt-2 text-[12px] text-red-500 text-center">{deleteError}</p>
+            )}
           </div>
         )}
 
@@ -176,24 +180,16 @@ export default function WriteMessagePage() {
               onChange={e => form.handleChange('name', e.target.value)}
               placeholder="예: 큰딸, 홍길동"
               maxLength={12}
-              disabled={!!stored}
               className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
                           bg-[#f5f5f5] placeholder:text-black/25
                           border-2 transition-colors
                           focus:outline-none focus:bg-white focus:border-black/10
-                          disabled:opacity-50
                           ${form.errors.name ? 'border-red-400 bg-red-50' : 'border-transparent'}`}
             />
             {form.errors.name && (
               <p className="mt-1.5 text-[12px] text-red-500">{form.errors.name}</p>
             )}
           </div>
-
-          {/* 프롬프트 카드 */}
-          <PromptCards
-            recipientName={recipientName}
-            onSelect={form.fillPrompt}
-          />
 
           {/* 본문 */}
           <div>

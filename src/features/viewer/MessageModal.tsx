@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import type { PanInfo } from 'framer-motion'
-import { FLOWER_COMPONENTS, FLOWER_COLORS } from '../../components/flowers'
-import type { FlowerShape } from '../message-write/utils'
+import { FLOWER_EMOJIS, type FlowerShape } from '../message-write/utils'
 
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
 interface Props {
@@ -13,9 +12,7 @@ interface Props {
 
 export default function MessageModal({ messages, currentIndex, onNavigate, onClose }: Props) {
   const msg    = messages[currentIndex]
-  const shape  = msg.shape as FlowerShape
-  const Flower = FLOWER_COMPONENTS[shape] ?? FLOWER_COMPONENTS.carnation
-  const color  = FLOWER_COLORS[shape]  ?? '#f43f67'
+  const emoji = FLOWER_EMOJIS[msg.shape as FlowerShape] ?? '🌸'
   const hasPrev = currentIndex > 0
   const hasNext = currentIndex < messages.length - 1
 
@@ -76,7 +73,7 @@ export default function MessageModal({ messages, currentIndex, onNavigate, onClo
           className="bg-white rounded-3xl px-7 py-8 w-full max-w-sm text-center
                      cursor-grab active:cursor-grabbing shadow-2xl"
         >
-          <Flower size={64} color={color} label={shape} className="mx-auto" />
+          <div className="text-6xl leading-none">{emoji}</div>
 
           <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-black/40 mt-4 mb-1">
             From

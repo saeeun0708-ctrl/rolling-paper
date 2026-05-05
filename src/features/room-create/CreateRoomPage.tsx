@@ -1,40 +1,32 @@
 import { useCreateRoom } from './useCreateRoom'
 
-// 인풋 공통 클래스 — Figma text-input 스펙
-const inputBase = `
-  w-full px-[14px] py-3 rounded-lg border border-figma-hairline bg-figma-canvas
-  text-figma-ink text-base placeholder:text-figma-ink/30
-  focus:outline-none focus:ring-2 focus:ring-figma-ink/20
-  transition-shadow
-`.trim()
-
 export default function CreateRoomPage() {
   const { values, errors, isLoading, handleChange, handlePinChange, handleSubmit } = useCreateRoom()
 
   return (
-    <main className="min-h-dvh bg-figma-canvas flex items-start justify-center px-5 py-14">
+    <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 아이브로우 — figmaMono 스타일: 모노, 대문자, 양의 자간 */}
-        <p className="font-mono text-xs tracking-[0.54px] uppercase text-figma-ink/40 mb-6">
+        {/* 아이브로우 */}
+        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">
           Rolling Paper
         </p>
 
-        {/* 디스플레이 헤딩 — 크고 굵게, 타이트한 자간 */}
-        <h1 className="text-[2.6rem] font-black text-figma-ink leading-[1.1] tracking-[-1px] mb-3">
+        {/* 헤딩 */}
+        <h1 className="text-[2.4rem] font-black text-black leading-[1.15] tracking-[-0.5px] mb-2">
           소중한 분께<br />마음을 모아요
         </h1>
-        <p className="text-figma-ink/50 text-base leading-relaxed mb-10">
+        <p className="text-black/40 text-[15px] mb-10">
           메시지를 모아 특별한 롤링페이퍼를 만들어보세요
         </p>
 
         {/* 폼 */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
 
           {/* 받는 분 이름 */}
           <div>
-            <label className="block text-sm font-bold text-figma-ink mb-2">
-              받는 분 이름 / 호칭
+            <label className="block text-[13px] font-medium text-black/50 mb-1.5">
+              받으실 분
             </label>
             <input
               type="text"
@@ -42,17 +34,23 @@ export default function CreateRoomPage() {
               onChange={e => handleChange('recipientName', e.target.value)}
               placeholder="예: 엄마, 아버지, 김선생님"
               maxLength={30}
-              className={`${inputBase} ${errors.recipientName ? 'border-red-400 ring-2 ring-red-100' : ''}`}
+              className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
+                          bg-[#f5f5f5] placeholder:text-black/25
+                          border-2 transition-colors
+                          focus:outline-none focus:bg-white
+                          ${errors.recipientName
+                            ? 'border-red-400 bg-red-50'
+                            : 'border-transparent focus:border-black/10'}`}
             />
             {errors.recipientName && (
-              <p className="mt-1.5 text-xs text-red-500">{errors.recipientName}</p>
+              <p className="mt-1.5 text-[12px] text-red-500">{errors.recipientName}</p>
             )}
           </div>
 
           {/* 주최자 이름 */}
           <div>
-            <label className="block text-sm font-bold text-figma-ink mb-2">
-              주최자 이름 (나)
+            <label className="block text-[13px] font-medium text-black/50 mb-1.5">
+              내 이름
             </label>
             <input
               type="text"
@@ -60,17 +58,23 @@ export default function CreateRoomPage() {
               onChange={e => handleChange('hostName', e.target.value)}
               placeholder="예: 큰딸, 홍길동"
               maxLength={20}
-              className={`${inputBase} ${errors.hostName ? 'border-red-400 ring-2 ring-red-100' : ''}`}
+              className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
+                          bg-[#f5f5f5] placeholder:text-black/25
+                          border-2 transition-colors
+                          focus:outline-none focus:bg-white
+                          ${errors.hostName
+                            ? 'border-red-400 bg-red-50'
+                            : 'border-transparent focus:border-black/10'}`}
             />
             {errors.hostName && (
-              <p className="mt-1.5 text-xs text-red-500">{errors.hostName}</p>
+              <p className="mt-1.5 text-[12px] text-red-500">{errors.hostName}</p>
             )}
           </div>
 
           {/* 관리 PIN */}
           <div>
-            <label className="block text-sm font-bold text-figma-ink mb-2">
-              관리 PIN
+            <label className="block text-[13px] font-medium text-black/50 mb-1.5">
+              비밀번호
             </label>
             <input
               type="password"
@@ -78,43 +82,38 @@ export default function CreateRoomPage() {
               pattern="[0-9]*"
               value={values.pin}
               onChange={e => handlePinChange(e.target.value)}
-              placeholder="숫자 4~6자리"
+              placeholder="숫자 6자리"
               autoComplete="new-password"
-              className={`${inputBase} tracking-widest ${errors.pin ? 'border-red-400 ring-2 ring-red-100' : ''}`}
+              className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black tracking-widest
+                          bg-[#f5f5f5] placeholder:text-black/25 placeholder:tracking-normal
+                          border-2 transition-colors
+                          focus:outline-none focus:bg-white
+                          ${errors.pin
+                            ? 'border-red-400 bg-red-50'
+                            : 'border-transparent focus:border-black/10'}`}
             />
-            {/* PIN 분실 경고 */}
-            <p className="mt-2 text-xs text-figma-ink/40">
-              ⚠️ PIN을 분실하면 복구할 수 없습니다. 반드시 기억해두세요.
+            <p className="mt-2 text-[12px] text-black/30">
+              잊어버리면 복구가 어려워요. 꼭 기억해두세요.
             </p>
             {errors.pin && (
-              <p className="mt-1 text-xs text-red-500">{errors.pin}</p>
+              <p className="mt-1 text-[12px] text-red-500">{errors.pin}</p>
             )}
-          </div>
-
-          {/* 라임 컬러 블록 — Figma 시그니처 */}
-          <div className="rounded-[24px] bg-figma-block-lime px-5 py-4">
-            <p className="text-sm text-figma-ink leading-relaxed">
-              🌿 링크 하나로 20~30명이 함께 메시지를 남길 수 있어요.
-              작성이 끝나면 포장해서 받는 분께 전달하세요.
-            </p>
           </div>
 
           {/* 서버 오류 */}
           {errors.submit && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-              <p className="text-sm text-red-600 text-center">{errors.submit}</p>
-            </div>
+            <p className="text-[13px] text-red-500 text-center py-2">{errors.submit}</p>
           )}
 
-          {/* 블랙 필 CTA 버튼 — Figma button-primary */}
-          <div className="pt-1">
+          {/* 제출 버튼 */}
+          <div className="pt-3">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-[10px] bg-figma-ink hover:bg-figma-ink/80
-                         text-figma-canvas font-bold text-base
+              className="w-full py-4 bg-black hover:bg-black/80
+                         text-white font-bold text-[15px]
                          rounded-full transition-colors
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                         disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -127,6 +126,7 @@ export default function CreateRoomPage() {
             </button>
           </div>
         </form>
+
       </div>
     </main>
   )

@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
-import { FLOWER_COMPONENTS, FLOWER_COLORS } from '../../components/flowers'
-import type { FlowerShape } from '../message-write/utils'
+import { FLOWER_EMOJIS, type FlowerShape } from '../message-write/utils'
 
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
 interface Props {
@@ -46,9 +45,7 @@ export default function ListMode({ messages, recipientName, onClose }: Props) {
         {/* 메시지 리스트 */}
         <div className="space-y-4" role="list" aria-label="전체 메시지 목록">
           {messages.map((msg, i) => {
-            const shape  = msg.shape as FlowerShape
-            const Flower = FLOWER_COMPONENTS[shape] ?? FLOWER_COMPONENTS.carnation
-            const color  = FLOWER_COLORS[shape]  ?? '#f43f67'
+            const emoji = FLOWER_EMOJIS[msg.shape as FlowerShape] ?? '🌸'
             return (
               <motion.article
                 key={msg.id}
@@ -59,7 +56,7 @@ export default function ListMode({ messages, recipientName, onClose }: Props) {
                 transition={{ delay: i * 0.04 }}
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <Flower size={32} color={color} label={shape} />
+                  <span className="text-2xl leading-none">{emoji}</span>
                   <div>
                     <p className="text-[14px] font-bold text-black">{msg.author_name}</p>
                     <p className="text-[11px] text-black/35">

@@ -15,7 +15,7 @@ export default function WrapModal({ recipientName, onConfirm, onCancel, isLoadin
         <div className="text-center mb-6">
           <div className="text-4xl mb-3">🎁</div>
           <h2 className="text-[1.3rem] font-black text-black mb-2">
-            정말 포장할까요?
+            롤링페이퍼를 포장할까요?
           </h2>
           <p className="text-[13px] text-black/50 leading-relaxed">
             포장하면 더 이상 새 메시지를 받지 않고,<br />

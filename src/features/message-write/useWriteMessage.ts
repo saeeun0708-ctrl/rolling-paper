@@ -128,29 +128,33 @@ export function useWriteMessage(roomId: string, slug: string) {
       })
 
       return { messageId: data.id, authorToken: token, shape: finalShape }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('메시지 저장 오류:', err)
-      setErrors({ submit: '저장 중 오류가 발생했어요. 다시 시도해주세요.' })
+      const msg = err instanceof Error ? err.message
+        : (err as { message?: string })?.message ?? ''
+      setErrors({ submit: `저장 중 오류가 발생했어요. (${msg || '알 수 없는 오류'})` })
       return null
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  /** 삭제 (status = 'deleted' 로 소프트 삭제) */
+  /** 삭제 (DB에서 실제 삭제) */
   async function handleDelete(messageId: string, token: string): Promise<boolean> {
     try {
       const { error } = await supabase
         .from('messages')
-        .update({ status: 'deleted' })
+        .delete()
         .eq('id', messageId)
         .eq('author_token', token)
 
       if (error) throw error
       removeStoredAuthor(slug)
       return true
-    } catch (err) {
-      console.error('삭제 오류:', err)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message
+        : (err as { message?: string })?.message ?? '알 수 없는 오류'
+      console.error('삭제 오류:', msg, err)
       return false
     }
   }

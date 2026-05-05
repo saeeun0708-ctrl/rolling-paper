@@ -35,7 +35,7 @@ export function useCreateRoom() {
     setErrors(prev => ({ ...prev, [field]: undefined }))
   }
 
-  /** PIN 입력: 숫자만, 최대 6자리 */
+  /** PIN 입력: 숫자만, 정확히 6자리 */
   function handlePinChange(raw: string) {
     handleChange('pin', raw.replace(/\D/g, '').slice(0, 6))
   }
@@ -45,7 +45,7 @@ export function useCreateRoom() {
     const errs: FormErrors = {}
     if (!values.recipientName.trim()) errs.recipientName = '받는 분 이름을 입력해주세요.'
     if (!values.hostName.trim())      errs.hostName      = '주최자 이름을 입력해주세요.'
-    if (!/^\d{4,6}$/.test(values.pin)) errs.pin           = '숫자 4~6자리를 입력해주세요.'
+    if (!/^\d{6}$/.test(values.pin)) errs.pin = '숫자 6자리를 입력해주세요.'
     return errs
   }
 

@@ -1,6 +1,8 @@
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { FLOWER_COMPONENTS, FLOWER_COLORS } from '../../components/flowers'
-import type { FlowerShape } from '../message-write/utils'
+import { type FlowerShape } from '../message-write/utils'
+import Scenery from './Scenery'
+import { FLOWER_SVG_COMPONENTS, type FlowerSvgShape } from './FlowerSvg'
 
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
 interface Props {
@@ -11,114 +13,215 @@ interface Props {
   onListMode:    () => void
 }
 
-/** 꽃 위치 계산 — 격자 기반 + 결정론적 편차 (겹침 방지) */
-function getPositions(n: number) {
-  const cols = Math.ceil(Math.sqrt(n * 1.3))
-  const rows = Math.ceil(n / cols)
-  return Array.from({ length: n }, (_, i) => {
-    const c = i % cols, r = Math.floor(i / cols)
-    const dx = Math.sin(i * 7.31 + 1) * 0.32
-    const dy = Math.cos(i * 5.73 + 2) * 0.28
-    return {
-      x: Math.max(8, Math.min(92, ((c + 0.5 + dx) / cols) * 100)),
-      y: Math.max(6, Math.min(82, ((r + 0.5 + dy) / rows) * 100)),
-    }
-  })
+// ── 꽃 shape → SVG 컴포넌트 매핑 (없으면 daisy 폴백) ──────────────────────
+const SHAPE_MAP: Record<string, FlowerSvgShape> = {
+  carnation: 'carnation',
+  daisy:     'daisy',
+  tulip:     'tulip',
+  clover:    'clover',
+  star:      'star',
+  sunflower: 'sunflower',
+  cherry:    'cherry',
+}
+
+// ── 원근감 있는 꽃 배치 (Y 아래쪽이 더 크고 앞) ──────────────────────────
+interface PlacedFlower extends Message {
+  x: number; y: number; size: number; depth: number; sway: number
+}
+
+function distributeFlowers(messages: Message[], seed = 7): PlacedFlower[] {
+  const n = messages.length
+  if (n === 0) return []
+  const cols = Math.max(4, Math.ceil(Math.sqrt(n) * 1.6))
+  const rows  = Math.ceil(n / cols)
+  const yMin = 62, yMax = 93
+
+  let s = seed * 9301 + 49297
+  const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280 }
+
+  const placed: PlacedFlower[] = []
+  for (let i = 0; i < n; i++) {
+    const r = Math.floor(i / cols)
+    const c = i % cols
+    const cellW = 92 / cols
+    const cellH = (yMax - yMin) / Math.max(1, rows)
+    const xJitter = (rand() - 0.5) * cellW * 0.6
+    const yJitter = (rand() - 0.5) * cellH * 0.5
+    const x = 4 + c * cellW + cellW / 2 + xJitter
+    const y = yMin + r * cellH + cellH / 2 + yJitter
+    const depth = (y - yMin) / (yMax - yMin)
+    const size  = 38 * (0.55 + depth * 0.7)
+    placed.push({ ...messages[i], x, y, size, depth, sway: rand() * 6 - 3 })
+  }
+  return placed.sort((a, b) => a.depth - b.depth)
 }
 
 function fmtExpiry(d: string) {
   return new Date(d).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
+// ── 꽃 개수 배지 ──────────────────────────────────────────────────────────
+function CountBadge({ count }: { count: number }) {
+  return (
+    <div style={{
+      position: 'absolute', top: 28, right: 20, zIndex: 10,
+      display: 'flex', alignItems: 'center', gap: 8,
+      padding: '7px 14px 7px 10px',
+      background: '#fffdf8',
+      borderRadius: 999,
+      boxShadow: '0 6px 18px rgba(40,60,40,0.12), inset 0 0 0 1px rgba(194,90,126,0.15)',
+    }}>
+      {/* 작은 꽃 아이콘 */}
+      <svg width="22" height="22" viewBox="0 0 100 100" aria-hidden>
+        {[0, 72, 144, 216, 288].map((deg) => (
+          <ellipse key={deg} cx="50" cy="30" rx="11" ry="18"
+            fill="#ffc8d8" stroke="#c25a7e" strokeWidth="3"
+            transform={`rotate(${deg} 50 50)`}/>
+        ))}
+        <circle cx="50" cy="50" r="7" fill="#ffd84a" stroke="#c25a7e" strokeWidth="3"/>
+      </svg>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, lineHeight: 1 }}>
+        <span style={{ fontSize: 20, fontWeight: 800, color: '#c25a7e' }}>{count}</span>
+        <span style={{ fontSize: 12, color: '#5a7a5a' }}>송이 꽃이 피었어요</span>
+      </div>
+    </div>
+  )
+}
+
+// ── 메인 컴포넌트 ──────────────────────────────────────────────────────────
 export default function MeadowView({ messages, recipientName, expiresAt, onFlowerClick, onListMode }: Props) {
-  const positions  = getPositions(messages.length)
-  const honorific  = recipientName.endsWith('님') ? '께' : '님께'
+  const placed  = useMemo(() => distributeFlowers(messages), [messages])
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const honorific = recipientName.endsWith('님') ? '께' : '님께'
 
   return (
-    <div
-      className="relative min-h-dvh overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #bbf7d0 0%, #4ade80 35%, #16a34a 75%, #15803d 100%)' }}
-    >
-      {/* ─ 상단 헤더 ─ */}
-      <div className="absolute top-0 left-0 right-0 z-10 px-5 pt-10 pb-4
-                      bg-gradient-to-b from-black/20 to-transparent">
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-white/60 mb-1">
+    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: '#e8f3e0', fontFamily: '"Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif' }}>
+
+      {/* ── 수채화 배경 ── */}
+      <Scenery variant="spring"/>
+
+      {/* ── 안개 미스트 ── */}
+      <div style={{
+        position: 'absolute', left: 0, right: 0, top: '58%', height: 80,
+        background: 'linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0))',
+        pointerEvents: 'none', zIndex: 2,
+      }}/>
+
+      {/* ── 헤더 ── */}
+      <div style={{ position: 'absolute', top: 28, left: 20, zIndex: 10, color: '#3a5a3a' }}>
+        <p style={{ margin: 0, fontSize: 11, color: '#7a9676', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 }}>
           Rolling Paper
         </p>
-        <h1 className="text-[1.6rem] font-black text-white leading-tight drop-shadow">
-          <span className="text-[#fbbf24]">{recipientName}</span>{honorific}<br />
+        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#2d4a2d', lineHeight: 1.2, textShadow: '0 1px 0 rgba(255,255,255,0.5)' }}>
+          <span style={{ color: '#c25a7e' }}>{recipientName}</span>{honorific}<br/>
           보내는 마음들
         </h1>
-        <p className="text-white/70 text-[14px] mt-1 drop-shadow">
-          {messages.length}개의 꽃이 피어났어요 🌸
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#5a7a5a' }}>
+          풀숲에 꽃이 피어나고 있어요 🌿
         </p>
       </div>
 
-      {/* ─ 꽃들 ─ */}
-      <div className="absolute inset-0" aria-label="메시지 꽃밭">
-        {messages.map((msg, i) => {
-          const pos = positions[i]
-          const shape = msg.shape as FlowerShape
-          const Flower = FLOWER_COMPONENTS[shape] ?? FLOWER_COMPONENTS.carnation
-          const color  = FLOWER_COLORS[shape]  ?? '#f43f67'
+      {/* ── 꽃 개수 배지 ── */}
+      <CountBadge count={messages.length}/>
+
+      {/* ── 꽃들 ── */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 5 }} aria-label="롤링페이퍼 풀숲">
+        {placed.map((f, i) => {
+          const svgKey  = SHAPE_MAP[f.shape as FlowerShape] ?? 'daisy'
+          const FlowerComp = FLOWER_SVG_COMPONENTS[svgKey]
+          const isHover = hoveredId === f.id
+
           return (
             <motion.button
-              key={msg.id}
-              className="absolute flex flex-col items-center cursor-pointer focus:outline-none"
-              style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: 'translate(-50%, -50%)' }}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: i * 0.06, type: 'spring', stiffness: 200 }}
-              onClick={() => onFlowerClick(i)}
-              aria-label={`${msg.author_name}님의 메시지 보기`}
+              key={f.id}
+              onClick={() => onFlowerClick(messages.findIndex(m => m.id === f.id))}
+              onHoverStart={() => setHoveredId(f.id)}
+              onHoverEnd={() => setHoveredId(null)}
+              initial={{ scale: 0, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ delay: (i % 20) * 0.07, type: 'spring', stiffness: 200, damping: 14 }}
+              style={{
+                position: 'absolute',
+                left: `${f.x}%`,
+                top:  `${f.y}%`,
+                transform: `translate(-50%, -85%) scale(${isHover ? 1.15 : 1})`,
+                transition: 'transform 220ms cubic-bezier(.2,.8,.2,1)',
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                transformOrigin: '50% 95%',
+                filter: isHover
+                  ? `drop-shadow(0 6px 14px rgba(194,90,126,0.4))`
+                  : `drop-shadow(0 3px 5px rgba(0,0,0,0.18))`,
+                zIndex: Math.floor(f.depth * 100) + 5,
+              }}
+              aria-label={`${f.author_name}님의 메시지 보기`}
             >
-              <Flower size={46} color={color} label={shape} />
-              <span
-                className="text-[10px] font-bold text-white mt-0.5 max-w-[52px] truncate"
-                style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}
-              >
-                {msg.author_name}
-              </span>
+              <FlowerComp size={f.size}/>
+              {/* 이름 레이블 */}
+              <div style={{
+                position: 'absolute', left: '50%', bottom: -2,
+                transform: 'translateX(-50%)',
+                fontSize: Math.max(9, f.size * 0.18),
+                color: '#2d4a2d',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                background: 'rgba(255,255,255,0.78)',
+                padding: '1px 6px',
+                borderRadius: 999,
+                opacity: isHover ? 1 : 0.75,
+                transition: 'opacity 200ms',
+                pointerEvents: 'none',
+              }}>
+                {f.author_name}
+              </div>
             </motion.button>
           )
         })}
       </div>
 
-      {/* ─ 풀숲 SVG ─ */}
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none" aria-hidden>
-        <svg viewBox="0 0 375 110" preserveAspectRatio="none" className="w-full">
-          <path d="M0 55 Q50 30 90 50 Q130 28 170 46 Q210 24 250 44 Q290 22 330 42 Q360 30 375 38 L375 110 L0 110Z" fill="#166534"/>
-          <path d="M0 72 Q40 55 80 68 Q120 52 160 65 Q200 48 240 63 Q280 50 320 62 Q350 52 375 58 L375 110 L0 110Z" fill="#15803d"/>
-          <path d="M0 85 Q35 72 70 82 Q105 70 140 80 Q175 68 210 78 Q245 66 280 76 Q315 65 350 74 L375 78 L375 110 L0 110Z" fill="#14532d"/>
-        </svg>
-      </div>
-
-      {/* ─ 하단 바 ─ */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 flex items-end justify-between px-5 pb-4 pt-16
-                      pointer-events-none">
-        {/* 만료일 안내 */}
+      {/* ── 하단 바 ── */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 20px 20px' }}>
         {expiresAt && (
-          <p className="text-[11px] text-white/55 max-w-[65%] leading-relaxed pointer-events-auto"
-             style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
-            이 롤링페이퍼는 {fmtExpiry(expiresAt)}에 사라져요.<br />
-            이미지로 저장해 보관하세요.
+          <p style={{
+            margin: 0, fontSize: 11, lineHeight: 1.6,
+            color: 'rgba(255,255,255,0.85)',
+            background: 'rgba(40,60,40,0.3)',
+            padding: '8px 12px', borderRadius: 10,
+            backdropFilter: 'blur(4px)',
+            maxWidth: '60%',
+            textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+          }}>
+            {fmtExpiry(expiresAt)}에 사라져요.<br/>이미지로 저장해 보관하세요.
           </p>
         )}
-        {/* 전체 펼쳐 보기 */}
         <motion.button
-          className="pointer-events-auto w-11 h-11 rounded-full bg-white/20 hover:bg-white/35
-                     backdrop-blur flex items-center justify-center text-lg
-                     focus:outline-none focus:ring-2 focus:ring-white/60 ml-auto"
           whileTap={{ scale: 0.9 }}
           onClick={onListMode}
+          style={{
+            width: 44, height: 44, borderRadius: '50%',
+            background: 'rgba(255,255,255,0.45)',
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 16, marginLeft: 'auto',
+            backdropFilter: 'blur(4px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          }}
           aria-label="전체 메시지 목록 보기"
-          title="전체 펼쳐 보기"
         >
           ☰
         </motion.button>
       </div>
+
+      {/* ── 애니메이션 CSS ── */}
+      <style>{`
+        @keyframes bloom {
+          0%   { transform: translate(-50%,-85%) scale(0.1) rotate(-15deg); opacity: 0; }
+          60%  { transform: translate(-50%,-85%) scale(1.15) rotate(4deg); opacity: 1; }
+          100% { transform: translate(-50%,-85%) scale(1) rotate(0deg); opacity: 1; }
+        }
+      `}</style>
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import bcrypt from 'bcryptjs'
 import { supabase } from '../../lib/supabase'
 import { shareKakao } from '../../lib/kakao'
-import { FLOWER_EMOJIS, FlowerShape } from '../message-write/utils'
+import { FlowerShape, FLOWER_EMOJIS } from '../message-write/utils'
 import WrapModal from '../gift-wrap/WrapModal'
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
@@ -11,13 +11,9 @@ interface Room {
   id: string; recipient_name: string; host_name: string
   host_pin_hash: string; status: string; open_key: string
 }
-interface Message {
-  id: string; author_name: string; shape: string
-  created_at: string; body: string
-}
+interface Message { id: string; author_name: string; shape: string; created_at: string; body: string }
 type HostView = 'loading' | 'error' | 'auth' | 'dashboard' | 'wrapped'
 
-// ─── 상수 ────────────────────────────────────────────────────────────────────
 const MAX_ATTEMPTS = 5
 const LOCKOUT_MS   = 10 * 60 * 1000
 
@@ -29,7 +25,16 @@ function fmtTime(d: string) {
   return `${Math.floor(m / 1440)}일 전`
 }
 
-// ─── 컴포넌트 ────────────────────────────────────────────────────────────────
+/** URL에서 open_key 값을 ****로 마스킹 (화면 표시용) */
+function maskUrl(url: string) {
+  return url.replace(/k=.+$/, 'k=••••••••')
+}
+
+async function copyToClipboard(text: string) {
+  await navigator.clipboard.writeText(text)
+  alert('복사됐어요!')
+}
+
 export default function HostPage() {
   const { slug } = useParams<{ slug: string }>()
 
@@ -37,24 +42,21 @@ export default function HostPage() {
   const ATTEMPTS_KEY = `rp_host_attempts_${slug}`
   const LOCKOUT_KEY  = `rp_host_lockout_${slug}`
 
-  const [view, setView]       = useState<HostView>('loading')
-  const [room, setRoom]       = useState<Room | null>(null)
+  const [view, setView]         = useState<HostView>('loading')
+  const [room, setRoom]         = useState<Room | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [errorMsg, setErrorMsg] = useState('')
 
-  // 인증 상태
-  const [pin, setPin]           = useState('')
-  const [pinError, setPinError] = useState('')
-  const [attempts, setAttempts] = useState(0)
+  const [pin, setPin]             = useState('')
+  const [pinError, setPinError]   = useState('')
+  const [attempts, setAttempts]   = useState(0)
   const [lockoutUntil, setLockoutUntil] = useState(0)
   const [isVerifying, setIsVerifying]   = useState(false)
 
-  // 포장 상태
-  const [showWrap, setShowWrap]   = useState(false)
+  const [showWrap, setShowWrap]     = useState(false)
   const [isWrapping, setIsWrapping] = useState(false)
-  const [openKey, setOpenKey]     = useState('')
+  const [openKey, setOpenKey]       = useState('')
 
-  // ─── 초기 로드 ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!slug) return
     setAttempts(parseInt(localStorage.getItem(ATTEMPTS_KEY) ?? '0'))
@@ -66,12 +68,8 @@ export default function HostPage() {
       .then(({ data, error }) => {
         if (error || !data) { setErrorMsg('존재하지 않는 롤링페이퍼예요.'); setView('error'); return }
         setRoom(data)
-        if (sessionStorage.getItem(SESSION_KEY) === 'ok') {
-          loadMessages(data.id)
-          setView('dashboard')
-        } else {
-          setView('auth')
-        }
+        if (sessionStorage.getItem(SESSION_KEY) === 'ok') { loadMessages(data.id); setView('dashboard') }
+        else setView('auth')
       })
   }, [slug])
 
@@ -82,7 +80,6 @@ export default function HostPage() {
     if (data) setMessages(data)
   }
 
-  // ─── PIN 인증 ──────────────────────────────────────────────────────────────
   async function handlePinSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!room) return
@@ -95,8 +92,7 @@ export default function HostPage() {
       if (ok) {
         localStorage.removeItem(ATTEMPTS_KEY); localStorage.removeItem(LOCKOUT_KEY)
         sessionStorage.setItem(SESSION_KEY, 'ok')
-        await loadMessages(room.id)
-        setView('dashboard')
+        await loadMessages(room.id); setView('dashboard')
       } else {
         const next = attempts + 1
         setAttempts(next); localStorage.setItem(ATTEMPTS_KEY, String(next))
@@ -104,22 +100,18 @@ export default function HostPage() {
           const until = Date.now() + LOCKOUT_MS
           setLockoutUntil(until); localStorage.setItem(LOCKOUT_KEY, String(until))
           setPinError('5회 실패로 10분간 잠겼어요.')
-        } else {
-          setPinError(`비밀번호가 틀렸어요. (${next}/${MAX_ATTEMPTS})`)
-        }
+        } else { setPinError(`비밀번호가 틀렸어요. (${next}/${MAX_ATTEMPTS})`) }
         setPin('')
       }
     } finally { setIsVerifying(false) }
   }
 
-  // ─── 메시지 삭제 ───────────────────────────────────────────────────────────
   async function handleDeleteMsg(id: string) {
     if (!window.confirm('이 메시지를 삭제할까요?')) return
     const { error } = await supabase.from('messages').delete().eq('id', id)
     if (!error) setMessages(prev => prev.filter(m => m.id !== id))
   }
 
-  // ─── 포장 ──────────────────────────────────────────────────────────────────
   async function handleWrap() {
     setIsWrapping(true)
     try {
@@ -131,25 +123,26 @@ export default function HostPage() {
     } finally { setIsWrapping(false) }
   }
 
-  // ─── 파생값 ────────────────────────────────────────────────────────────────
-  const name      = room?.recipient_name ?? ''
-  const honorific = name.endsWith('님') ? '께' : '님께'
-  const writeUrl  = `${window.location.origin}/r/${slug}`
-  const openUrl   = `${window.location.origin}/r/${slug}/open?k=${openKey}`
+  const name         = room?.recipient_name ?? ''
+  const honorific    = name.endsWith('님') ? '께' : '님께'
+  const writeUrl     = `${window.location.origin}/r/${slug}`
+  const resolvedKey  = openKey || room?.open_key || ''
+  const openUrl      = `${window.location.origin}/r/${slug}/open?k=${resolvedKey}`
+  const isWrapped    = room?.status === 'wrapped'
 
-  // ─── 뷰 렌더링 ─────────────────────────────────────────────────────────────
+  // ─── 로딩 / 에러 ─────────────────────────────────────────────────────────
   if (view === 'loading') return (
     <main className="min-h-dvh bg-white flex items-center justify-center">
       <span className="text-3xl animate-pulse">🌿</span>
     </main>
   )
-
   if (view === 'error') return (
     <main className="min-h-dvh bg-white flex items-center justify-center px-5">
       <div className="text-center"><p className="text-4xl mb-4">🍃</p><p className="text-[15px] text-black/60">{errorMsg}</p></div>
     </main>
   )
 
+  // ─── PIN 인증 ─────────────────────────────────────────────────────────────
   if (view === 'auth') return (
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
@@ -177,24 +170,25 @@ export default function HostPage() {
     </main>
   )
 
+  // ─── 포장 완료 화면 ───────────────────────────────────────────────────────
   if (view === 'wrapped') return (
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-4">🎁</div>
+          <div className="text-5xl mb-4">📜</div>
           <h1 className="text-[2rem] font-black text-black leading-tight mb-2">포장이 완료됐어요!</h1>
-          <p className="text-black/40 text-[14px]">{name}님께 아래 링크를 전달해주세요</p>
+          <p className="text-black/40 text-[14px]">{name}님께 아래 열람 링크를 전달해주세요</p>
         </div>
-        <div className="rounded-2xl bg-[#f5f5f5] px-5 py-4 mb-4">
-          <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-black/30 mb-1.5">열람 링크</p>
-          <p className="text-[13px] text-black break-all">{openUrl}</p>
+        <div className="rounded-2xl bg-[#dceeb1] px-5 py-4 mb-4">
+          <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-black/50 mb-1.5">열람 링크</p>
+          <p className="text-[13px] text-black/60 break-all">{maskUrl(openUrl)}</p>
         </div>
         <div className="space-y-2.5">
           <button onClick={() => shareKakao(`${name}${honorific} 보내는 롤링페이퍼`, '소중한 분들의 마음을 담았어요 🌿', openUrl)}
             className="w-full py-[10px] bg-[#FEE500] text-[#3c1e1e] font-bold text-[15px] rounded-full">
-            카카오톡으로 전달
+            카카오로 공유
           </button>
-          <button onClick={() => navigator.clipboard.writeText(openUrl).then(() => alert('복사됐어요!'))}
+          <button onClick={() => copyToClipboard(openUrl)}
             className="w-full py-[10px] bg-black text-white font-bold text-[15px] rounded-full">
             열람 링크 복사
           </button>
@@ -207,63 +201,112 @@ export default function HostPage() {
     </main>
   )
 
-  // ─── 대시보드 ───────────────────────────────────────────────────────────────
+  // ─── 대시보드 ─────────────────────────────────────────────────────────────
   return (
     <>
       <main className="min-h-dvh bg-white px-5 py-12">
-        <div className="w-full max-w-md mx-auto">
+        <div className="w-full max-w-md mx-auto space-y-6">
 
-          <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-4">Dashboard</p>
-          <h1 className="text-[2rem] font-black text-black leading-tight mb-1">
-            <span className="text-[#5cb054]">{name}</span>{honorific} 롤링페이퍼
-          </h1>
-          <p className="text-black/40 text-[14px] mb-6">{messages.length}명이 마음을 남겼어요</p>
-
-          {/* 작성 링크 공유 */}
-          <div className="flex gap-2 mb-6">
-            <button onClick={() => shareKakao(`${name}${honorific} 롤링페이퍼`, '마음을 남겨주세요 🌿', writeUrl)}
-              className="flex-1 py-2.5 bg-[#FEE500] text-[#3c1e1e] text-[13px] font-bold rounded-full">
-              카카오로 공유
-            </button>
-            <button onClick={() => navigator.clipboard.writeText(writeUrl).then(() => alert('복사됐어요!'))}
-              className="flex-1 py-2.5 bg-[#f5f5f5] text-black text-[13px] font-bold rounded-full">
-              링크 복사
-            </button>
+          {/* 헤더 */}
+          <div>
+            <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-3">Dashboard</p>
+            <h1 className="text-[2rem] font-black text-black leading-tight mb-1">
+              <span className="text-[#5cb054]">{name}</span>{honorific} 롤링페이퍼
+            </h1>
+            <p className="text-black/40 text-[14px]">{messages.length}명이 마음을 남겼어요</p>
           </div>
 
-          {/* 메시지 목록 */}
-          <div className="space-y-3 mb-8">
+          {/* ① 참여자 초대 링크 */}
+          {!isWrapped && (
+            <div className="rounded-2xl border border-[#e6e6e6] px-5 py-4">
+              <p className="text-[11px] font-mono uppercase tracking-[0.1em] text-black/40 mb-3">
+                참여자 초대 링크
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => shareKakao(`${name}${honorific} 롤링페이퍼`, '마음을 남겨주세요 🌿', writeUrl)}
+                  className="flex-1 py-2.5 bg-[#FEE500] text-[#3c1e1e] text-[13px] font-bold rounded-full"
+                >
+                  카카오로 공유
+                </button>
+                <button
+                  onClick={() => copyToClipboard(writeUrl)}
+                  className="flex-1 py-2.5 bg-[#f5f5f5] text-black text-[13px] font-bold rounded-full"
+                >
+                  링크 복사
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ② 메시지 목록 */}
+          <div className="space-y-3">
             {messages.length === 0
-              ? <p className="text-center py-10 text-black/30 text-[14px]">아직 작성된 메시지가 없어요</p>
-              : messages.map(msg => (
-                <div key={msg.id} className="rounded-2xl bg-[#f5f5f5] px-4 py-3.5">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <span>{FLOWER_EMOJIS[msg.shape as FlowerShape] ?? '🌸'}</span>
-                      <span className="text-[13px] font-bold text-black">{msg.author_name}</span>
-                      <span className="text-[11px] text-black/30">{fmtTime(msg.created_at)}</span>
+              ? <p className="text-center py-8 text-black/30 text-[14px]">아직 작성된 메시지가 없어요</p>
+              : messages.map(msg => {
+                  const shape = msg.shape as FlowerShape
+                  return (
+                    <div key={msg.id} className="rounded-2xl bg-[#f5f5f5] px-4 py-3.5">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{FLOWER_EMOJIS[shape] ?? '🌸'}</span>
+                          <span className="text-[13px] font-bold text-black">{msg.author_name}</span>
+                          <span className="text-[11px] text-black/30">{fmtTime(msg.created_at)}</span>
+                        </div>
+                        <button onClick={() => handleDeleteMsg(msg.id)}
+                          className="text-[11px] text-black/30 hover:text-red-500 transition-colors">
+                          삭제
+                        </button>
+                      </div>
+                      <p className="text-[13px] text-black/60 line-clamp-2 leading-relaxed">{msg.body}</p>
                     </div>
-                    <button onClick={() => handleDeleteMsg(msg.id)}
-                      className="text-[11px] text-black/30 hover:text-red-500 transition-colors">
-                      삭제
-                    </button>
-                  </div>
-                  <p className="text-[13px] text-black/60 line-clamp-2 leading-relaxed">{msg.body}</p>
-                </div>
-              ))
+                  )
+                })
             }
           </div>
 
-          {/* 포장 섹션 */}
-          <div className="rounded-2xl border border-[#e6e6e6] px-5 py-5">
-            <p className="text-[12px] text-black/40 mb-4 text-center leading-relaxed">
-              포장하면 더 이상 새 메시지를 받지 않고,<br />받는 분께 보낼 열람 링크가 만들어져요
-            </p>
-            <button onClick={() => setShowWrap(true)} disabled={room?.status === 'wrapped'}
-              className="w-full py-4 bg-black text-white font-bold text-[15px] rounded-full disabled:opacity-40">
-              {room?.status === 'wrapped' ? '이미 포장됐어요' : '🎁 선물 포장하기'}
-            </button>
-          </div>
+          {/* ③ 포장 / 열람 링크 섹션 */}
+          {isWrapped ? (
+            /* 포장 완료 — 링크 전달 버튼만 표시 (URL 비노출) */
+            <div className="rounded-2xl bg-[#dceeb1] px-5 py-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 bg-black text-white text-[11px] font-bold rounded-full">
+                  포장 완료
+                </span>
+              </div>
+              <p className="text-[14px] font-bold text-black">
+                {name}님께 열람 링크를 전달하세요
+              </p>
+              <p className="text-[12px] text-black/50">
+                링크를 받으면 모든 메시지를 볼 수 있어요
+              </p>
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => shareKakao(`${name}${honorific} 보내는 롤링페이퍼`, '소중한 분들의 마음을 담았어요 🌿', openUrl)}
+                  className="flex-1 py-3 bg-[#FEE500] text-[#3c1e1e] text-[13px] font-bold rounded-full"
+                >
+                  카카오로 공유
+                </button>
+                <button
+                  onClick={() => copyToClipboard(openUrl)}
+                  className="flex-1 py-3 bg-black text-white text-[13px] font-bold rounded-full"
+                >
+                  링크 복사
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* 미포장 — 포장하기 버튼 */
+            <div className="rounded-2xl border border-[#e6e6e6] px-5 py-5">
+              <p className="text-[12px] text-black/40 mb-4 text-center leading-relaxed">
+                포장하면 더 이상 새 메시지를 받지 않고,<br />받는 분께 보낼 열람 링크가 만들어져요
+              </p>
+              <button onClick={() => setShowWrap(true)}
+                className="w-full py-4 bg-black text-white font-bold text-[15px] rounded-full">
+                📜 롤링페이퍼 포장하기
+              </button>
+            </div>
+          )}
         </div>
       </main>
 
