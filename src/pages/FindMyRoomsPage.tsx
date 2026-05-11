@@ -189,9 +189,6 @@ export default function FindMyRoomsPage() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-3 text-[11px] text-black/30 leading-relaxed">
-                  카드를 누르면 비밀번호를 입력하고 들어갈 수 있어요.
-                </p>
               </>
             )}
           </section>
