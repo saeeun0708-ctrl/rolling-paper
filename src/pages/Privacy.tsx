@@ -12,7 +12,7 @@ export default function Privacy() {
       </button>
 
       <h1 className="text-[1.7rem] font-black text-black mb-2">개인정보처리방침</h1>
-      <p className="text-[13px] text-black/40 mb-8">최종 수정: 2025년 5월 5일</p>
+      <p className="text-[13px] text-black/40 mb-8">최종 수정: 2026년 5월 12일</p>
 
       <div className="space-y-8 text-[15px] text-black/70 leading-relaxed">
         <section>
@@ -29,8 +29,8 @@ export default function Privacy() {
               <tbody>
                 <tr className="border-b border-black/5">
                   <td className="py-2 px-3">만든이(주최자)</td>
-                  <td className="py-2 px-3">만든이 이름, 받는 분 이름, PIN 해시값</td>
-                  <td className="py-2 px-3">방 생성 및 인증</td>
+                  <td className="py-2 px-3">만든이 이름, 받는 분 이름, PIN 해시값, 이메일(선택)</td>
+                  <td className="py-2 px-3">방 생성·인증 및 본인이 만든 방 목록 조회</td>
                 </tr>
                 <tr className="border-b border-black/5">
                   <td className="py-2 px-3">참여자</td>

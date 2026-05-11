@@ -8,6 +8,7 @@ import HostPage          from './features/host-dashboard/HostPage'
 import ViewerPage        from './features/viewer/ViewerPage'
 import Terms             from './pages/Terms'
 import Privacy           from './pages/Privacy'
+import FindMyRoomsPage   from './pages/FindMyRoomsPage'
 
 function App() {
   useEffect(() => {
@@ -20,6 +21,8 @@ function App() {
       <Routes>
         {/* 방 만들기 */}
         <Route path="/create"          element={<CreateRoomPage />} />
+        {/* 내 롤링페이퍼 찾기 (이메일로 조회) */}
+        <Route path="/my-rooms"        element={<FindMyRoomsPage />} />
         {/* 링크 공유 페이지 */}
         <Route path="/r/:slug/share"   element={<SharePage />} />
         {/* 메시지 작성 페이지 */}

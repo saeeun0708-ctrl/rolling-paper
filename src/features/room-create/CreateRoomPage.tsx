@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useCreateRoom } from './useCreateRoom'
 import { getMyRooms, removeMyRoom, type MyRoom } from '../../lib/myRooms'
 
@@ -180,6 +180,35 @@ export default function CreateRoomPage() {
                 )}
               </div>
 
+              {/* 이메일 (선택) — 기기 변경 시 내 방 찾기 키 */}
+              <div>
+                <label className="block text-[13px] font-medium text-black/50 mb-1.5">
+                  이메일 <span className="text-black/30 font-normal">(선택)</span>
+                </label>
+                <input
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={values.email}
+                  onChange={e => handleChange('email', e.target.value)}
+                  placeholder="example@email.com"
+                  maxLength={120}
+                  className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
+                              bg-[#f5f5f5] placeholder:text-black/25
+                              border-2 transition-colors
+                              focus:outline-none focus:bg-white
+                              ${errors.email
+                                ? 'border-red-400 bg-red-50'
+                                : 'border-transparent focus:border-black/10'}`}
+                />
+                <p className="mt-2 text-[12px] text-black/30">
+                  기기를 바꿔도 만든 방을 찾을 수 있어요. 비워두셔도 됩니다.
+                </p>
+                {errors.email && (
+                  <p className="mt-1 text-[12px] text-red-500">{errors.email}</p>
+                )}
+              </div>
+
               {/* 관리 PIN */}
               <div>
                 <label className="block text-[13px] font-medium text-black/50 mb-1.5">
@@ -238,13 +267,17 @@ export default function CreateRoomPage() {
           </>
         )}
 
-        {/* 다른 기기 안내 — 저장된 방이 없을 때만 노출 (이미 만들었지만 다른 기기로 들어온 케이스) */}
-        {!hasMyRooms && (
-          <p className="mt-10 text-[12px] text-black/40 leading-relaxed text-center">
-            이미 만드셨다면, 받은 카톡·문자의 공유 링크에서<br />
-            <span className="text-black/55">"만든이세요?"</span> 링크로 들어오실 수 있어요.
-          </p>
-        )}
+        {/* 다른 기기에서 만든 방 찾기 — 항상 노출 (이메일을 키로 사용) */}
+        <div className="mt-10 pt-6 border-t border-black/5 text-center">
+          <p className="text-[12px] text-black/40 mb-2">이미 만드셨나요?</p>
+          <Link
+            to="/my-rooms"
+            className="text-[13px] font-bold text-black/70 hover:text-black transition-colors
+                       underline underline-offset-4 decoration-black/20 hover:decoration-black"
+          >
+            이메일로 내 롤링페이퍼 찾기 →
+          </Link>
+        </div>
 
       </div>
     </main>

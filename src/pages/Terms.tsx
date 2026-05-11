@@ -12,7 +12,7 @@ export default function Terms() {
       </button>
 
       <h1 className="text-[1.7rem] font-black text-black mb-2">이용약관</h1>
-      <p className="text-[13px] text-black/40 mb-8">최종 수정: 2025년 5월 5일</p>
+      <p className="text-[13px] text-black/40 mb-8">최종 수정: 2026년 5월 12일</p>
 
       <div className="space-y-8 text-[15px] text-black/70 leading-relaxed">
         <section>
@@ -24,6 +24,7 @@ export default function Terms() {
           <h2 className="text-[17px] font-bold text-black mb-3">제2조 (서비스 내용)</h2>
           <ul className="list-disc list-inside space-y-1.5">
             <li>만든이(주최자)는 롤링페이퍼 방을 생성하고 참여자를 초대할 수 있습니다.</li>
+            <li>만든이는 방 생성 시 이메일을 <strong>선택적으로</strong> 입력하여 다른 기기에서도 본인이 만든 방 목록을 조회할 수 있습니다. 이메일은 방 입장 인증 수단이 아니며, 실제 입장은 PIN으로 인증합니다.</li>
             <li>참여자는 이름과 메시지를 작성하여 받는 분께 마음을 전달할 수 있습니다.</li>
             <li>만든이는 롤링페이퍼를 포장하여 받는 분이 열람할 수 있는 링크를 발급할 수 있습니다.</li>
             <li>받는 분은 열람 링크를 통해 모든 메시지를 확인하고 이미지로 저장할 수 있습니다.</li>
