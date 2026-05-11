@@ -284,7 +284,7 @@ export default function CreateRoomPage() {
                              font-bold text-[15px]
                              rounded-full transition-colors"
                 >
-                  내 롤링페이퍼 보기
+                  내 롤링페이퍼 찾기
                 </Link>
               </div>
             </form>
