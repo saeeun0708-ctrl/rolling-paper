@@ -257,8 +257,8 @@ export default function CreateRoomPage() {
                 </>
               )}
 
-              {/* 제출 버튼 — 항상 노출 (빈 입력으로 누르면 받는 분/내 이름 필드에 검증 에러 표시) */}
-              <div className="pt-3">
+              {/* 액션 버튼 그룹 — 만들기(검정, 1순위) + 보기(아웃라인, 2순위) */}
+              <div className="pt-3 space-y-2.5">
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -276,22 +276,20 @@ export default function CreateRoomPage() {
                     '롤링페이퍼 만들기'
                   )}
                 </button>
+                <Link
+                  to="/my-rooms"
+                  className="block w-full py-4 text-center
+                             bg-white border border-[#e6e6e6]
+                             text-black/70 hover:border-black hover:text-black
+                             font-bold text-[15px]
+                             rounded-full transition-colors"
+                >
+                  내 롤링페이퍼 보기
+                </Link>
               </div>
             </form>
           </>
         )}
-
-        {/* 다른 기기에서 만든 방 찾기 — 항상 노출 (이메일을 키로 사용) */}
-        <div className="mt-10 pt-6 border-t border-black/5 text-center">
-          <p className="text-[12px] text-black/40 mb-2">이미 만드셨나요?</p>
-          <Link
-            to="/my-rooms"
-            className="text-[13px] font-bold text-black/70 hover:text-black transition-colors
-                       underline underline-offset-4 decoration-black/20 hover:decoration-black"
-          >
-            이메일로 내 롤링페이퍼 찾기 →
-          </Link>
-        </div>
 
       </div>
     </main>
