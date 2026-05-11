@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { testSupabaseConnection } from './lib/supabase'
-import CreateRoomPage    from './features/room-create/CreateRoomPage'
-import SharePage         from './features/room-create/SharePage'
+import CreateRoomPage     from './features/room-create/CreateRoomPage'
+import CreateRoomAuthPage from './features/room-create/CreateRoomAuthPage'
+import SharePage          from './features/room-create/SharePage'
 import WriteMessagePage  from './features/message-write/WriteMessagePage'
 import HostPage          from './features/host-dashboard/HostPage'
 import ViewerPage        from './features/viewer/ViewerPage'
@@ -19,8 +20,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 방 만들기 */}
+        {/* 방 만들기 1단계 — 받는 분/내 이름 */}
         <Route path="/create"          element={<CreateRoomPage />} />
+        {/* 방 만들기 2단계 — 이메일·비밀번호 (1단계에서 router state로 진입) */}
+        <Route path="/create/auth"     element={<CreateRoomAuthPage />} />
         {/* 내 롤링페이퍼 찾기 (이메일로 조회) */}
         <Route path="/my-rooms"        element={<FindMyRoomsPage />} />
         {/* 링크 공유 페이지 */}

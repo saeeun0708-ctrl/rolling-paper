@@ -23,14 +23,19 @@ interface FormErrors {
 /** 이메일 형식 간단 검증 */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export function useCreateRoom() {
+/** 1단계 페이지에서 받은 값을 2단계 페이지가 훅 초기값으로 넘긴다. */
+interface UseCreateRoomOptions {
+  initial?: Partial<FormValues>
+}
+
+export function useCreateRoom(options: UseCreateRoomOptions = {}) {
   const navigate = useNavigate()
 
   const [values, setValues] = useState<FormValues>({
-    recipientName: '',
-    hostName: '',
-    email: '',
-    pin: '',
+    recipientName: options.initial?.recipientName ?? '',
+    hostName:      options.initial?.hostName      ?? '',
+    email:         options.initial?.email         ?? '',
+    pin:           options.initial?.pin           ?? '',
   })
   const [errors, setErrors] = useState<FormErrors>({})
   const [isLoading, setIsLoading] = useState(false)
