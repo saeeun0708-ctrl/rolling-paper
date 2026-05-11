@@ -245,29 +245,29 @@ export default function CreateRoomPage() {
                   {errors.submit && (
                     <p className="text-[13px] text-red-500 text-center py-2">{errors.submit}</p>
                   )}
-
-                  {/* 제출 버튼 */}
-                  <div className="pt-3">
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full py-4 bg-black hover:bg-black/80
-                                 text-white font-bold text-[15px]
-                                 rounded-full transition-colors
-                                 disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      {isLoading ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full inline-block" />
-                          만드는 중...
-                        </span>
-                      ) : (
-                        '롤링페이퍼 만들기'
-                      )}
-                    </button>
-                  </div>
                 </>
               )}
+
+              {/* 제출 버튼 — 항상 노출 (빈 입력으로 누르면 받는 분/내 이름 필드에 검증 에러 표시) */}
+              <div className="pt-3">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-4 bg-black hover:bg-black/80
+                             text-white font-bold text-[15px]
+                             rounded-full transition-colors
+                             disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full inline-block" />
+                      만드는 중...
+                    </span>
+                  ) : (
+                    '롤링페이퍼 만들기'
+                  )}
+                </button>
+              </div>
             </form>
           </>
         )}
