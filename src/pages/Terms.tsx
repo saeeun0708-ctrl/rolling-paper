@@ -23,9 +23,9 @@ export default function Terms() {
         <section>
           <h2 className="text-[17px] font-bold text-black mb-3">제2조 (서비스 내용)</h2>
           <ul className="list-disc list-inside space-y-1.5">
-            <li>주최자는 롤링페이퍼 방을 생성하고 참여자를 초대할 수 있습니다.</li>
+            <li>만든이(주최자)는 롤링페이퍼 방을 생성하고 참여자를 초대할 수 있습니다.</li>
             <li>참여자는 이름과 메시지를 작성하여 받는 분께 마음을 전달할 수 있습니다.</li>
-            <li>주최자는 롤링페이퍼를 포장하여 받는 분이 열람할 수 있는 링크를 발급할 수 있습니다.</li>
+            <li>만든이는 롤링페이퍼를 포장하여 받는 분이 열람할 수 있는 링크를 발급할 수 있습니다.</li>
             <li>받는 분은 열람 링크를 통해 모든 메시지를 확인하고 이미지로 저장할 수 있습니다.</li>
           </ul>
         </section>
@@ -35,7 +35,7 @@ export default function Terms() {
           <ul className="list-disc list-inside space-y-1.5">
             <li>모든 롤링페이퍼 방과 메시지는 <strong>생성일로부터 90일 후 자동으로 삭제</strong>됩니다.</li>
             <li>삭제된 데이터는 <strong>복구할 수 없습니다</strong>. 영구 보관을 원하시면 열람 화면에서 이미지로 저장해주세요.</li>
-            <li>만료 7일/14일 전 주최자에게 알림 배너가 표시됩니다.</li>
+            <li>만료 7일/14일 전 만든이에게 알림 배너가 표시됩니다.</li>
           </ul>
         </section>
 

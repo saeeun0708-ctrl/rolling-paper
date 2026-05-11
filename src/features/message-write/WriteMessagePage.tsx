@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { getStoredAuthor, StoredAuthor, FlowerShape } from './utils'
 import { useWriteMessage } from './useWriteMessage'
@@ -261,6 +261,16 @@ export default function WriteMessagePage() {
             />
           </div>
         )}
+
+        {/* 만든이 진입 — 참여자 시야 방해를 최소화한 작은 링크 */}
+        <div className="mt-10 pt-6 border-t border-black/5 text-center">
+          <Link
+            to={`/r/${slug}/host`}
+            className="text-[12px] text-black/30 hover:text-black/60 transition-colors"
+          >
+            이 롤링페이퍼의 만든이세요? <span className="underline underline-offset-2">관리하기</span>
+          </Link>
+        </div>
       </div>
     </main>
   )

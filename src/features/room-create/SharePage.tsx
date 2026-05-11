@@ -33,17 +33,22 @@ export default function SharePage() {
       .then(({ data }) => { if (data) setRecipientName(data.recipient_name) })
   }, [slug, recipientName])
 
-  async function handleCopy() {
+  /** 클립보드 복사(폴백 포함) */
+  async function copyText(text: string) {
     try {
-      await navigator.clipboard.writeText(shareUrl)
+      await navigator.clipboard.writeText(text)
     } catch {
       const el = document.createElement('input')
-      el.value = shareUrl
+      el.value = text
       document.body.appendChild(el)
       el.select()
       document.execCommand('copy')
       document.body.removeChild(el)
     }
+  }
+
+  async function handleCopy() {
+    await copyText(shareUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -90,7 +95,7 @@ export default function SharePage() {
           </p>
         </div>
 
-        {/* 버튼 3개 — 2번: URL 복사 최우선, 이모지 정리 */}
+        {/* 버튼 3개 — URL 복사 최우선 */}
         <div className="space-y-2.5">
 
           {/* URL 복사 — 1순위 (블랙 필) */}
@@ -113,15 +118,21 @@ export default function SharePage() {
             카카오톡으로 공유
           </button>
 
-          {/* 내 대시보드 — 3순위 (아웃라인) */}
+          {/* 내 페이지 — 3순위 (아웃라인) */}
           <button
             onClick={() => navigate(`/r/${slug}/host`)}
             className={`${pillBtn} border border-[#e6e6e6] hover:border-black
                          bg-white text-black`}
           >
-            내 대시보드 가기
+            내 페이지 가기
           </button>
         </div>
+
+        {/* 보관 안내 한 줄 — 별도 host URL 카드 대신 자연스러운 행동 권장 */}
+        <p className="mt-6 text-[12px] text-black/40 leading-relaxed text-center">
+          공유한 링크에서 만든이로 다시 들어올 수 있어요.<br />
+          <span className="text-black/55">본인 카톡에도 보내두면 안전해요.</span>
+        </p>
 
       </div>
     </main>

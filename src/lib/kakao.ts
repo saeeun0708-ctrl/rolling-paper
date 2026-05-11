@@ -1,19 +1,16 @@
-// 카카오 SDK 타입 선언
+// 카카오 SDK 타입 선언 (초기화 용도로만 유지)
 declare global {
   interface Window {
     Kakao: {
       init(key: string): void
       isInitialized(): boolean
-      Share: {
-        sendDefault(options: object): void
-      }
+      Share: { sendDefault(options: object): void }
     }
   }
 }
 
 const KAKAO_KEY = import.meta.env.VITE_KAKAO_KEY as string | undefined
 
-/** 카카오 SDK 초기화 (중복 호출 방지) */
 export function initKakao(): void {
   if (!KAKAO_KEY || !window.Kakao) return
   if (window.Kakao.isInitialized()) return
@@ -21,44 +18,27 @@ export function initKakao(): void {
 }
 
 /**
- * 카카오톡 공유
- * 1순위: 카카오 SDK (text 타입, URL을 텍스트에 직접 포함 → 카카오톡이 링크 미리보기 자동 생성)
- * 2순위: Web Share API (모바일 기본 공유 시트)
- * 3순위: 클립보드 복사
+ * 공유하기
+ * 1순위: Web Share API — OS 기본 공유 시트 (카카오톡·문자·메모 등 선택 가능, URL 완벽 전달)
+ * 2순위: 클립보드 복사 + 알림
  */
-export function shareKakao(title: string, description: string, url: string): void {
-  // ── 1. 카카오 SDK ─────────────────────────────────────────────────────────
-  if (window.Kakao && KAKAO_KEY) {
-    initKakao()
+export async function shareKakao(title: string, description: string, url: string): Promise<void> {
+  // ── 1. Web Share API ──────────────────────────────────────────────────────
+  if (navigator.share) {
     try {
-      window.Kakao.Share.sendDefault({
-        objectType: 'text',
-        // URL을 텍스트에 직접 포함 → 카카오톡이 URL 인식 후 링크 미리보기 생성
-        text: `🌸 ${title}\n${description}\n\n${url}`,
-        link: {
-          mobileWebUrl: url,
-          webUrl:       url,
-        },
-      })
+      await navigator.share({ title, text: description, url })
       return
     } catch (e) {
-      console.warn('카카오 공유 실패, Web Share API로 폴백:', e)
+      // 사용자가 취소한 경우 (AbortError) 조용히 무시
+      if (e instanceof Error && e.name === 'AbortError') return
     }
   }
 
-  // ── 2. Web Share API (모바일 카카오톡 앱 등 선택 가능) ─────────────────
-  if (navigator.share) {
-    navigator.share({ title, text: description, url }).catch(() => {
-      copyFallback(url)
-    })
-    return
+  // ── 2. 클립보드 복사 폴백 ────────────────────────────────────────────────
+  try {
+    await navigator.clipboard.writeText(url)
+    alert('링크를 복사했어요!\n카카오톡을 열고 원하는 대화방에 붙여넣기 해주세요.')
+  } catch {
+    alert(`링크를 직접 복사해주세요:\n${url}`)
   }
-
-  // ── 3. 클립보드 복사 폴백 ─────────────────────────────────────────────────
-  copyFallback(url)
-}
-
-function copyFallback(url: string) {
-  navigator.clipboard.writeText(url).catch(() => {})
-  alert('링크를 클립보드에 복사했어요! 카카오톡에 직접 붙여넣기 해주세요.')
 }

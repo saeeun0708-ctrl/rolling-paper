@@ -175,9 +175,9 @@ export default function HostPage() {
   if (view === 'auth') return (
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">Host Access</p>
+        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">Maker Access</p>
         <h1 className="text-[2.2rem] font-black text-black leading-[1.15] tracking-tight mb-2">
-          주최자로<br />입장하기
+          만든이로<br />입장하기
         </h1>
         <p className="text-black/40 text-[14px] mb-8">방 만들 때 설정한 비밀번호를 입력하세요</p>
         <form onSubmit={handlePinSubmit} className="space-y-4">

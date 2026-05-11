@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import bcrypt from 'bcryptjs'
 import { supabase } from '../../lib/supabase'
+import { addMyRoom } from '../../lib/myRooms'
 import { generateSlug, generateOpenKey } from './utils'
 
 interface FormValues {
@@ -44,7 +45,7 @@ export function useCreateRoom() {
   function validate(): FormErrors {
     const errs: FormErrors = {}
     if (!values.recipientName.trim()) errs.recipientName = '받는 분 이름을 입력해주세요.'
-    if (!values.hostName.trim())      errs.hostName      = '주최자 이름을 입력해주세요.'
+    if (!values.hostName.trim())      errs.hostName      = '만든이 이름을 입력해주세요.'
     if (!/^\d{6}$/.test(values.pin)) errs.pin = '숫자 6자리를 입력해주세요.'
     return errs
   }
@@ -78,6 +79,14 @@ export function useCreateRoom() {
       })
 
       if (error) throw error
+
+      // 이 기기에 "내가 만든 롤링페이퍼" 목록으로 저장 — 페이지를 닫아도
+      // 첫 화면에서 host 페이지로 다시 찾아갈 수 있게 한다.
+      addMyRoom({
+        slug,
+        recipientName: values.recipientName.trim(),
+        hostName:      values.hostName.trim(),
+      })
 
       // 성공 → 공유 페이지로 이동 (recipient_name을 router state로 전달)
       navigate(`/r/${slug}/share`, {

@@ -28,8 +28,8 @@ export default function Privacy() {
               </thead>
               <tbody>
                 <tr className="border-b border-black/5">
-                  <td className="py-2 px-3">주최자</td>
-                  <td className="py-2 px-3">주최자 이름, 받는 분 이름, PIN 해시값</td>
+                  <td className="py-2 px-3">만든이(주최자)</td>
+                  <td className="py-2 px-3">만든이 이름, 받는 분 이름, PIN 해시값</td>
                   <td className="py-2 px-3">방 생성 및 인증</td>
                 </tr>
                 <tr className="border-b border-black/5">

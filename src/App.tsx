@@ -24,7 +24,7 @@ function App() {
         <Route path="/r/:slug/share"   element={<SharePage />} />
         {/* 메시지 작성 페이지 */}
         <Route path="/r/:slug"         element={<WriteMessagePage />} />
-        {/* 주최자 대시보드 */}
+        {/* 만든이 페이지 */}
         <Route path="/r/:slug/host"    element={<HostPage />} />
         {/* 받는 분 열람 페이지 */}
         <Route path="/r/:slug/open"    element={<ViewerPage />} />
