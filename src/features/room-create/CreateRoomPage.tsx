@@ -202,7 +202,7 @@ export default function CreateRoomPage() {
                                 : 'border-transparent focus:border-black/10'}`}
                 />
                 <p className="mt-2 text-[12px] text-black/30">
-                  기기를 바꿔도 만든 방을 찾을 수 있어요. 비워두셔도 됩니다.
+                  이메일을 입력하면 다른 기기에서도 볼 수 있어요.
                 </p>
                 {errors.email && (
                   <p className="mt-1 text-[12px] text-red-500">{errors.email}</p>
