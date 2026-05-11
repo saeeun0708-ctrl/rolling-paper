@@ -24,6 +24,8 @@ export default function CreateRoomPage() {
   const [myRooms, setMyRooms] = useState<MyRoom[]>([])
   // 카드가 있을 땐 폼을 디스클로저로 접어 핵심 동선(기존 방으로 들어가기)에 집중
   const [showForm, setShowForm] = useState(false)
+  // 내 이름 입력 후 blur 되었는지 — 이메일·비밀번호 노출 트리거
+  const [hostNameBlurred, setHostNameBlurred] = useState(false)
 
   // 마운트 시 한 번 로컬에 저장된 내 방 목록 로드
   useEffect(() => {
@@ -164,7 +166,14 @@ export default function CreateRoomPage() {
                 <input
                   type="text"
                   value={values.hostName}
-                  onChange={e => handleChange('hostName', e.target.value)}
+                  onChange={e => {
+                    handleChange('hostName', e.target.value)
+                    // 다 지우면 blur 상태도 리셋 — 다시 입력하고 blur 해야 다음 단계 노출
+                    if (!e.target.value.trim()) setHostNameBlurred(false)
+                  }}
+                  onBlur={() => {
+                    if (values.hostName.trim()) setHostNameBlurred(true)
+                  }}
                   placeholder="예: 큰딸, 홍길동"
                   maxLength={20}
                   className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
@@ -180,8 +189,8 @@ export default function CreateRoomPage() {
                 )}
               </div>
 
-              {/* 받는 분 이름과 내 이름이 모두 채워지면 다음 단계 노출 (점진 공개) */}
-              {values.recipientName.trim() && values.hostName.trim() && (
+              {/* 받는 분 + 내 이름이 채워지고, 내 이름 필드가 blur 된 다음에 노출 */}
+              {values.recipientName.trim() && values.hostName.trim() && hostNameBlurred && (
                 <>
                   {/* 이메일 (선택) — 기기 변경 시 내 방 찾기 키 */}
                   <div>
