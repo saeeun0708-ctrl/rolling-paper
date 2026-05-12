@@ -38,11 +38,15 @@ export default function ViewerPage({ isPreview = false }: Props) {
   useEffect(() => {
     if (!slug) return
 
-    // 미리보기 모드: 만든이 세션이 없으면 host 페이지로 보내 인증을 받게 한다.
-    // slug만 알면 누구나 미리보기에 진입하지 못하도록 한다.
-    if (isPreview && sessionStorage.getItem(`rp_host_${slug}`) !== 'ok') {
-      navigate(`/r/${slug}/host`, { replace: true })
-      return
+    // 미리보기 모드: 만든이 세션 또는 참여자 토큰 중 하나는 있어야 진입 가능.
+    // 둘 다 없는 사람은 작성 페이지로 보내 자연스럽게 흐름 복귀.
+    if (isPreview) {
+      const isHost   = sessionStorage.getItem(`rp_host_${slug}`) === 'ok'
+      const isAuthor = localStorage.getItem(`rp_author_${slug}`) !== null
+      if (!isHost && !isAuthor) {
+        navigate(`/r/${slug}`, { replace: true })
+        return
+      }
     }
 
     supabase.from('rooms')

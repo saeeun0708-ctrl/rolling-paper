@@ -8,9 +8,11 @@ interface Props {
   messageId: string
   authorToken: string
   onEdit: () => void
+  /** '받는 분 화면으로 보기' 클릭 시 호출 — WriteMessagePage가 미리보기 페이지로 라우팅 */
+  onPreview: () => void
 }
 
-export default function SuccessView({ name, body, shape, messageId, authorToken, onEdit }: Props) {
+export default function SuccessView({ name, body, shape, messageId, authorToken, onEdit, onPreview }: Props) {
   return (
     <div className="animate-[fadeIn_0.4s_ease]">
       {/* 성공 헤딩 */}
@@ -42,6 +44,19 @@ export default function SuccessView({ name, body, shape, messageId, authorToken,
                    transition-colors text-center"
       >
         내용 수정하기
+      </button>
+
+      {/* 받는 분 화면 미리보기 — 다른 사람들이 작성한 메시지까지 풀숲 뷰로 확인 */}
+      <button
+        type="button"
+        onClick={onPreview}
+        className="w-full py-3.5 mt-1
+                   bg-white border border-[#d4d4d4]
+                   text-black/70 hover:border-black hover:text-black
+                   font-semibold text-[14px]
+                   rounded-full transition-colors"
+      >
+        받는 분 화면으로 보기 →
       </button>
 
       {/* PIN 설정 섹션 */}

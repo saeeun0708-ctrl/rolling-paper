@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { getStoredAuthor, StoredAuthor, FlowerShape } from './utils'
 import { useWriteMessage } from './useWriteMessage'
@@ -15,6 +15,7 @@ const MAX_CHARS = 500
 
 export default function WriteMessagePage() {
   const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
 
   const [room, setRoom]               = useState<Room | null>(null)
   const [view, setView]               = useState<PageView>('loading')
@@ -116,6 +117,7 @@ export default function WriteMessagePage() {
             messageId={successData.messageId}
             authorToken={successData.authorToken}
             onEdit={onEdit}
+            onPreview={() => navigate(`/r/${slug}/preview`)}
           />
         </div>
       </main>
