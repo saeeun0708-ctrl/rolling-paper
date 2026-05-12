@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import bcrypt from 'bcryptjs'
 import { supabase } from '../../lib/supabase'
 import { shareKakao } from '../../lib/kakao'
 import { FlowerShape, FLOWER_EMOJIS } from '../message-write/utils'
 import WrapModal from '../gift-wrap/WrapModal'
+import ShareModal from '../../components/ShareModal'
 import Footer from '../../components/Footer'
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
@@ -66,6 +67,7 @@ async function copyToClipboard(text: string) {
 
 export default function HostPage() {
   const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
 
   const SESSION_KEY  = `rp_host_${slug}`
   const ATTEMPTS_KEY = `rp_host_attempts_${slug}`
@@ -85,6 +87,8 @@ export default function HostPage() {
   const [showWrap, setShowWrap]     = useState(false)
   const [isWrapping, setIsWrapping] = useState(false)
   const [openKey, setOpenKey]       = useState('')
+  // 미포장 상태에서 '링크 공유하기' 클릭 시 공유 방법 선택 모달 노출
+  const [showShare, setShowShare]   = useState(false)
 
   useEffect(() => {
     if (!slug) return
@@ -248,24 +252,31 @@ export default function HostPage() {
             <p className="text-black/40 text-[14px]">{messages.length}명이 마음을 남겼어요</p>
           </div>
 
-          {/* ① 참여자 초대 링크 */}
+          {/* ① 참여자 초대 — 메시지 작성하기(보조) + 링크 공유하기(1순위) */}
           {!isWrapped && (
             <div className="rounded-2xl border border-[#e6e6e6] px-5 py-4">
               <p className="text-[11px] font-mono uppercase tracking-[0.1em] text-black/40 mb-3">
-                참여자 초대 링크
+                참여자 초대
               </p>
               <div className="flex gap-2">
+                {/* 만든이 본인도 자기 폰에서 바로 메시지를 남길 수 있게 — 보조 액션 */}
                 <button
-                  onClick={() => shareKakao(`${name}${honorific} 롤링페이퍼`, '마음을 남겨주세요 🌿', writeUrl)}
-                  className="flex-1 py-2.5 bg-[#FEE500] text-[#3c1e1e] text-[13px] font-bold rounded-full"
+                  onClick={() => navigate(`/r/${slug}`)}
+                  className="flex-1 py-2.5 bg-white border border-[#d4d4d4]
+                             hover:border-black hover:text-black
+                             text-black/70 text-[13px] font-semibold
+                             rounded-full transition-colors"
                 >
-                  카카오로 공유
+                  메시지 작성하기
                 </button>
+                {/* 공유 방법(카카오 / 링크 복사) 선택 모달 — 1순위 */}
                 <button
-                  onClick={() => copyToClipboard(writeUrl)}
-                  className="flex-1 py-2.5 bg-[#f5f5f5] text-black text-[13px] font-bold rounded-full"
+                  onClick={() => setShowShare(true)}
+                  className="flex-1 py-2.5 bg-black hover:bg-black/80
+                             text-white text-[13px] font-bold
+                             rounded-full transition-colors"
                 >
-                  링크 복사
+                  링크 공유하기
                 </button>
               </div>
             </div>
@@ -349,6 +360,15 @@ export default function HostPage() {
           onConfirm={handleWrap}
           onCancel={() => setShowWrap(false)}
           isLoading={isWrapping}
+        />
+      )}
+
+      {showShare && (
+        <ShareModal
+          title={`${name}${honorific} 롤링페이퍼`}
+          description="마음을 남겨주세요 🌿"
+          url={writeUrl}
+          onClose={() => setShowShare(false)}
         />
       )}
     </>
