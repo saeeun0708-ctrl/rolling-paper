@@ -222,12 +222,12 @@ export default function CreateRoomPage() {
                 <Link
                   to="/my-rooms"
                   className="block w-full py-4 text-center
-                             bg-white border border-[#e6e6e6]
+                             bg-white border border-[#d4d4d4]
                              text-black/70 hover:border-black hover:text-black
-                             font-bold text-[15px]
+                             font-semibold text-[15px]
                              rounded-full transition-colors"
                 >
-                  내 롤링페이퍼 찾기
+                  내 롤링페이퍼 찾기 →
                 </Link>
               </div>
             </form>
