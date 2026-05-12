@@ -34,6 +34,8 @@ function App() {
         <Route path="/r/:slug/host"    element={<HostPage />} />
         {/* 받는 분 열람 페이지 */}
         <Route path="/r/:slug/open"    element={<ViewerPage />} />
+        {/* 만든이 미리보기 — 받는 분과 같은 UI, 포장 검증·애니메이션 생략 */}
+        <Route path="/r/:slug/preview" element={<ViewerPage isPreview />} />
         {/* 법적 고지 */}
         <Route path="/terms"           element={<Terms />} />
         <Route path="/privacy"         element={<Privacy />} />

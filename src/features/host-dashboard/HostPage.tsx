@@ -284,6 +284,22 @@ export default function HostPage() {
 
           {/* ② 메시지 목록 */}
           <div className="space-y-3">
+            {/* 메시지가 있을 때만 받는 분 화면 미리보기 진입 링크 노출 */}
+            {messages.length > 0 && (
+              <div className="flex items-center justify-between">
+                <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/40">
+                  메시지
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/r/${slug}/preview`)}
+                  className="text-[12px] font-semibold text-black/60 hover:text-black
+                             transition-colors"
+                >
+                  받는 분 화면으로 보기 →
+                </button>
+              </div>
+            )}
             {messages.length === 0
               ? <p className="text-center py-8 text-black/30 text-[14px]">아직 작성된 메시지가 없어요</p>
               : messages.map(msg => {

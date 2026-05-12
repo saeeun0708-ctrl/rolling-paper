@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../lib/supabase'
 import UnwrapAnimation from './UnwrapAnimation'
@@ -12,7 +12,13 @@ interface Room { id: string; recipient_name: string; expires_at: string; status:
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
 type ViewState = 'loading' | 'invalid' | 'animating' | 'meadow'
 
-export default function ViewerPage() {
+interface Props {
+  /** true면 만든이 미리보기 모드 — 포장 검증/애니메이션을 생략한다 */
+  isPreview?: boolean
+}
+
+export default function ViewerPage({ isPreview = false }: Props) {
+  const navigate        = useNavigate()
   const { slug }        = useParams<{ slug: string }>()
   const [params]        = useSearchParams()
   const openKey         = params.get('k') ?? ''
@@ -31,13 +37,23 @@ export default function ViewerPage() {
   // ─── 방 + 메시지 로드 ─────────────────────────────────────────────────────
   useEffect(() => {
     if (!slug) return
+
+    // 미리보기 모드: 만든이 세션이 없으면 host 페이지로 보내 인증을 받게 한다.
+    // slug만 알면 누구나 미리보기에 진입하지 못하도록 한다.
+    if (isPreview && sessionStorage.getItem(`rp_host_${slug}`) !== 'ok') {
+      navigate(`/r/${slug}/host`, { replace: true })
+      return
+    }
+
     supabase.from('rooms')
       .select('id, recipient_name, expires_at, status, open_key')
       .eq('slug', slug)
       .single()
       .then(async ({ data, error }) => {
-        // open_key 불일치 또는 미포장 상태면 invalid
-        if (error || !data || data.status !== 'wrapped' || data.open_key !== openKey) {
+        if (error || !data) { setViewState('invalid'); return }
+        // 실서비스 진입(받는 분)은 status·open_key 검증을 통과해야 한다.
+        // 미리보기 모드는 두 검증을 생략한다.
+        if (!isPreview && (data.status !== 'wrapped' || data.open_key !== openKey)) {
           setViewState('invalid'); return
         }
         setRoom(data)
@@ -46,9 +62,10 @@ export default function ViewerPage() {
           .eq('room_id', data.id)
           .order('created_at', { ascending: true })
         setMessages(msgs ?? [])
-        setViewState('animating')
+        // 미리보기는 포장 풀기 애니메이션 없이 바로 meadow 로 진입
+        setViewState(isPreview ? 'meadow' : 'animating')
       })
-  }, [slug, openKey])
+  }, [slug, openKey, isPreview, navigate])
 
   // ─── 로딩 ─────────────────────────────────────────────────────────────────
   if (viewState === 'loading') return (
