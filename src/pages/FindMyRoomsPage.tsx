@@ -102,8 +102,7 @@ export default function FindMyRoomsPage() {
           내 롤링페이퍼<br />찾기
         </h1>
         <p className="text-black/40 text-[14px] mb-8">
-          방 만들 때 입력한 이메일을 입력해주세요.<br />
-          비밀번호는 각 방으로 들어갈 때 입력합니다.
+          롤링페이퍼를 만들 때 입력한 이메일을 입력해주세요.
         </p>
 
         {/* 이메일 입력 폼 */}
