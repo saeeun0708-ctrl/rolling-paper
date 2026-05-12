@@ -66,8 +66,8 @@ export default function ViewerPage({ isPreview = false }: Props) {
           .eq('room_id', data.id)
           .order('created_at', { ascending: true })
         setMessages(msgs ?? [])
-        // 미리보기는 포장 풀기 애니메이션 없이 바로 meadow 로 진입
-        setViewState(isPreview ? 'meadow' : 'animating')
+        // 미리보기에서도 포장 풀기 애니메이션을 동일하게 보여준다
+        setViewState('animating')
       })
   }, [slug, openKey, isPreview, navigate])
 

@@ -39,8 +39,8 @@ export default function PinSetupSection({ messageId, authorToken }: Props) {
   if (status === 'done') {
     return (
       <div className="mt-5 rounded-2xl bg-[#dceeb1] px-5 py-4 text-center">
-        <p className="text-[14px] font-bold text-black">🔒 PIN이 설정됐어요!</p>
-        <p className="text-[12px] text-black/50 mt-1">다른 기기에서 이름 + PIN으로 수정할 수 있어요.</p>
+        <p className="text-[14px] font-bold text-black">🔒 비밀번호가 설정됐어요!</p>
+        <p className="text-[12px] text-black/50 mt-1">다른 기기에서 이름 + 비밀번호로 수정할 수 있어요.</p>
       </div>
     )
   }
@@ -52,15 +52,15 @@ export default function PinSetupSection({ messageId, authorToken }: Props) {
           type="button"
           onClick={() => setStatus('open')}
           className="w-full py-3 text-[13px] text-black/40 hover:text-black/70
-                     border border-[#e6e6e6] hover:border-black/20 rounded-full transition-colors"
+                     transition-colors text-center"
         >
-          다른 기기에서도 수정하려면 PIN 설정하기
+          다른 기기에서도 수정하고 싶으신가요?
         </button>
       )}
 
       {(status === 'open' || status === 'submitting' || status === 'error') && (
         <div className="rounded-2xl bg-[#f5f5f5] px-5 py-4 space-y-3">
-          <p className="text-[13px] font-bold text-black">PIN 설정</p>
+          <p className="text-[13px] font-bold text-black">비밀번호 설정</p>
           <input
             type="password"
             inputMode="numeric"
@@ -82,7 +82,7 @@ export default function PinSetupSection({ messageId, authorToken }: Props) {
             className="w-full py-3 bg-black text-white text-[14px] font-bold
                        rounded-full transition-colors disabled:opacity-40"
           >
-            {status === 'submitting' ? '저장 중...' : 'PIN 저장'}
+            {status === 'submitting' ? '저장 중...' : '비밀번호 저장'}
           </button>
         </div>
       )}

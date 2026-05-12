@@ -77,7 +77,7 @@ export default function FindMyMessage({ slug, roomId, onFound }: Props) {
     <div className="rounded-2xl bg-[#f5f5f5] px-5 py-4 space-y-3">
       <p className="text-[13px] font-bold text-black">내 글 찾기</p>
       <p className="text-[12px] text-black/40">
-        작성 시 설정한 이름과 PIN을 입력하세요.
+        작성 시 설정한 이름과 비밀번호를 입력하세요.
       </p>
 
       <input
@@ -94,14 +94,14 @@ export default function FindMyMessage({ slug, roomId, onFound }: Props) {
         inputMode="numeric"
         value={pin}
         onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
-        placeholder="PIN 6자리"
+        placeholder="비밀번호 6자리"
         className="w-full px-4 py-3 rounded-xl bg-white text-[15px] tracking-widest
                    border-2 border-transparent focus:border-black/10 focus:outline-none"
       />
 
       {status === 'not_found' && (
         <p className="text-[12px] text-red-500">
-          일치하는 글을 찾지 못했어요. 이름이나 PIN을 확인해주세요.
+          일치하는 글을 찾지 못했어요. 이름이나 비밀번호를 확인해주세요.
         </p>
       )}
       {status === 'error' && (
