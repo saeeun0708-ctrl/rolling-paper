@@ -166,9 +166,9 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
           롤링페이퍼를 작성해주세요
         </h1>
 
-        {/* 이미 작성한 경우 — 배너 표시 */}
+        {/* 이미 작성한 경우 — 배너 + 풀숲 진입 버튼 */}
         {stored && (
-          <div className="mb-6">
+          <div className="mb-6 space-y-2">
             <div className="rounded-2xl bg-[#dceeb1] px-5 py-4 flex items-center justify-between gap-3">
               <div>
                 <p className="text-[13px] font-bold text-black">이미 작성하셨어요</p>
@@ -182,6 +182,15 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
                 삭제
               </button>
             </div>
+            {/* 풀숲(받는 분 화면) 진입 — 본인 꽃이 강조 표시됨 */}
+            <button
+              type="button"
+              onClick={() => navigate(`/r/${slug}/preview`)}
+              className="w-full py-3 bg-black hover:bg-black/80 text-white text-[14px] font-bold
+                         rounded-full transition-colors flex items-center justify-center gap-2"
+            >
+              🌿 롤링페이퍼 보기
+            </button>
             {deleteError && (
               <p className="mt-2 text-[12px] text-red-500 text-center">{deleteError}</p>
             )}

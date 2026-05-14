@@ -11,6 +11,8 @@ interface Props {
   expiresAt:     string
   onFlowerClick: (index: number) => void
   onListMode:    () => void
+  /** 참여자 본인이 쓴 메시지 id — 일치하는 꽃에 강조 표시 */
+  myMessageId?:  string
 }
 
 // ── 꽃 shape → SVG 컴포넌트 매핑 (없으면 daisy 폴백) ──────────────────────
@@ -104,12 +106,21 @@ interface FlowerCellProps {
   flower:        PlacedFlower
   animDelayIdx:  number
   onClick:       (originalIndex: number) => void
+  /** 본인 꽃 강조 표시 — 글로우 + 라벨 강조 + 펄스 애니메이션 */
+  isMine?:       boolean
 }
 
-const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick }: FlowerCellProps) {
+const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, isMine = false }: FlowerCellProps) {
   const [isHover, setIsHover] = useState(false)
   const svgKey  = SHAPE_MAP[f.shape as FlowerShape] ?? 'daisy'
   const FlowerComp = FLOWER_SVG_COMPONENTS[svgKey]
+
+  // 본인 꽃이면 그린 글로우, hover 시엔 핑크. 평소엔 옅은 그림자.
+  const dropShadow = isHover
+    ? `drop-shadow(0 6px 14px rgba(194,90,126,0.45))`
+    : isMine
+      ? `drop-shadow(0 0 14px rgba(92,176,84,0.7)) drop-shadow(0 3px 5px rgba(0,0,0,0.18))`
+      : `drop-shadow(0 3px 5px rgba(0,0,0,0.18))`
 
   return (
     <motion.button
@@ -117,8 +128,16 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick }
       onHoverStart={() => setIsHover(true)}
       onHoverEnd={() => setIsHover(false)}
       initial={{ scale: 0, opacity: 0, y: 16 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
-      transition={{ delay: (animDelayIdx % 20) * 0.07, type: 'spring', stiffness: 200, damping: 14 }}
+      animate={
+        isMine
+          ? { scale: [1, 1.06, 1], opacity: 1, y: 0 }
+          : { scale: 1, opacity: 1, y: 0 }
+      }
+      transition={
+        isMine
+          ? { scale: { repeat: Infinity, duration: 2.4, ease: 'easeInOut' }, opacity: { delay: (animDelayIdx % 20) * 0.07 }, y: { delay: (animDelayIdx % 20) * 0.07 } }
+          : { delay: (animDelayIdx % 20) * 0.07, type: 'spring', stiffness: 200, damping: 14 }
+      }
       style={{
         position: 'absolute',
         left: `${f.x}%`,
@@ -130,26 +149,45 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick }
         padding: 0,
         cursor: 'pointer',
         transformOrigin: '50% 95%',
-        filter: isHover
-          ? `drop-shadow(0 6px 14px rgba(194,90,126,0.4))`
-          : `drop-shadow(0 3px 5px rgba(0,0,0,0.18))`,
-        zIndex: Math.floor(f.depth * 100) + 5,
+        filter: dropShadow,
+        zIndex: isMine ? Math.floor(f.depth * 100) + 6 : Math.floor(f.depth * 100) + 5,
       }}
-      aria-label={`${f.author_name}님의 메시지 보기`}
+      aria-label={`${f.author_name}님의 메시지 보기${isMine ? ' (내 꽃)' : ''}`}
     >
       <FlowerComp size={f.size}/>
+
+      {/* 본인 꽃 — 작은 '내 꽃' 라벨 (꽃 위쪽) */}
+      {isMine && (
+        <div style={{
+          position: 'absolute', left: '50%', top: -10,
+          transform: 'translateX(-50%)',
+          fontSize: Math.max(9, f.size * 0.16),
+          color: '#fff',
+          fontWeight: 700,
+          whiteSpace: 'nowrap',
+          background: '#5cb054',
+          padding: '2px 7px',
+          borderRadius: 999,
+          boxShadow: '0 2px 6px rgba(92,176,84,0.5)',
+          pointerEvents: 'none',
+          letterSpacing: '-0.02em',
+        }}>
+          내 꽃
+        </div>
+      )}
+
       {/* 이름 레이블 */}
       <div style={{
         position: 'absolute', left: '50%', bottom: -2,
         transform: 'translateX(-50%)',
         fontSize: Math.max(9, f.size * 0.18),
-        color: '#2d4a2d',
-        fontWeight: 600,
+        color: isMine ? '#fff' : '#2d4a2d',
+        fontWeight: isMine ? 700 : 600,
         whiteSpace: 'nowrap',
-        background: 'rgba(255,255,255,0.78)',
+        background: isMine ? '#5cb054' : 'rgba(255,255,255,0.78)',
         padding: '1px 6px',
         borderRadius: 999,
-        opacity: isHover ? 1 : 0.75,
+        opacity: isHover || isMine ? 1 : 0.75,
         transition: 'opacity 200ms',
         pointerEvents: 'none',
       }}>
@@ -195,7 +233,7 @@ const LIST_BUTTON_STYLE: React.CSSProperties = {
 }
 
 // ── 메인 컴포넌트 ──────────────────────────────────────────────────────────
-export default function MeadowView({ messages, recipientName, expiresAt, onFlowerClick, onListMode }: Props) {
+export default function MeadowView({ messages, recipientName, expiresAt, onFlowerClick, onListMode, myMessageId }: Props) {
   const placed  = useMemo(() => distributeFlowers(messages), [messages])
   const honorific = recipientName.endsWith('님') ? '께' : '님께'
 
@@ -230,6 +268,7 @@ export default function MeadowView({ messages, recipientName, expiresAt, onFlowe
             flower={f}
             animDelayIdx={i}
             onClick={onFlowerClick}
+            isMine={!!myMessageId && f.id === myMessageId}
           />
         ))}
       </div>

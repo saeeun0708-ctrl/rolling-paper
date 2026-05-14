@@ -8,9 +8,11 @@ interface Props {
   currentIndex: number
   onNavigate:   (index: number) => void
   onClose:      () => void
+  /** 만든이 권한일 때만 — 메시지 삭제 콜백. 없으면 삭제 버튼 미노출 */
+  onDelete?:    (messageId: string) => void
 }
 
-export default function MessageModal({ messages, currentIndex, onNavigate, onClose }: Props) {
+export default function MessageModal({ messages, currentIndex, onNavigate, onClose, onDelete }: Props) {
   const msg    = messages[currentIndex]
   const emoji = FLOWER_EMOJIS[msg.shape as FlowerShape] ?? '🌸'
   const hasPrev = currentIndex > 0
@@ -93,6 +95,21 @@ export default function MessageModal({ messages, currentIndex, onNavigate, onClo
             <p className="text-[11px] text-black/25 mt-3">
               {hasPrev && '← '} 스와이프해서 이동 {hasNext && ' →'}
             </p>
+          )}
+
+          {/* 만든이 — 메시지 삭제 (권한 있을 때만 노출) */}
+          {onDelete && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm(`${msg.author_name}님의 메시지를 삭제할까요?`)) {
+                  onDelete(msg.id)
+                }
+              }}
+              className="mt-5 text-[12px] text-black/35 hover:text-red-500 transition-colors"
+            >
+              메시지 삭제
+            </button>
           )}
         </motion.div>
       </AnimatePresence>

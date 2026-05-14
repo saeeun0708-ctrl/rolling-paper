@@ -7,6 +7,8 @@ import MeadowView      from './MeadowView'
 import MessageModal    from './MessageModal'
 import ListMode        from './ListMode'
 import ExportModal     from '../image-export/ExportModal'
+import ShareModal      from '../../components/ShareModal'
+import { getStoredAuthor, type StoredAuthor } from '../message-write/utils'
 
 interface Room { id: string; recipient_name: string; expires_at: string; status: string; open_key: string }
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
@@ -29,6 +31,9 @@ export default function ViewerPage({ isPreview = false }: Props) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [isListMode, setIsListMode] = useState(false)
   const [showExport, setShowExport] = useState(false)
+  // 참여자(작성 완료자) 정보 — preview 모드에서 자기 꽃 강조 + '더 많은 마음 모으기' 트리거용
+  const [storedAuthor, setStoredAuthor] = useState<StoredAuthor | null>(null)
+  const [showShare, setShowShare] = useState(false)
 
   // 캡처 대상 ref — 풀숲 콘텐츠 박스에 직접 부착(motion.div의 transform/opacity가
   // offsetWidth에 영향을 주지 않도록). 단순 안전 폴백은 imageExport에서 처리.
@@ -41,12 +46,14 @@ export default function ViewerPage({ isPreview = false }: Props) {
 
     // 미리보기 모드: 만든이 세션 또는 참여자 토큰 중 하나는 있어야 진입 가능.
     if (isPreview) {
-      const isHost   = sessionStorage.getItem(`rp_host_${slug}`) === 'ok'
-      const isAuthor = localStorage.getItem(`rp_author_${slug}`) !== null
-      if (!isHost && !isAuthor) {
+      const isHost = sessionStorage.getItem(`rp_host_${slug}`) === 'ok'
+      const author = getStoredAuthor(slug)
+      if (!isHost && !author) {
         navigate(`/r/${slug}`, { replace: true })
         return
       }
+      // 참여자면 자기 꽃 식별용으로 보관
+      if (author) setStoredAuthor(author)
     }
 
     const { data, error } = await supabase.from('rooms')
@@ -157,6 +164,7 @@ export default function ViewerPage({ isPreview = false }: Props) {
                 expiresAt={room?.expires_at ?? ''}
                 onFlowerClick={setSelectedIdx}
                 onListMode={() => setIsListMode(true)}
+                myMessageId={storedAuthor?.messageId}
               />
             </div>
           </motion.div>
@@ -174,6 +182,20 @@ export default function ViewerPage({ isPreview = false }: Props) {
                      border border-black/10 backdrop-blur-sm transition-all"
         >
           📥 저장
+        </button>
+      )}
+
+      {/* 참여자(작성 완료자) — 더 많은 마음 모으기. 작성 링크를 친구에게 공유 */}
+      {viewState === 'meadow' && isPreview && storedAuthor && (
+        <button
+          onClick={() => setShowShare(true)}
+          data-export-hide
+          className="fixed bottom-20 left-5 z-20 flex items-center gap-2
+                     px-4 py-2.5 bg-[#5cb054] hover:bg-[#4a9543] rounded-full shadow-lg
+                     text-[13px] font-bold text-white
+                     border border-black/5 transition-all"
+        >
+          🌿 더 많은 마음 모으기
         </button>
       )}
 
@@ -201,6 +223,16 @@ export default function ViewerPage({ isPreview = false }: Props) {
           />
         )}
       </AnimatePresence>
+
+      {/* 작성 링크 공유 모달 (참여자용 '더 많은 마음 모으기') */}
+      {showShare && room && (
+        <ShareModal
+          title={`${room.recipient_name}${room.recipient_name.endsWith('님') ? '께' : '님께'} 보내는 롤링페이퍼`}
+          description="한 마디 남겨주세요 🌿"
+          url={`${window.location.origin}/r/${slug}`}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </>
   )
 }
