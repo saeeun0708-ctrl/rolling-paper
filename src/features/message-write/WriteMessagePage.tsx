@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { getStoredAuthor, StoredAuthor, FlowerShape } from './utils'
@@ -17,6 +17,27 @@ export default function WriteMessagePage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
 
+  // C4: slug가 없으면 즉시 에러 뷰. 이후 코드에서 slug는 string으로 좁혀진다.
+  if (!slug) {
+    return (
+      <main className="min-h-dvh bg-white flex items-center justify-center px-5">
+        <div className="text-center">
+          <p className="text-4xl mb-4">🍃</p>
+          <p className="text-[15px] text-black/60">존재하지 않는 롤링페이퍼예요.</p>
+        </div>
+      </main>
+    )
+  }
+
+  return <WriteMessagePageInner slug={slug} navigate={navigate} />
+}
+
+interface InnerProps {
+  slug: string
+  navigate: ReturnType<typeof useNavigate>
+}
+
+function WriteMessagePageInner({ slug, navigate }: InnerProps) {
   const [room, setRoom]               = useState<Room | null>(null)
   const [view, setView]               = useState<PageView>('loading')
   const [deleteError, setDeleteError] = useState('')
@@ -26,35 +47,42 @@ export default function WriteMessagePage() {
     messageId: string; authorToken: string; shape: FlowerShape
   } | null>(null)
 
-  const form = useWriteMessage(room?.id ?? '', slug ?? '')
+  // C3: room이 로드되기 전에는 useWriteMessage 자체를 마운트하지 않는다(아래에서
+  // SubmitArea를 조건부 렌더). 여기서는 빈 폼 상태를 위해 항상 호출하되,
+  // submit 시점에 room.id가 비어있으면 가드한다.
+  const form = useWriteMessage(room?.id ?? '', slug)
 
   // ─── 방 정보 로드 + localStorage 확인 ──────────────────────────────────
-  useEffect(() => {
-    if (!slug) return
-    supabase
+  const fetchRoom = useCallback(async () => {
+    const { data, error } = await supabase
       .from('rooms')
       .select('id, recipient_name, status')
       .eq('slug', slug)
       .single()
-      .then(({ data, error }) => {
-        if (error || !data) {
-          setErrorMsg('존재하지 않는 롤링페이퍼예요.')
-          setView('error')
-          return
-        }
-        setRoom(data)
-        const s = getStoredAuthor(slug)
-        if (s) setStored(s)
-        setView('form')
-      })
+
+    if (error || !data) {
+      setErrorMsg('존재하지 않는 롤링페이퍼예요.')
+      setView('error')
+      return
+    }
+    setRoom(data)
+    const s = getStoredAuthor(slug)
+    if (s) setStored(s)
+    setView('form')
   }, [slug])
+
+  useEffect(() => {
+    fetchRoom()
+  }, [fetchRoom])
 
   // ─── 제출 ───────────────────────────────────────────────────────────────
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
+    // C3: room이 아직 없으면 제출 차단(빈 room_id로 INSERT되는 사고 방지)
+    if (!room) return
     const result = await form.handleSubmit(stored?.token)
     if (result) {
-      setStored(getStoredAuthor(slug!))
+      setStored(getStoredAuthor(slug))
       setSuccessData(result)
       setView('success')
     }
@@ -82,7 +110,7 @@ export default function WriteMessagePage() {
 
   // ─── 다른 기기에서 내 글 찾기 성공 콜백 ────────────────────────────────
   function onFound() {
-    const s = getStoredAuthor(slug!)
+    const s = getStoredAuthor(slug)
     if (s) setStored(s)
   }
 
@@ -232,11 +260,11 @@ export default function WriteMessagePage() {
             <p className="text-[13px] text-red-500 text-center">{form.errors.submit}</p>
           )}
 
-          {/* 제출 버튼 */}
+          {/* 제출 버튼 — room 로드 전에는 disabled로 빈 room_id INSERT 방지 */}
           <div className="pt-1">
             <button
               type="submit"
-              disabled={form.isSubmitting}
+              disabled={form.isSubmitting || !room}
               className="w-full py-4 bg-black hover:bg-black/80 text-white
                          font-bold text-[15px] rounded-full transition-colors
                          disabled:opacity-40 disabled:cursor-not-allowed"
@@ -257,7 +285,7 @@ export default function WriteMessagePage() {
         {!stored && room && (
           <div className="mt-4">
             <FindMyMessage
-              slug={slug!}
+              slug={slug}
               roomId={room.id}
               onFound={onFound}
             />

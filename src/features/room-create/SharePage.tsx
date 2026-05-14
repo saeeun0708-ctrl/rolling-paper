@@ -65,21 +65,23 @@ export default function SharePage() {
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 아이브로우 */}
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">
-          Link Ready
-        </p>
+        {/* 받는 분 정체성 라벨 (이름이 있을 때만) */}
+        {recipientName ? (
+          <p className="text-[14px] text-black/60 mb-3">
+            <span className="font-bold text-[#5cb054]">{recipientName}</span>{honorific} 보내는 롤링페이퍼
+          </p>
+        ) : (
+          <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">
+            Link Ready
+          </p>
+        )}
 
-        {/* 디스플레이 헤딩 */}
-        <h1 className="text-[2.4rem] font-black text-black leading-[1.15] tracking-[-0.5px] mb-2">
-          {recipientName
-            ? <>
-                <span className="text-[#5cb054]">{recipientName}</span>{honorific}<br />보내는 롤링페이퍼
-              </>
-            : <>롤링페이퍼가<br />완성됐어요</>}
+        {/* 디스플레이 헤딩 — 공간이 만들어졌고 다음 액션이 무엇인지 안내 */}
+        <h1 className="text-[2.2rem] font-black text-black leading-[1.2] tracking-[-0.5px] mb-3">
+          우리만의 롤링페이퍼<br />공간이 만들어졌어요.
         </h1>
-        <p className="text-black/40 text-[15px] mb-7">
-          아래 링크를 공유해서 마음을 모아보세요
+        <p className="text-black/55 text-[15px] mb-7 leading-relaxed">
+          이제 링크를 공유해서 마음을 모아보세요.
         </p>
 
         {/* 링크 카드 */}

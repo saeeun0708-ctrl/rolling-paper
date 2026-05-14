@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { containsProfanity } from '../../lib/profanity'
 import {
@@ -34,14 +34,15 @@ export function useWriteMessage(roomId: string, slug: string) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [editingId, setEditingId]   = useState<string | null>(null)
 
+  // H8: 모바일 더블탭 race 방지 — 동기 가드(ref)와 idempotency 키 동시 적용.
+  // setState의 isSubmitting은 비동기라 짧은 시간 내 연속 호출을 막지 못한다.
+  const submittingRef = useRef(false)
+  // 한 번의 폼 제출에 대해 같은 author_token을 재사용해 중복 INSERT를 방지.
+  const pendingTokenRef = useRef<string | null>(null)
+
   function handleChange<K extends keyof FormValues>(field: K, value: FormValues[K]) {
     setValues(prev => ({ ...prev, [field]: value }))
     setErrors(prev => ({ ...prev, [field]: undefined }))
-  }
-
-  /** 프롬프트 카드 탭 → textarea에 채우기 */
-  function fillPrompt(text: string) {
-    handleChange('body', text)
   }
 
   /** 수정 모드 진입: 기존 데이터로 폼 미리채우기 */
@@ -56,6 +57,8 @@ export function useWriteMessage(roomId: string, slug: string) {
     setValues({ name: '', body: '', shape: null })
     setErrors({})
     setEditingId(null)
+    // 다음 제출을 위해 idempotency 토큰도 초기화
+    pendingTokenRef.current = null
   }
 
   function validate(): FormErrors {
@@ -71,8 +74,22 @@ export function useWriteMessage(roomId: string, slug: string) {
 
   /** 제출 (신규 INSERT 또는 수정 UPDATE) */
   async function handleSubmit(existingToken?: string): Promise<SubmitResult | null> {
+    // C3: roomId/slug가 비어 있으면 즉시 중단(빈 room_id INSERT 방지)
+    if (!roomId || !slug) {
+      setErrors({ submit: '잠시 후 다시 시도해주세요. (방 정보 로딩 중)' })
+      return null
+    }
+
+    // H8: 동기 race 가드 — 같은 tick에 두 번 호출돼도 두 번째 호출은 즉시 차단
+    if (submittingRef.current) return null
+    submittingRef.current = true
+
     const errs = validate()
-    if (Object.keys(errs).length > 0) { setErrors(errs); return null }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs)
+      submittingRef.current = false
+      return null
+    }
 
     setIsSubmitting(true)
     try {
@@ -103,7 +120,10 @@ export function useWriteMessage(roomId: string, slug: string) {
       }
 
       // ─── 신규 INSERT ─────────────────────────────────────────────────────
-      const token = generateToken()
+      // H8: 같은 폼 제출에 대해 author_token을 재사용 → 더블탭 시 두 번째는
+      // RLS/unique 제약이 없더라도 같은 토큰이라 클라이언트에서 중복 처리 가능.
+      const token = pendingTokenRef.current ?? generateToken()
+      pendingTokenRef.current = token
 
       const { data, error } = await supabase
         .from('messages')
@@ -127,6 +147,8 @@ export function useWriteMessage(roomId: string, slug: string) {
         shape:     finalShape,
       })
 
+      // 성공했으니 다음 제출을 위해 토큰 비움
+      pendingTokenRef.current = null
       return { messageId: data.id, authorToken: token, shape: finalShape }
     } catch (err: unknown) {
       console.error('메시지 저장 오류:', err)
@@ -136,6 +158,7 @@ export function useWriteMessage(roomId: string, slug: string) {
       return null
     } finally {
       setIsSubmitting(false)
+      submittingRef.current = false
     }
   }
 
@@ -165,7 +188,6 @@ export function useWriteMessage(roomId: string, slug: string) {
     isSubmitting,
     editingId,
     handleChange,
-    fillPrompt,
     prefillForEdit,
     resetForm,
     handleSubmit,

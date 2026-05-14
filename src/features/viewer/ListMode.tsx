@@ -53,7 +53,9 @@ export default function ListMode({ messages, recipientName, onClose }: Props) {
                 className="rounded-2xl bg-[#f5f5f5] px-5 py-4"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
+                // H2: 누적 delay를 0.3s로 캡 — 메시지가 많을 때 마지막 카드가
+                // 1초 이상 지연돼 보이지 않던 문제를 막는다.
+                transition={{ delay: Math.min(i * 0.04, 0.3) }}
               >
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl leading-none">{emoji}</span>

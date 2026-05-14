@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface Props {
@@ -14,15 +14,47 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
   const [phase, setPhase] = useState<Phase>('intro')
   const [exiting, setExiting] = useState(false)
 
+  // H3: skip / 자동 진행 양쪽 모두에서 onComplete가 정확히 1회만 호출되도록
+  // mounted 플래그와 타이머 ref를 둔다.
+  const completedRef = useRef(false)
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('open'),    900)
-    const t2 = setTimeout(() => setPhase('sparkle'), 1900)
-    const t3 = setTimeout(() => setExiting(true),   2900)
-    const t4 = setTimeout(() => onComplete(),        3400)
-    return () => [t1, t2, t3, t4].forEach(clearTimeout)
+    const clearTimers = () => {
+      timersRef.current.forEach(clearTimeout)
+      timersRef.current = []
+    }
+
+    const safeComplete = () => {
+      if (completedRef.current) return
+      completedRef.current = true
+      clearTimers()
+      onComplete()
+    }
+
+    timersRef.current = [
+      setTimeout(() => setPhase('open'),    900),
+      setTimeout(() => setPhase('sparkle'), 1900),
+      setTimeout(() => setExiting(true),    2900),
+      setTimeout(safeComplete,              3400),
+    ]
+
+    return clearTimers
   }, [onComplete])
 
-  function skip() { setExiting(true); setTimeout(onComplete, 400) }
+  function skip() {
+    if (completedRef.current) return
+    setExiting(true)
+    // 진행 중인 타이머 모두 정리 — 자동 진행 onComplete와 중복 호출 차단
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
+    const t = setTimeout(() => {
+      if (completedRef.current) return
+      completedRef.current = true
+      onComplete()
+    }, 400)
+    timersRef.current.push(t)
+  }
 
   return (
     <AnimatePresence>

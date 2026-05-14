@@ -1,59 +1,53 @@
 // === 수채화 배경 풍경 SVG ===
-// Claude Design에서 디자인된 봄날/노을/아침 3가지 변형
+// Claude Design에서 디자인된 봄날(spring) 1종.
+// CLAUDE.md "풀숲 테마 1종만 구현한다" 규칙에 맞춰 sunset/morning 팔레트는 제거.
 
-export type SceneryVariant = 'spring' | 'sunset' | 'morning'
+import { memo } from 'react'
+
+// 호환을 위해 variant 타입은 유지하되 spring만 의미를 가진다.
+export type SceneryVariant = 'spring'
 
 interface SceneryProps {
   variant?: SceneryVariant
 }
 
-const palettes = {
-  spring: {
-    sky: ['#fef6ea', '#e8f3e0', '#d8ecd0'],
-    mtFar: '#b8d4c2',
-    mtMid: '#8fbfa0',
-    mtNear: '#6fae84',
-    hill1:  '#9ed18e',
-    hill2:  '#7cbd76',
-    hill3:  '#5fa861',
-    grass:  '#86c47e',
-    mist:   'rgba(255,255,255,0.55)',
-    sunCx: 78, sunCy: 18, sunR: 8, sunColor: '#fff5d4',
-  },
-  sunset: {
-    sky: ['#ffe8c6', '#ffc8a4', '#f7a890'],
-    mtFar: '#c89890',
-    mtMid: '#a87080',
-    mtNear: '#7c5070',
-    hill1:  '#a8a460',
-    hill2:  '#8a8a48',
-    hill3:  '#6a6e3a',
-    grass:  '#9aa050',
-    mist:   'rgba(255,200,160,0.45)',
-    sunCx: 78, sunCy: 22, sunR: 12, sunColor: '#ffd098',
-  },
-  morning: {
-    sky: ['#f0f6f8', '#dceaee', '#c4dde0'],
-    mtFar: '#a4b8c0',
-    mtMid: '#7e9aa4',
-    mtNear: '#5e7e88',
-    hill1:  '#a8c8b0',
-    hill2:  '#7eb494',
-    hill3:  '#5a9c78',
-    grass:  '#7cbd96',
-    mist:   'rgba(240,250,255,0.7)',
-    sunCx: 22, sunCy: 22, sunR: 9, sunColor: '#fffbe8',
-  },
-}
+// 단일 봄 팔레트 — 모듈 스코프 상수
+const SPRING_PALETTE = {
+  sky: ['#fef6ea', '#e8f3e0', '#d8ecd0'],
+  mtFar: '#b8d4c2',
+  mtMid: '#8fbfa0',
+  mtNear: '#6fae84',
+  hill1:  '#9ed18e',
+  hill2:  '#7cbd76',
+  hill3:  '#5fa861',
+  grass:  '#86c47e',
+  mist:   'rgba(255,255,255,0.55)',
+  sunCx: 78, sunCy: 18, sunR: 8, sunColor: '#fff5d4',
+} as const
 
-export default function Scenery({ variant = 'spring' }: SceneryProps) {
-  const p = palettes[variant] ?? palettes.spring
+// 풀잎 디테일 path 데이터 — 한 번만 계산하고 모듈 스코프에 캐싱.
+// H9: 매 렌더마다 Array.from으로 40개 path를 재계산하지 않도록.
+const GRASS_BLADES = Array.from({ length: 40 }).map((_, i) => {
+  const x = (i * 1600) / 40 + (i % 3) * 6
+  const h = 6 + (i % 5) * 3
+  const y = 750 + (i % 4) * 20
+  return { key: i, d: `M${x} ${y} q 2 -${h} 0 -${h * 1.6}` }
+})
+
+// SVG 컨테이너용 정적 스타일 — 매 렌더 새 객체 생성 방지
+const SVG_STYLE: React.CSSProperties = {
+  position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block',
+}
+const PAPER_OVERLAY_STYLE: React.CSSProperties = { mixBlendMode: 'multiply' as const }
+
+function SceneryImpl(_props: SceneryProps) {
+  const p = SPRING_PALETTE
 
   return (
     <svg
       viewBox="0 0 1600 900"
       preserveAspectRatio="xMidYMid slice"
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }}
+      style={SVG_STYLE}
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
@@ -132,19 +126,20 @@ export default function Scenery({ variant = 'spring' }: SceneryProps) {
       <path d="M0 720 Q200 690 400 715 Q600 690 800 715 Q1000 690 1200 715 Q1400 695 1600 720 L1600 900 L0 900 Z"
         fill="url(#grass-grad)"/>
 
-      {/* 풀잎 디테일 */}
+      {/* 풀잎 디테일 — 미리 계산된 path 사용 */}
       <g opacity="0.55" stroke={p.hill3} strokeWidth="1.4" fill="none" strokeLinecap="round">
-        {Array.from({ length: 40 }).map((_, i) => {
-          const x = (i * 1600) / 40 + (i % 3) * 6
-          const h = 6 + (i % 5) * 3
-          const y = 750 + (i % 4) * 20
-          return <path key={i} d={`M${x} ${y} q 2 -${h} 0 -${h * 1.6}`}/>
-        })}
+        {GRASS_BLADES.map(b => <path key={b.key} d={b.d}/>)}
       </g>
 
       {/* 종이 노이즈 오버레이 */}
       <rect width="1600" height="900" fill="url(#paper)" opacity="0.15"
-        style={{ mixBlendMode: 'multiply' as const }}/>
+        style={PAPER_OVERLAY_STYLE}/>
     </svg>
   )
 }
+
+// H9: React.memo로 prop이 변하지 않으면 리렌더 차단.
+// 부모(MeadowView) 호버 인터랙션 시 Scenery는 재렌더할 이유가 없다.
+const Scenery = memo(SceneryImpl)
+
+export default Scenery

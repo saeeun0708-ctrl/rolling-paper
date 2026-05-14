@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { captureAndDownload, downloadAsTxt, makeFilename } from '../../lib/imageExport'
 
@@ -12,20 +12,21 @@ interface Props {
   onClose:        () => void
 }
 
-type ExportType = 'meadow' | 'list' | 'all'
+// 'all' 옵션은 allRef를 부착할 적절한 컨테이너가 없어 즉시 텍스트 폴백으로 빠져
+// 사용자에게 가치가 없었다. 옵션을 풍경(meadow) / 메시지(list) 2종으로 축소.
+type ExportType = 'meadow' | 'list'
 
 const OPTIONS: { type: ExportType; label: string; icon: string; desc: string }[] = [
   { type: 'meadow', icon: '🌿', label: '풍경만',   desc: '풀숲 전체 뷰' },
   { type: 'list',   icon: '📋', label: '메시지만', desc: '전체 메시지 세로 이미지' },
-  { type: 'all',    icon: '🖼️', label: '전체',     desc: '풍경 + 메시지 모두' },
 ]
 
 export default function ExportModal({ recipientName, messages, meadowRef, listRef, onClose }: Props) {
-  const [selected, setSelected]   = useState<ExportType>('all')
+  // 기본 선택은 'meadow' — 풀숲 뷰가 가장 선물용 이미지로 보존 가치가 높음
+  const [selected, setSelected]   = useState<ExportType>('meadow')
   const [progress, setProgress]   = useState(0)
   const [isCapturing, setCapturing] = useState(false)
   const [error, setError]         = useState('')
-  const allRef = useRef<HTMLDivElement>(null)
 
   async function handleExport() {
     setCapturing(true)
@@ -41,8 +42,6 @@ export default function ExportModal({ recipientName, messages, meadowRef, listRe
         target = meadowRef.current
       } else if (selected === 'list' && listRef.current) {
         target = listRef.current
-      } else if (selected === 'all' && allRef.current) {
-        target = allRef.current
       }
 
       if (!target) throw new Error('IMAGE_EXPORT_FAILED')
@@ -92,8 +91,8 @@ export default function ExportModal({ recipientName, messages, meadowRef, listRe
           롤링페이퍼가 사라지기 전에 이미지로 보관하세요.
         </p>
 
-        {/* 옵션 선택 */}
-        <div className="grid grid-cols-3 gap-2 mb-5">
+        {/* 옵션 선택 — 2종으로 축소 */}
+        <div className="grid grid-cols-2 gap-2 mb-5">
           {OPTIONS.map(opt => (
             <button
               key={opt.type}

@@ -11,13 +11,27 @@ export interface ExportOptions {
   onProgress?:  (pct: number) => void
 }
 
+/** 캡처 대상의 가용 폭을 안전하게 얻는다.
+ *  H4: motion.div/position:fixed 등에서 offsetWidth가 0이 될 수 있어
+ *      viewport 폭을 폴백으로 사용한다. */
+function safeOffsetWidth(element: HTMLElement): number {
+  return element.offsetWidth || window.innerWidth || 360
+}
+
 /** HTML 요소를 PNG로 캡처하여 다운로드 */
 export async function captureAndDownload({ element, filename, width = 1080, onProgress }: ExportOptions): Promise<void> {
   onProgress?.(10)
 
+  // H5: 한글 폰트가 fallback으로 캡처되는 것을 방지 — 캡처 전 폰트 로딩 대기.
+  // document.fonts API는 모던 모바일 브라우저에서 모두 지원.
+  if (typeof document !== 'undefined' && document.fonts?.ready) {
+    try { await document.fonts.ready } catch { /* 폰트 로딩 실패해도 캡처는 시도 */ }
+  }
+
   try {
     // ── html2canvas 시도 ──────────────────────────────────────────
-    const scale = width / element.offsetWidth
+    const baseWidth = safeOffsetWidth(element)
+    const scale = width / baseWidth
     const canvas = await html2canvas(element, {
       scale,
       useCORS: true,
@@ -39,10 +53,12 @@ export async function captureAndDownload({ element, filename, width = 1080, onPr
 
     try {
       // ── dom-to-image 폴백 ─────────────────────────────────────
-      const scale = width / element.offsetWidth
+      const baseWidth = safeOffsetWidth(element)
+      const baseHeight = element.offsetHeight || window.innerHeight || 640
+      const scale = width / baseWidth
       const dataUrl = await domtoimage.toPng(element, {
-        width:  element.offsetWidth  * scale,
-        height: element.offsetHeight * scale,
+        width:  baseWidth  * scale,
+        height: baseHeight * scale,
         style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
       })
       onProgress?.(80)

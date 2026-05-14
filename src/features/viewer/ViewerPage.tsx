@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../lib/supabase'
@@ -30,16 +30,16 @@ export default function ViewerPage({ isPreview = false }: Props) {
   const [isListMode, setIsListMode] = useState(false)
   const [showExport, setShowExport] = useState(false)
 
-  // 캡처 대상 ref
+  // 캡처 대상 ref — 풀숲 콘텐츠 박스에 직접 부착(motion.div의 transform/opacity가
+  // offsetWidth에 영향을 주지 않도록). 단순 안전 폴백은 imageExport에서 처리.
   const meadowRef = useRef<HTMLDivElement>(null)
   const listRef   = useRef<HTMLDivElement>(null)
 
-  // ─── 방 + 메시지 로드 ─────────────────────────────────────────────────────
-  useEffect(() => {
+  // ─── 방 + 메시지 로드 — useCallback으로 콜백 안정화 ─────────────────────────
+  const fetchRoomAndMessages = useCallback(async () => {
     if (!slug) return
 
     // 미리보기 모드: 만든이 세션 또는 참여자 토큰 중 하나는 있어야 진입 가능.
-    // 둘 다 없는 사람은 작성 페이지로 보내 자연스럽게 흐름 복귀.
     if (isPreview) {
       const isHost   = sessionStorage.getItem(`rp_host_${slug}`) === 'ok'
       const isAuthor = localStorage.getItem(`rp_author_${slug}`) !== null
@@ -49,27 +49,30 @@ export default function ViewerPage({ isPreview = false }: Props) {
       }
     }
 
-    supabase.from('rooms')
+    const { data, error } = await supabase.from('rooms')
       .select('id, recipient_name, expires_at, status, open_key')
       .eq('slug', slug)
       .single()
-      .then(async ({ data, error }) => {
-        if (error || !data) { setViewState('invalid'); return }
-        // 실서비스 진입(받는 분)은 status·open_key 검증을 통과해야 한다.
-        // 미리보기 모드는 두 검증을 생략한다.
-        if (!isPreview && (data.status !== 'wrapped' || data.open_key !== openKey)) {
-          setViewState('invalid'); return
-        }
-        setRoom(data)
-        const { data: msgs } = await supabase.from('messages')
-          .select('id, author_name, shape, body, created_at')
-          .eq('room_id', data.id)
-          .order('created_at', { ascending: true })
-        setMessages(msgs ?? [])
-        // 미리보기에서도 포장 풀기 애니메이션을 동일하게 보여준다
-        setViewState('animating')
-      })
+
+    if (error || !data) { setViewState('invalid'); return }
+    // 실서비스 진입(받는 분)은 status·open_key 검증을 통과해야 한다.
+    // 미리보기 모드는 두 검증을 생략한다.
+    if (!isPreview && (data.status !== 'wrapped' || data.open_key !== openKey)) {
+      setViewState('invalid'); return
+    }
+    setRoom(data)
+    const { data: msgs } = await supabase.from('messages')
+      .select('id, author_name, shape, body, created_at')
+      .eq('room_id', data.id)
+      .order('created_at', { ascending: true })
+    setMessages(msgs ?? [])
+    // 미리보기에서도 포장 풀기 애니메이션을 동일하게 보여준다
+    setViewState('animating')
   }, [slug, openKey, isPreview, navigate])
+
+  useEffect(() => {
+    fetchRoomAndMessages()
+  }, [fetchRoomAndMessages])
 
   // ─── 로딩 ─────────────────────────────────────────────────────────────────
   if (viewState === 'loading') return (
@@ -142,18 +145,20 @@ export default function ViewerPage({ isPreview = false }: Props) {
         {viewState === 'meadow' && (
           <motion.div
             key="meadow"
-            ref={meadowRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
           >
-            <MeadowView
-              messages={messages}
-              recipientName={room?.recipient_name ?? ''}
-              expiresAt={room?.expires_at ?? ''}
-              onFlowerClick={setSelectedIdx}
-              onListMode={() => setIsListMode(true)}
-            />
+            {/* ref는 motion.div가 아닌 실제 콘텐츠 박스에 부착 — 캡처 시 정확한 offsetWidth 확보 */}
+            <div ref={meadowRef}>
+              <MeadowView
+                messages={messages}
+                recipientName={room?.recipient_name ?? ''}
+                expiresAt={room?.expires_at ?? ''}
+                onFlowerClick={setSelectedIdx}
+                onListMode={() => setIsListMode(true)}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

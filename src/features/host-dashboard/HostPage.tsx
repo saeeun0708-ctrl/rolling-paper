@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import bcrypt from 'bcryptjs'
 import { supabase } from '../../lib/supabase'
@@ -7,6 +7,12 @@ import { FlowerShape, FLOWER_EMOJIS } from '../message-write/utils'
 import WrapModal from '../gift-wrap/WrapModal'
 import ShareModal from '../../components/ShareModal'
 import Footer from '../../components/Footer'
+
+// 스토리지 키 헬퍼 — slug별로 안정적으로 같은 키를 생성한다.
+// 컴포넌트 외부로 추출해 useEffect 의존성 경고를 방지하고 식별자를 단일화.
+const sessionKey  = (slug: string) => `rp_host_${slug}`
+const attemptsKey = (slug: string) => `rp_host_attempts_${slug}`
+const lockoutKey  = (slug: string) => `rp_host_lockout_${slug}`
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
 interface Room {
@@ -69,10 +75,6 @@ export default function HostPage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
 
-  const SESSION_KEY  = `rp_host_${slug}`
-  const ATTEMPTS_KEY = `rp_host_attempts_${slug}`
-  const LOCKOUT_KEY  = `rp_host_lockout_${slug}`
-
   const [view, setView]         = useState<HostView>('loading')
   const [room, setRoom]         = useState<Room | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -90,10 +92,18 @@ export default function HostPage() {
   // 미포장 상태에서 '링크 공유하기' 클릭 시 공유 방법 선택 모달 노출
   const [showShare, setShowShare]   = useState(false)
 
+  // 메시지 로더 — useCallback으로 참조 안정화. useEffect에서 deps로 안전하게 사용 가능.
+  const loadMessages = useCallback(async (roomId: string) => {
+    const { data } = await supabase.from('messages')
+      .select('id, author_name, shape, created_at, body')
+      .eq('room_id', roomId).order('created_at', { ascending: false })
+    if (data) setMessages(data)
+  }, [])
+
   useEffect(() => {
     if (!slug) return
-    setAttempts(parseInt(localStorage.getItem(ATTEMPTS_KEY) ?? '0'))
-    setLockoutUntil(parseInt(localStorage.getItem(LOCKOUT_KEY) ?? '0'))
+    setAttempts(parseInt(localStorage.getItem(attemptsKey(slug)) ?? '0'))
+    setLockoutUntil(parseInt(localStorage.getItem(lockoutKey(slug)) ?? '0'))
 
     supabase.from('rooms')
       .select('id, recipient_name, host_name, host_pin_hash, status, open_key, expires_at')
@@ -101,21 +111,14 @@ export default function HostPage() {
       .then(({ data, error }) => {
         if (error || !data) { setErrorMsg('존재하지 않는 롤링페이퍼예요.'); setView('error'); return }
         setRoom(data)
-        if (sessionStorage.getItem(SESSION_KEY) === 'ok') { loadMessages(data.id); setView('dashboard') }
+        if (sessionStorage.getItem(sessionKey(slug)) === 'ok') { loadMessages(data.id); setView('dashboard') }
         else setView('auth')
       })
-  }, [slug])
-
-  async function loadMessages(roomId: string) {
-    const { data } = await supabase.from('messages')
-      .select('id, author_name, shape, created_at, body')
-      .eq('room_id', roomId).order('created_at', { ascending: false })
-    if (data) setMessages(data)
-  }
+  }, [slug, loadMessages])
 
   async function handlePinSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!room) return
+    if (!room || !slug) return
     if (Date.now() < lockoutUntil) {
       setPinError(`${Math.ceil((lockoutUntil - Date.now()) / 60000)}분 후에 다시 시도해주세요.`); return
     }
@@ -123,15 +126,15 @@ export default function HostPage() {
     try {
       const ok = await bcrypt.compare(pin, room.host_pin_hash)
       if (ok) {
-        localStorage.removeItem(ATTEMPTS_KEY); localStorage.removeItem(LOCKOUT_KEY)
-        sessionStorage.setItem(SESSION_KEY, 'ok')
+        localStorage.removeItem(attemptsKey(slug)); localStorage.removeItem(lockoutKey(slug))
+        sessionStorage.setItem(sessionKey(slug), 'ok')
         await loadMessages(room.id); setView('dashboard')
       } else {
         const next = attempts + 1
-        setAttempts(next); localStorage.setItem(ATTEMPTS_KEY, String(next))
+        setAttempts(next); localStorage.setItem(attemptsKey(slug), String(next))
         if (next >= MAX_ATTEMPTS) {
           const until = Date.now() + LOCKOUT_MS
-          setLockoutUntil(until); localStorage.setItem(LOCKOUT_KEY, String(until))
+          setLockoutUntil(until); localStorage.setItem(lockoutKey(slug), String(until))
           setPinError('5회 실패로 10분간 잠겼어요.')
         } else { setPinError(`비밀번호가 틀렸어요. (${next}/${MAX_ATTEMPTS})`) }
         setPin('')
@@ -247,7 +250,7 @@ export default function HostPage() {
           <div>
             <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-3">Dashboard</p>
             <h1 className="text-[2rem] font-black text-black leading-tight mb-1">
-              <span className="text-[#5cb054]">{name}</span>{honorific} 롤링페이퍼
+              <span className="text-[#5cb054]">{name}</span>{honorific}<br />보내는 롤링페이퍼
             </h1>
             <p className="text-black/40 text-[14px]">{messages.length}명이 마음을 남겼어요</p>
           </div>
