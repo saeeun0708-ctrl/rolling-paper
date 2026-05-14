@@ -85,11 +85,6 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 아이브로우 */}
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">
-          Rolling Paper
-        </p>
-
         {/* 헤딩 */}
         <h1 className="text-[2.4rem] font-black text-black leading-[1.15] tracking-[-0.5px] mb-2">
           소중한 분께<br />마음을 모아요

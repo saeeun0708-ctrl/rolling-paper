@@ -210,9 +210,6 @@ export default function MeadowView({ messages, recipientName, expiresAt, onFlowe
 
       {/* ── 헤더 ── */}
       <div style={HEADER_STYLE}>
-        <p style={{ margin: 0, fontSize: 11, color: '#7a9676', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 }}>
-          Rolling Paper
-        </p>
         <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#2d4a2d', lineHeight: 1.2, textShadow: '0 1px 0 rgba(255,255,255,0.5)' }}>
           <span style={{ color: '#c25a7e' }}>{recipientName}</span>{honorific}<br/>
           보내는 마음들

@@ -182,7 +182,6 @@ export default function HostPage() {
   if (view === 'auth') return (
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">Maker Access</p>
         <h1 className="text-[2.2rem] font-black text-black leading-[1.15] tracking-tight mb-2">
           만든이로<br />입장하기
         </h1>
@@ -248,7 +247,6 @@ export default function HostPage() {
 
           {/* 헤더 */}
           <div>
-            <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-3">Dashboard</p>
             <h1 className="text-[2rem] font-black text-black leading-tight mb-1">
               <span className="text-[#5cb054]">{name}</span>{honorific}<br />보내는 롤링페이퍼
             </h1>
@@ -279,7 +277,7 @@ export default function HostPage() {
                              text-white text-[13px] font-bold
                              rounded-full transition-colors"
                 >
-                  링크 공유하기
+                  작성 링크 공유하기
                 </button>
               </div>
             </div>

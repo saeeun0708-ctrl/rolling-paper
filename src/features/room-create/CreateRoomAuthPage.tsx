@@ -40,11 +40,6 @@ export default function CreateRoomAuthPage() {
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 아이브로우 */}
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">
-          Step 2 of 2
-        </p>
-
         {/* 헤딩 */}
         <h1 className="text-[2.2rem] font-black text-black leading-[1.15] tracking-tight mb-2">
           비밀번호를<br />설정해주세요

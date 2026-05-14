@@ -160,19 +160,11 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-12">
       <div className="w-full max-w-md">
 
-        {/* 아이브로우 */}
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-5">
-          Rolling Paper
-        </p>
-
         {/* 인트로 헤딩 */}
-        <h1 className="text-[2rem] font-black text-black leading-[1.2] tracking-tight mb-2">
+        <h1 className="text-[2rem] font-black text-black leading-[1.2] tracking-tight mb-8">
           <span className="text-[#5cb054]">{recipientName}</span>{honorific} 보내는<br />
           롤링페이퍼를 작성해주세요
         </h1>
-        <p className="text-black/40 text-[14px] mb-8">
-          한 마디 남겨주세요
-        </p>
 
         {/* 이미 작성한 경우 — 배너 표시 */}
         {stored && (

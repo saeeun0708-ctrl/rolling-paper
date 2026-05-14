@@ -23,9 +23,6 @@ export default function ListMode({ messages, recipientName, onClose }: Props) {
         {/* 헤더 */}
         <div className="flex items-start justify-between mb-8">
           <div>
-            <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-black/30 mb-1">
-              All Messages
-            </p>
             <h1 className="text-[1.6rem] font-black text-black leading-tight">
               {recipientName}{honorific}<br />보내는 마음들
             </h1>
