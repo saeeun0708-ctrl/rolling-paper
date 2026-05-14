@@ -4,12 +4,16 @@ import { getMyRooms, removeMyRoom, type MyRoom } from '../../lib/myRooms'
 
 /** 생성일자를 "오늘", "어제", "n일 전" 형태로 가볍게 포맷 */
 function fmtCreated(iso: string): string {
-  const diffDays = Math.floor((Date.now() - +new Date(iso)) / (1000 * 60 * 60 * 24))
+  const created = new Date(iso)
+  // 시각 차이가 아닌 로컬 자정 기준 달력일 차이로 계산한다
+  // (예: 어제 23:00 생성 → 오늘 01:00 조회를 "오늘"로 잘못 표기하는 문제 방지)
+  const startOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  const diffDays = Math.floor((startOfDay(new Date()) - startOfDay(created)) / 86_400_000)
   if (diffDays <= 0) return '오늘'
   if (diffDays === 1) return '어제'
   if (diffDays < 30) return `${diffDays}일 전`
-  const d = new Date(iso)
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+  return `${created.getFullYear()}.${String(created.getMonth() + 1).padStart(2, '0')}.${String(created.getDate()).padStart(2, '0')}`
 }
 
 /** 이름 뒤에 붙일 존칭만 반환 ("엄마" → "님께", "부모님" → "께") */
@@ -22,7 +26,12 @@ interface StepOneErrors {
   hostName?: string
 }
 
-export default function CreateRoomPage() {
+interface CreateRoomPageProps {
+  /** 이 기기 목록·디스클로저를 무시하고 항상 폼만 노출 (별도 라우트 /create/new 용) */
+  forceFormOnly?: boolean
+}
+
+export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPageProps = {}) {
   const navigate = useNavigate()
   // 1단계: 받는 분 이름·내 이름만 페이지 내부 state 로 관리한다.
   const [recipientName, setRecipientName] = useState('')
@@ -31,15 +40,16 @@ export default function CreateRoomPage() {
 
   const [myRooms, setMyRooms] = useState<MyRoom[]>([])
   // 카드가 있을 땐 폼을 디스클로저로 접어 핵심 동선(기존 방으로 들어가기)에 집중
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(forceFormOnly)
 
-  // 마운트 시 한 번 로컬에 저장된 내 방 목록 로드
+  // 마운트 시 한 번 로컬에 저장된 내 방 목록 로드 (폼 단독 모드는 스킵)
   useEffect(() => {
+    if (forceFormOnly) return
     const list = getMyRooms()
     setMyRooms(list)
     // 저장된 방이 없으면 폼은 처음부터 펼쳐서 보여준다
     setShowForm(list.length === 0)
-  }, [])
+  }, [forceFormOnly])
 
   /** 이 기기 목록에서 제거 (Supabase 데이터는 그대로 둠) */
   function handleRemoveLocal(slug: string) {
@@ -92,7 +102,7 @@ export default function CreateRoomPage() {
         {hasMyRooms && (
           <section className="mb-8">
             <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-black/40 mb-3">
-              내가 만든 롤링페이퍼
+              이 기기에서 만든 롤링페이퍼
             </p>
             <ul className="space-y-2">
               {myRooms.map(room => (
@@ -132,17 +142,16 @@ export default function CreateRoomPage() {
           </section>
         )}
 
-        {/* 새로 만들기 — 카드가 있으면 디스클로저로 접어 시각 위계를 낮춤 */}
+        {/* 새로 만들기 — 카드가 있으면 별도 화면으로 이동시켜 핵심 동선과 분리한다 */}
         {hasMyRooms && !showForm && (
-          <button
-            type="button"
-            onClick={() => setShowForm(true)}
-            className="w-full py-3.5 mt-2 rounded-full border border-[#e6e6e6]
-                       text-[13px] font-bold text-black/70
+          <Link
+            to="/create/new"
+            className="block w-full py-3.5 mt-2 rounded-full border border-[#e6e6e6]
+                       text-center text-[13px] font-bold text-black/70
                        hover:border-black hover:text-black transition-colors"
           >
             + 새 롤링페이퍼 만들기
-          </button>
+          </Link>
         )}
 
         {/* 1단계 폼 — 받는 분/내 이름 + 다음 버튼 */}

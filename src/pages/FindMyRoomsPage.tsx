@@ -16,12 +16,16 @@ interface FoundRoom {
 
 /** 생성일자를 "오늘", "어제", "n일 전" 형태로 가볍게 포맷 */
 function fmtCreated(iso: string): string {
-  const diffDays = Math.floor((Date.now() - +new Date(iso)) / (1000 * 60 * 60 * 24))
+  const created = new Date(iso)
+  // 시각 차이가 아닌 로컬 자정 기준 달력일 차이로 계산한다
+  // (예: 어제 23:00 생성 → 오늘 01:00 조회를 "오늘"로 잘못 표기하는 문제 방지)
+  const startOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  const diffDays = Math.floor((startOfDay(new Date()) - startOfDay(created)) / 86_400_000)
   if (diffDays <= 0) return '오늘'
   if (diffDays === 1) return '어제'
   if (diffDays < 30) return `${diffDays}일 전`
-  const d = new Date(iso)
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+  return `${created.getFullYear()}.${String(created.getMonth() + 1).padStart(2, '0')}.${String(created.getDate()).padStart(2, '0')}`
 }
 
 /** 이름 뒤에 붙일 존칭 ("엄마" → "님께", "부모님" → "께") */
