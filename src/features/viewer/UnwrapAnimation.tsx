@@ -10,11 +10,18 @@ type Phase = 'intro' | 'open' | 'sparkle'
 
 const SPARKLES = ['🌸', '🌼', '🌿', '⭐', '🍀', '🌷', '✨', '💐']
 
+// 각 phase motion의 exit 트랜지션 — 짧고 일관된 ease-in tween.
+// 이전엔 motion 전체에 spring(stiffness 200, damping 기본 10)이 적용돼 있어
+// underdamped 진동이 일어났고, opacity가 0 부근에서 한 사이클 진동하면서
+// "사라졌다가 0.5초 정도 다시 잠깐 보이고 사라지는" 잔상이 발생했다.
+// enter는 spring(튕기는 디자인 의도)을 유지하고, exit만 tween으로 빼낸다.
+const PHASE_EXIT_TRANSITION = { duration: 0.3, ease: 'easeIn' as const }
+
 export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
   const [phase, setPhase] = useState<Phase>('intro')
   const [exiting, setExiting] = useState(false)
 
-  // H3: skip / 자동 진행 양쪽 모두에서 onComplete가 정확히 1회만 호출되도록
+  // skip / 자동 진행 양쪽 모두에서 onComplete가 정확히 1회만 호출되도록
   // mounted 플래그와 타이머 ref를 둔다.
   const completedRef = useRef(false)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
@@ -27,44 +34,42 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
   useEffect(() => { onCompleteRef.current = onComplete }, [onComplete])
 
   useEffect(() => {
-    const clearTimers = () => {
-      timersRef.current.forEach(clearTimeout)
-      timersRef.current = []
-    }
-
-    const safeComplete = () => {
-      if (completedRef.current) return
-      completedRef.current = true
-      clearTimers()
-      onCompleteRef.current()
-    }
-
+    // phase 전환만 타이머로 처리. onComplete는 외부 motion.div의 exit 애니메이션이
+    // 진짜 끝났을 때 AnimatePresence.onExitComplete에서 호출한다.
+    // 이전엔 setTimeout(safeComplete, 3400)으로 직접 호출했는데, exit transition과
+    // timing이 어긋나면 motion이 완전히 사라지기 전에 부모가 viewState를 바꾸어
+    // UnwrapAnimation이 unmount되면서 마지막 프레임에 잔상이 생기는 일이 있었다.
     timersRef.current = [
       setTimeout(() => setPhase('open'),    900),
       setTimeout(() => setPhase('sparkle'), 1900),
       setTimeout(() => setExiting(true),    2900),
-      setTimeout(safeComplete,              3400),
     ]
 
-    return clearTimers
+    return () => {
+      timersRef.current.forEach(clearTimeout)
+      timersRef.current = []
+    }
   }, [])
+
+  // 외부 motion.div의 exit가 진짜 완료된 시점에만 onComplete 호출.
+  const handleExitComplete = () => {
+    if (completedRef.current) return
+    completedRef.current = true
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
+    onCompleteRef.current()
+  }
 
   function skip() {
     if (completedRef.current) return
-    setExiting(true)
-    // 진행 중인 타이머 모두 정리 — 자동 진행 onComplete와 중복 호출 차단
+    // 진행 중인 phase 타이머 정리 — exit 완료 시 onExitComplete가 호출됨
     timersRef.current.forEach(clearTimeout)
     timersRef.current = []
-    const t = setTimeout(() => {
-      if (completedRef.current) return
-      completedRef.current = true
-      onCompleteRef.current()
-    }, 400)
-    timersRef.current.push(t)
+    setExiting(true)
   }
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={handleExitComplete}>
       {!exiting && (
         <motion.div
           key="wrap"
@@ -92,7 +97,7 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
                   key="intro"
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 1.3, opacity: 0 }}
+                  exit={{ scale: 1.1, opacity: 0, transition: PHASE_EXIT_TRANSITION }}
                   transition={{ type: 'spring', stiffness: 200 }}
                 >
                   <div className="text-8xl mb-5">📜</div>
@@ -106,7 +111,7 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
                   key="open"
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: [0.5, 1.2, 0.9, 1.1, 1], opacity: 1, rotate: [0, -8, 8, -4, 0] }}
-                  exit={{ scale: 1.4, opacity: 0 }}
+                  exit={{ scale: 1.2, opacity: 0, transition: PHASE_EXIT_TRANSITION }}
                   transition={{ duration: 0.9 }}
                 >
                   <div className="text-8xl mb-5">🌸</div>
@@ -119,7 +124,7 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
                   key="sparkle"
                   initial={{ scale: 0.3, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 1.2, opacity: 0 }}
+                  exit={{ scale: 1.1, opacity: 0, transition: PHASE_EXIT_TRANSITION }}
                   transition={{ type: 'spring', stiffness: 250 }}
                 >
                   <div className="text-8xl mb-5">✨</div>
