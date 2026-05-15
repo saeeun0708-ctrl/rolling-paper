@@ -94,13 +94,35 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
               {phase === 'intro' && (
                 <motion.div
                   key="intro"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 1.1, opacity: 0, transition: PHASE_EXIT_TRANSITION }}
-                  transition={{ type: 'spring', stiffness: 200 }}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={{
+                    hidden:  {},
+                    visible: { transition: { staggerChildren: 0.18, delayChildren: 0.1 } },
+                    exit:    { transition: { staggerChildren: 0.06, staggerDirection: -1 } },
+                  }}
                 >
-                  <p className="text-white text-4xl font-extrabold leading-tight">{recipientName}님께</p>
-                  <p className="text-white/70 text-xl mt-3">롤링페이퍼가 도착했어요</p>
+                  <motion.p
+                    className="text-white text-4xl font-extrabold leading-tight"
+                    variants={{
+                      hidden:  { opacity: 0, y: 14 },
+                      visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+                      exit:    { opacity: 0, y: -6, transition: { duration: 0.3, ease: 'easeIn' } },
+                    }}
+                  >
+                    {recipientName}님께
+                  </motion.p>
+                  <motion.p
+                    className="text-white/70 text-xl mt-3"
+                    variants={{
+                      hidden:  { opacity: 0, y: 14 },
+                      visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+                      exit:    { opacity: 0, y: -6, transition: { duration: 0.3, ease: 'easeIn' } },
+                    }}
+                  >
+                    롤링페이퍼가 도착했어요
+                  </motion.p>
                 </motion.div>
               )}
 
