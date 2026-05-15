@@ -99,9 +99,8 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
                   exit={{ scale: 1.1, opacity: 0, transition: PHASE_EXIT_TRANSITION }}
                   transition={{ type: 'spring', stiffness: 200 }}
                 >
-                  <div className="text-8xl mb-5">📜</div>
-                  <p className="text-white/70 text-xl font-bold">{recipientName}님께</p>
-                  <p className="text-white/40 text-sm mt-1">롤링페이퍼가 도착했어요</p>
+                  <p className="text-white text-4xl font-extrabold leading-tight">{recipientName}님께</p>
+                  <p className="text-white/70 text-xl mt-3">롤링페이퍼가 도착했어요</p>
                 </motion.div>
               )}
 
