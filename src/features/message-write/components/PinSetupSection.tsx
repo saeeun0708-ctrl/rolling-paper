@@ -70,7 +70,7 @@ export default function PinSetupSection({ messageId, authorToken }: Props) {
               setErrMsg('')
             }}
             placeholder="숫자 6자리"
-            className="w-full px-4 py-3 rounded-xl bg-white text-[15px] tracking-widest
+            className="w-full px-4 py-3 rounded-xl bg-white text-[15px] tracking-widest placeholder:text-[13px] placeholder:tracking-normal placeholder:text-black/20
                        border-2 border-transparent focus:border-black/10 focus:outline-none"
           />
           <p className="text-[11px] text-black/30">잊어버리면 복구가 어려워요. 꼭 기억해두세요.</p>

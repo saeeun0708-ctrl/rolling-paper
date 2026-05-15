@@ -23,7 +23,7 @@ function App() {
         {/* 방 만들기 1단계 — 받는 분/내 이름 */}
         <Route path="/create"          element={<CreateRoomPage />} />
         {/* 방 만들기 1단계 — 폼 단독 화면 (이 기기 목록이 있어도 새로 만들기 동선 분리) */}
-        <Route path="/create/new"      element={<CreateRoomPage forceFormOnly />} />
+        <Route path="/create/new"      element={<CreateRoomPage key="new" forceFormOnly />} />
         {/* 방 만들기 2단계 — 이메일·비밀번호 (1단계에서 router state로 진입) */}
         <Route path="/create/auth"     element={<CreateRoomAuthPage />} />
         {/* 내 롤링페이퍼 찾기 (이메일로 조회) */}

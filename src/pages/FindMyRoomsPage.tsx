@@ -119,7 +119,7 @@ export default function FindMyRoomsPage() {
               placeholder="example@email.com"
               maxLength={120}
               className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
-                          bg-[#f5f5f5] placeholder:text-black/25
+                          bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20
                           border-2 transition-colors
                           focus:outline-none focus:bg-white
                           ${error

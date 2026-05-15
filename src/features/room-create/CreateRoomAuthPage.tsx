@@ -41,13 +41,9 @@ export default function CreateRoomAuthPage() {
       <div className="w-full max-w-md">
 
         {/* 헤딩 */}
-        <h1 className="text-[2.2rem] font-black text-black leading-[1.15] tracking-tight mb-2">
+        <h1 className="text-[2.2rem] font-black text-black leading-[1.15] tracking-tight mb-8">
           비밀번호를<br />설정해주세요
         </h1>
-        <p className="text-black/40 text-[14px] mb-8">
-          <span className="text-black/70 font-medium">{recipientName}</span>님께 드릴 롤링페이퍼,
-          만든이 <span className="text-black/70 font-medium">{hostName}</span> 님
-        </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -65,7 +61,7 @@ export default function CreateRoomAuthPage() {
               placeholder="example@email.com"
               maxLength={120}
               className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
-                          bg-[#f5f5f5] placeholder:text-black/25
+                          bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20
                           border-2 transition-colors
                           focus:outline-none focus:bg-white
                           ${errors.email
@@ -94,7 +90,7 @@ export default function CreateRoomAuthPage() {
               placeholder="숫자 6자리"
               autoComplete="new-password"
               className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black tracking-widest
-                          bg-[#f5f5f5] placeholder:text-black/25 placeholder:tracking-normal
+                          bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20 placeholder:tracking-normal
                           border-2 transition-colors
                           focus:outline-none focus:bg-white
                           ${errors.pin

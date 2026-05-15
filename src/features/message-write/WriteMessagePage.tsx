@@ -322,7 +322,7 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
               placeholder="예: 큰딸, 홍길동"
               maxLength={12}
               className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
-                          bg-[#f5f5f5] placeholder:text-black/25
+                          bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20
                           border-2 transition-colors
                           focus:outline-none focus:bg-white focus:border-black/10
                           ${form.errors.name ? 'border-red-400 bg-red-50' : 'border-transparent'}`}
@@ -344,7 +344,7 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
               maxLength={MAX_CHARS}
               rows={5}
               className={`w-full px-4 py-3.5 rounded-xl text-[16px] text-black leading-relaxed
-                          bg-[#f5f5f5] placeholder:text-black/25 resize-none
+                          bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20 resize-none
                           border-2 transition-colors
                           focus:outline-none focus:bg-white focus:border-black/10
                           ${form.errors.body ? 'border-red-400 bg-red-50' : 'border-transparent'}`}

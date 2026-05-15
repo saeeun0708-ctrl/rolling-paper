@@ -171,10 +171,10 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
                     setRecipientName(e.target.value)
                     if (errors.recipientName) setErrors(prev => ({ ...prev, recipientName: undefined }))
                   }}
-                  placeholder="예: 엄마, 아버지, 김선생님"
+                  placeholder="예: 사랑하는 엄마, 오은영 선생님"
                   maxLength={30}
                   className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
-                              bg-[#f5f5f5] placeholder:text-black/25
+                              bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20
                               border-2 transition-colors
                               focus:outline-none focus:bg-white
                               ${errors.recipientName
@@ -198,10 +198,10 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
                     setHostName(e.target.value)
                     if (errors.hostName) setErrors(prev => ({ ...prev, hostName: undefined }))
                   }}
-                  placeholder="예: 큰딸, 홍길동"
+                  placeholder="예: 큰딸, 백예린"
                   maxLength={20}
                   className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
-                              bg-[#f5f5f5] placeholder:text-black/25
+                              bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20
                               border-2 transition-colors
                               focus:outline-none focus:bg-white
                               ${errors.hostName

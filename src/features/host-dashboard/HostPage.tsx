@@ -202,7 +202,7 @@ export default function HostPage() {
             onChange={e => { setPin(e.target.value.replace(/\D/g, '').slice(0, 6)); setPinError('') }}
             placeholder="비밀번호 6자리"
             className="w-full px-4 py-3.5 rounded-xl text-[15px] tracking-widest
-                       bg-[#f5f5f5] placeholder:tracking-normal placeholder:text-black/25
+                       bg-[#f5f5f5] placeholder:tracking-normal placeholder:text-[13px] placeholder:text-black/20
                        border-2 border-transparent focus:outline-none focus:bg-white focus:border-black/10"
           />
           {pinError && <p className="text-[12px] text-red-500">{pinError}</p>}

@@ -86,7 +86,7 @@ export default function FindMyMessage({ slug, roomId, onFound }: Props) {
         onChange={e => setName(e.target.value)}
         placeholder="작성 시 쓴 이름"
         maxLength={12}
-        className="w-full px-4 py-3 rounded-xl bg-white text-[15px]
+        className="w-full px-4 py-3 rounded-xl bg-white text-[15px] placeholder:text-[13px] placeholder:text-black/20
                    border-2 border-transparent focus:border-black/10 focus:outline-none"
       />
       <input
@@ -95,7 +95,7 @@ export default function FindMyMessage({ slug, roomId, onFound }: Props) {
         value={pin}
         onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
         placeholder="비밀번호 6자리"
-        className="w-full px-4 py-3 rounded-xl bg-white text-[15px] tracking-widest
+        className="w-full px-4 py-3 rounded-xl bg-white text-[15px] tracking-widest placeholder:text-[13px] placeholder:tracking-normal placeholder:text-black/20
                    border-2 border-transparent focus:border-black/10 focus:outline-none"
       />
 
