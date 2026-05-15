@@ -8,7 +8,7 @@ interface Props {
   recipientName:  string
   messages:       Message[]
   meadowRef:      React.RefObject<HTMLDivElement | null>
-  listRef:        React.RefObject<HTMLDivElement | null>
+  listRef:        React.RefObject<HTMLElement | null>
   onClose:        () => void
 }
 

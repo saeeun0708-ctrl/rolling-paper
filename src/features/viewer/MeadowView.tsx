@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react'
+import { forwardRef, memo, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { type FlowerShape } from '../message-write/utils'
 import Scenery from './Scenery'
@@ -220,12 +220,16 @@ const LIST_BUTTON_STYLE: React.CSSProperties = {
 }
 
 // ── 메인 컴포넌트 ──────────────────────────────────────────────────────────
-export default function MeadowView({ messages, recipientName, onFlowerClick, onListMode, myMessageId }: Props) {
+// forwardRef로 root div의 ref를 외부에 노출 — 이미지 캡처 시 정확한 dimensions 확보용.
+const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
+  { messages, recipientName, onFlowerClick, onListMode, myMessageId },
+  ref,
+) {
   const placed  = useMemo(() => distributeFlowers(messages), [messages])
   const honorific = recipientName.endsWith('님') ? '께' : '님께'
 
   return (
-    <div style={CONTAINER_STYLE}>
+    <div ref={ref} style={CONTAINER_STYLE}>
 
       {/* ── 수채화 배경 ── */}
       <Scenery variant="spring"/>
@@ -273,4 +277,5 @@ export default function MeadowView({ messages, recipientName, onFlowerClick, onL
       </div>
     </div>
   )
-}
+})
+export default MeadowView

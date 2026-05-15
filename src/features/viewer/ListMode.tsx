@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { motion } from 'framer-motion'
 import { FLOWER_EMOJIS, type FlowerShape } from '../message-write/utils'
 
@@ -8,11 +9,16 @@ interface Props {
   onClose:       () => void
 }
 
-export default function ListMode({ messages, recipientName, onClose }: Props) {
+// forwardRef로 root에 ref를 노출해 이미지 캡처가 정확한 dimensions를 얻을 수 있게 한다.
+const ListMode = forwardRef<HTMLElement, Props>(function ListMode(
+  { messages, recipientName, onClose },
+  ref,
+) {
   const honorific = recipientName.endsWith('님') ? '께' : '님께'
 
   return (
     <motion.main
+      ref={ref}
       className="min-h-dvh bg-white px-5 py-12"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -75,4 +81,5 @@ export default function ListMode({ messages, recipientName, onClose }: Props) {
       </div>
     </motion.main>
   )
-}
+})
+export default ListMode

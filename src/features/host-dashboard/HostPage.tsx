@@ -98,9 +98,9 @@ export default function HostPage() {
   const [showShareOpen, setShowShareOpen]   = useState(false)  // 열람 링크 공유
   const [showExport, setShowExport]         = useState(false)
 
-  // 이미지 저장용 ref (풀숲/리스트)
+  // 이미지 저장용 ref — forwardRef로 MeadowView/ListMode root에 직접 부착
   const meadowRef = useRef<HTMLDivElement>(null)
-  const listRef   = useRef<HTMLDivElement>(null)
+  const listRef   = useRef<HTMLElement>(null)
 
   // 메시지 로더 — 시간 오름차순(풀숲 뷰의 자연스러운 등장 순서와 일치)
   const loadMessages = useCallback(async (roomId: string) => {
@@ -234,13 +234,12 @@ export default function HostPage() {
   if (isListMode) {
     return (
       <>
-        <div ref={listRef}>
-          <ListMode
-            messages={messages}
-            recipientName={name}
-            onClose={() => setIsListMode(false)}
-          />
-        </div>
+        <ListMode
+          ref={listRef}
+          messages={messages}
+          recipientName={name}
+          onClose={() => setIsListMode(false)}
+        />
         <HostControls
           isWrapped={isWrapped}
           onOpenManage={() => setShowManage(true)}
@@ -254,15 +253,14 @@ export default function HostPage() {
   // 풀숲 메인 뷰
   return (
     <>
-      <div ref={meadowRef}>
-        <MeadowView
-          messages={messages}
-          recipientName={name}
-          onFlowerClick={setSelectedIdx}
-          onListMode={() => setIsListMode(true)}
-          myMessageId={storedAuthor?.messageId}
-        />
-      </div>
+      <MeadowView
+        ref={meadowRef}
+        messages={messages}
+        recipientName={name}
+        onFlowerClick={setSelectedIdx}
+        onListMode={() => setIsListMode(true)}
+        myMessageId={storedAuthor?.messageId}
+      />
 
       {/* 만든이 컨트롤 (관리 / 이미지 저장 FAB) */}
       <HostControls

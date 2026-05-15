@@ -35,10 +35,10 @@ export default function ViewerPage({ isPreview = false }: Props) {
   const [storedAuthor, setStoredAuthor] = useState<StoredAuthor | null>(null)
   const [showShare, setShowShare] = useState(false)
 
-  // 캡처 대상 ref — 풀숲 콘텐츠 박스에 직접 부착(motion.div의 transform/opacity가
-  // offsetWidth에 영향을 주지 않도록). 단순 안전 폴백은 imageExport에서 처리.
+  // 캡처 대상 ref — forwardRef로 MeadowView/ListMode root에 직접 부착.
+  // 이전엔 wrapper div가 fixed 자식 때문에 0×0이 되어 이미지가 빈 PNG로 캡처됐다.
   const meadowRef = useRef<HTMLDivElement>(null)
-  const listRef   = useRef<HTMLDivElement>(null)
+  const listRef   = useRef<HTMLElement>(null)
 
   // ─── 방 + 메시지 로드 — useCallback으로 콜백 안정화 ─────────────────────────
   const fetchRoomAndMessages = useCallback(async () => {
@@ -104,13 +104,12 @@ export default function ViewerPage({ isPreview = false }: Props) {
   // ─── 전체 리스트 모드 ─────────────────────────────────────────────────────
   if (isListMode) return (
     <>
-      <div ref={listRef}>
-        <ListMode
-          messages={messages}
-          recipientName={room?.recipient_name ?? ''}
-          onClose={() => setIsListMode(false)}
-        />
-      </div>
+      <ListMode
+        ref={listRef}
+        messages={messages}
+        recipientName={room?.recipient_name ?? ''}
+        onClose={() => setIsListMode(false)}
+      />
       {/* 이미지 저장 버튼 */}
       <button
         onClick={() => setShowExport(true)}
@@ -156,16 +155,15 @@ export default function ViewerPage({ isPreview = false }: Props) {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
           >
-            {/* ref는 motion.div가 아닌 실제 콘텐츠 박스에 부착 — 캡처 시 정확한 offsetWidth 확보 */}
-            <div ref={meadowRef}>
-              <MeadowView
-                messages={messages}
-                recipientName={room?.recipient_name ?? ''}
-                onFlowerClick={setSelectedIdx}
-                onListMode={() => setIsListMode(true)}
-                myMessageId={storedAuthor?.messageId}
-              />
-            </div>
+            {/* MeadowView root에 직접 ref 부착 — wrapper로 감싸면 fixed 자식 때문에 0×0이 되어 캡처가 빈 PNG가 된다 */}
+            <MeadowView
+              ref={meadowRef}
+              messages={messages}
+              recipientName={room?.recipient_name ?? ''}
+              onFlowerClick={setSelectedIdx}
+              onListMode={() => setIsListMode(true)}
+              myMessageId={storedAuthor?.messageId}
+            />
           </motion.div>
         )}
       </AnimatePresence>
