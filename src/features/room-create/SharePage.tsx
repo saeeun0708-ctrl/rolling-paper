@@ -74,12 +74,12 @@ export default function SharePage() {
           </button>
         </div>
 
-        {/* 3순위 — 내 페이지 가기. 성격이 다른 액션이라 약하게 분리 */}
+        {/* 3순위 — 롤링페이퍼 보기. 성격이 다른 액션이라 약하게 분리 */}
         <button
           onClick={() => navigate(`/r/${slug}/host`)}
           className="block mx-auto mt-5 py-2 text-[14px] text-black/55 hover:text-black underline underline-offset-4"
         >
-          내 페이지 가기
+          롤링페이퍼 보기
         </button>
 
       </div>

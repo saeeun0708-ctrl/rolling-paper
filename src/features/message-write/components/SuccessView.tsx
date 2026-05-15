@@ -56,7 +56,7 @@ export default function SuccessView({ name, body, shape, messageId, authorToken,
                    font-semibold text-[14px]
                    rounded-full transition-colors"
       >
-        받는 분 화면으로 보기 →
+        롤링페이퍼 보기 →
       </button>
 
       {/* PIN 설정 섹션 */}

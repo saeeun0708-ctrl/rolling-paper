@@ -10,8 +10,8 @@ interface Props {
   recipientName: string
   onFlowerClick: (index: number) => void
   onListMode:    () => void
-  /** 참여자 본인이 쓴 메시지 id — 일치하는 꽃에 강조 표시 */
-  myMessageId?:  string
+  /** 이 기기에서 작성한 메시지 id 목록 — 포함된 꽃에 강조 표시 */
+  myMessageIds?: string[]
 }
 
 // ── 꽃 shape → SVG 컴포넌트 매핑 (없으면 daisy 폴백) ──────────────────────
@@ -27,6 +27,20 @@ const SHAPE_MAP: Record<string, FlowerSvgShape> = {
   cherry:     'cherry',
 }
 
+// ── 꽃 종류별 시각 크기 보정 ──────────────────────────────────────────────
+// 모든 SVG가 같은 viewBox(0 0 100 100)을 쓰지만, 내부 도형이 viewBox를 채우는 비율이
+// 달라서 같은 size여도 시각적으로 크기 편차가 생긴다. (예: 튤립은 꽃 본체 폭이 ~32라
+// 작아 보이고, 카네이션·클로버는 ~56이라 크게 보임.) 보정 계수로 균형을 맞춘다.
+const SHAPE_SIZE_FACTOR: Record<FlowerSvgShape, number> = {
+  carnation: 0.95,  // 벚꽃 — 5장 꽃잎이 viewBox를 균등하게 채워 자연스러운 크기
+  daisy:     1.10,
+  tulip:     0.98,  // 튤립 — 컵 형태
+  clover:    1.00,
+  sunflower: 0.82,  // 새 디자인이 viewBox를 거의 가득 채워(꽃잎 끝 y=8) 다른 꽃보다 크게 보이므로 보정
+  star:      1.00,
+  cherry:    1.00,
+}
+
 // ── 원근감 있는 꽃 배치 (Y 아래쪽이 더 크고 앞) ──────────────────────────
 // H1: originalIndex를 함께 저장해 onFlowerClick에서 messages.findIndex를 제거.
 interface PlacedFlower extends Message {
@@ -38,34 +52,46 @@ function distributeFlowers(messages: Message[], seed = 7): PlacedFlower[] {
   if (n === 0) return []
   const cols = Math.max(4, Math.ceil(Math.sqrt(n) * 1.6))
   const rows  = Math.ceil(n / cols)
-  const yMin = 62, yMax = 93
+  // 좌측 FAB(⚙️·☰)으로 인해 꽃이 시각적으로 우측 치우쳐 보이는 것을 보정:
+  // 왼쪽 마진을 줄이고 오른쪽 마진을 늘려 분포 중심을 좌로 이동
+  const yMin = 60, yMax = 85
+  const xLeft  = 7    // 왼쪽 마진(%) — FAB 보정으로 좌측 여유 줄임
+  const xRight = 13   // 오른쪽 마진(%)
+  const xRange = 100 - xLeft - xRight
 
   let s = seed * 9301 + 49297
   const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280 }
+
+  // 마지막 행 꽃 수 (나머지가 0이면 cols 전체가 채워진 것)
+  const lastRowCount = n % cols === 0 ? cols : n % cols
 
   const placed: PlacedFlower[] = []
   for (let i = 0; i < n; i++) {
     const r = Math.floor(i / cols)
     const c = i % cols
-    const cellW = 92 / cols
+    const cellW = xRange / cols
     const cellH = (yMax - yMin) / Math.max(1, rows)
-    const xJitter = (rand() - 0.5) * cellW * 0.6
-    const yJitter = (rand() - 0.5) * cellH * 0.5
-    const x = 4 + c * cellW + cellW / 2 + xJitter
+    // x 지터 제거 — 의사난수 편향으로 좌우 비대칭이 생기므로 열 위치를 수학적으로 고정
+    const yJitter = (rand() - 0.5) * cellH * 0.7
+    // 마지막 행은 중앙 정렬
+    const colOffset = r === rows - 1 ? (cols - lastRowCount) / 2 : 0
+    const x = xLeft + (c + colOffset) * cellW + cellW / 2
     const y = yMin + r * cellH + cellH / 2 + yJitter
     const depth = (y - yMin) / (yMax - yMin)
-    // 메시지 수에 따라 자동 크기 조절: 적을수록 크게, 많을수록 작게
+    // 메시지 수에 따라 자동 크기 조절: 적을수록 크게, 많을수록 작게 (원근감 없이 균일)
     const baseSize = Math.max(44, 110 - n * 3.5)
-    const size = baseSize * (0.6 + depth * 0.65)
+    const rawSize  = baseSize * (0.85 + depth * 0.25)
+    // 꽃 종류별 시각 크기 편차를 보정
+    const shapeKey = (SHAPE_MAP[messages[i].shape as FlowerShape] ?? 'daisy') as FlowerSvgShape
+    const size     = rawSize * (SHAPE_SIZE_FACTOR[shapeKey] ?? 1.0)
     placed.push({ ...messages[i], x, y, size, depth, sway: rand() * 6 - 3, originalIndex: i })
   }
   return placed.sort((a, b) => a.depth - b.depth)
 }
 
 // ── 카운트 배지의 인라인 스타일도 상수화 ──────────────────────────────────
-// 우상단은 만든이 FAB(HostPage) 자리이므로 카운트 배지는 더 아래에 위치시켜 시각 충돌 방지.
 const COUNT_BADGE_STYLE: React.CSSProperties = {
-  position: 'absolute', top: 80, right: 20, zIndex: 10,
+  position: 'absolute', top: 28, right: 20, zIndex: 10,
   display: 'flex', alignItems: 'center', gap: 8,
   padding: '7px 14px 7px 10px',
   background: '#fffdf8',
@@ -152,36 +178,16 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
     >
       <FlowerComp size={f.size}/>
 
-      {/* 본인 꽃 — 작은 '내 꽃' 라벨 (꽃 위쪽) */}
-      {isMine && (
-        <div style={{
-          position: 'absolute', left: '50%', top: -10,
-          transform: 'translateX(-50%)',
-          fontSize: Math.max(9, f.size * 0.16),
-          color: '#fff',
-          fontWeight: 700,
-          whiteSpace: 'nowrap',
-          background: '#5cb054',
-          padding: '2px 7px',
-          borderRadius: 999,
-          boxShadow: '0 2px 6px rgba(92,176,84,0.5)',
-          pointerEvents: 'none',
-          letterSpacing: '-0.02em',
-        }}>
-          내 꽃
-        </div>
-      )}
-
-      {/* 이름 레이블 — 본인 여부와 무관하게 평소 톤 (강조는 상단 '내 꽃' 뱃지로 충분) */}
+      {/* 이름 레이블 — 본인 여부와 무관하게 평소 톤 (강조는 글로우 + 펄스로) */}
       <div style={{
         position: 'absolute', left: '50%', bottom: -2,
         transform: 'translateX(-50%)',
-        fontSize: Math.max(9, f.size * 0.18),
+        fontSize: Math.max(8, f.size * 0.15),
         color: '#2d4a2d',
         fontWeight: 600,
         whiteSpace: 'nowrap',
         background: 'rgba(255,255,255,0.78)',
-        padding: '1px 6px',
+        padding: '1px 5px',
         borderRadius: 999,
         opacity: isHover ? 1 : 0.75,
         transition: 'opacity 200ms',
@@ -214,7 +220,7 @@ const LIST_BUTTON_STYLE: React.CSSProperties = {
   background: 'rgba(255,255,255,0.45)',
   border: 'none', cursor: 'pointer',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
-  fontSize: 16, marginLeft: 'auto',
+  fontSize: 16,
   backdropFilter: 'blur(4px)',
   boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
 }
@@ -222,7 +228,7 @@ const LIST_BUTTON_STYLE: React.CSSProperties = {
 // ── 메인 컴포넌트 ──────────────────────────────────────────────────────────
 // forwardRef로 root div의 ref를 외부에 노출 — 이미지 캡처 시 정확한 dimensions 확보용.
 const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
-  { messages, recipientName, onFlowerClick, onListMode, myMessageId },
+  { messages, recipientName, onFlowerClick, onListMode, myMessageIds },
   ref,
 ) {
   const placed  = useMemo(() => distributeFlowers(messages), [messages])
@@ -259,7 +265,7 @@ const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
             flower={f}
             animDelayIdx={i}
             onClick={onFlowerClick}
-            isMine={!!myMessageId && f.id === myMessageId}
+            isMine={!!myMessageIds?.includes(f.id)}
           />
         ))}
       </div>

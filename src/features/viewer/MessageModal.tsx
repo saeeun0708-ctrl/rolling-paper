@@ -10,10 +10,17 @@ interface Props {
   onClose:      () => void
   /** 만든이 권한일 때만 — 메시지 삭제 콜백. 없으면 삭제 버튼 미노출 */
   onDelete?:    (messageId: string) => void
+  /** 이 기기에서 작성한 메시지 id 목록 — 포함된 메시지에 '수정·삭제' 버튼 노출 */
+  myMessageIds?: string[]
+  /** 본인 메시지 수정 클릭 시 호출 — 어떤 메시지인지 id 전달 */
+  onEdit?:       (messageId: string) => void
+  /** 본인 메시지 삭제 클릭 시 호출 — 참여자 본인 삭제용 */
+  onMyDelete?:   (messageId: string) => void
 }
 
-export default function MessageModal({ messages, currentIndex, onNavigate, onClose, onDelete }: Props) {
+export default function MessageModal({ messages, currentIndex, onNavigate, onClose, onDelete, myMessageIds, onEdit, onMyDelete }: Props) {
   const msg    = messages[currentIndex]
+  const isMine = !!myMessageIds?.includes(msg.id)
   const emoji = FLOWER_EMOJIS[msg.shape as FlowerShape] ?? '🌸'
   const hasPrev = currentIndex > 0
   const hasNext = currentIndex < messages.length - 1
@@ -86,57 +93,80 @@ export default function MessageModal({ messages, currentIndex, onNavigate, onClo
             {msg.body}
           </p>
 
-          <p className="text-[11px] text-black/30 mt-6">
-            {new Date(msg.created_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
-          </p>
-
-          {/* 스와이프 힌트 */}
-          {messages.length > 1 && (
-            <p className="text-[11px] text-black/25 mt-3">
-              {hasPrev && '← '} 스와이프해서 이동 {hasNext && ' →'}
-            </p>
-          )}
-
-          {/* 만든이 — 메시지 삭제 (권한 있을 때만 노출) */}
-          {onDelete && (
-            <button
-              type="button"
-              onClick={() => {
-                if (window.confirm(`${msg.author_name}님의 메시지를 삭제할까요?`)) {
-                  onDelete(msg.id)
-                }
-              }}
-              className="mt-5 text-[12px] text-black/35 hover:text-red-500 transition-colors"
-            >
-              메시지 삭제
-            </button>
-          )}
+          {/* 액션 라인 — 수정 / 삭제 */}
+          {(isMine && onEdit) || (isMine && onMyDelete) || onDelete ? (
+            <div className="mt-5 flex items-center justify-center gap-4">
+              {isMine && onEdit && (
+                <button
+                  type="button"
+                  onClick={() => onEdit(msg.id)}
+                  className="text-[12px] font-semibold text-black/55 hover:text-black transition-colors"
+                >
+                  수정
+                </button>
+              )}
+              {isMine && onMyDelete && (
+                <button
+                  type="button"
+                  onClick={() => onMyDelete(msg.id)}
+                  className="text-[12px] text-black/35 hover:text-red-500 transition-colors"
+                >
+                  삭제
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm(`${msg.author_name}님의 메시지를 삭제할까요?`)) {
+                      onDelete(msg.id)
+                    }
+                  }}
+                  className="text-[12px] text-black/35 hover:text-red-500 transition-colors"
+                >
+                  삭제
+                </button>
+              )}
+            </div>
+          ) : null}
         </motion.div>
       </AnimatePresence>
 
-      {/* 방향 버튼 */}
+      {/* 방향 버튼 — 글래스모피즘 + SVG chevron */}
       {hasPrev && (
         <button
           onClick={() => onNavigate(currentIndex - 1)}
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11
-                     bg-white/20 hover:bg-white/35 rounded-full
-                     text-white text-2xl flex items-center justify-center
-                     transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10
+                     bg-white/10 hover:bg-white/25 active:bg-white/35
+                     rounded-full backdrop-blur-md
+                     ring-1 ring-white/15
+                     text-white flex items-center justify-center
+                     transition-all focus:outline-none focus:ring-2 focus:ring-white/40"
           aria-label="이전 메시지"
         >
-          ‹
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" strokeWidth="2.5"
+               strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
         </button>
       )}
       {hasNext && (
         <button
           onClick={() => onNavigate(currentIndex + 1)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11
-                     bg-white/20 hover:bg-white/35 rounded-full
-                     text-white text-2xl flex items-center justify-center
-                     transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10
+                     bg-white/10 hover:bg-white/25 active:bg-white/35
+                     rounded-full backdrop-blur-md
+                     ring-1 ring-white/15
+                     text-white flex items-center justify-center
+                     transition-all focus:outline-none focus:ring-2 focus:ring-white/40"
           aria-label="다음 메시지"
         >
-          ›
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" strokeWidth="2.5"
+               strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
         </button>
       )}
     </motion.div>

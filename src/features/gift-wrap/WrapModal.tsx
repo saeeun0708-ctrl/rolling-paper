@@ -18,7 +18,6 @@ export default function WrapModal({ recipientName, onConfirm, onCancel, isLoadin
             롤링페이퍼를 포장할까요?
           </h2>
           <p className="text-[13px] text-black/50 leading-relaxed">
-            포장하면 더 이상 새 메시지를 받지 않고,<br />
             <strong className="text-black">{recipientName}</strong>{honorific} 보낼<br />
             열람 링크가 만들어져요
           </p>

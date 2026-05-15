@@ -10,42 +10,64 @@ interface FlowerProps {
 export const FlowerCarnation = ({ size = 60, style }: FlowerProps) => (
   <svg viewBox="0 0 100 100" width={size} height={size} style={style} xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <radialGradient id="cn-petal" cx="50%" cy="55%" r="55%">
-        <stop offset="0%" stopColor="#ffe0ea"/>
-        <stop offset="50%" stopColor="#f8a8c4"/>
-        <stop offset="100%" stopColor="#c8557e"/>
+      {/* 꽃잎 — 흰색 중심에서 연한 핑크로 (벚꽃 특유의 투명하고 부드러운 톤) */}
+      <radialGradient id="cn-petal" cx="42%" cy="32%" r="68%">
+        <stop offset="0%"   stopColor="#ffffff"/>
+        <stop offset="45%"  stopColor="#fde8f4"/>
+        <stop offset="100%" stopColor="#ecaac8"/>
       </radialGradient>
+      {/* 수술 중심 */}
+      <radialGradient id="cn-center" cx="50%" cy="40%" r="55%">
+        <stop offset="0%"  stopColor="#fff090"/>
+        <stop offset="100%" stopColor="#e89830"/>
+      </radialGradient>
+      {/* 잎 */}
+      <linearGradient id="cn-leaf" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stopColor="#a8d090"/>
+        <stop offset="100%" stopColor="#5a9050"/>
+      </linearGradient>
     </defs>
-    <path d="M50 70 Q49 86 50 96" stroke="#6ea866" strokeWidth="2.2" strokeLinecap="round" fill="none" opacity="0.85"/>
-    <path d="M50 86 Q42 84 38 90 Q44 90 50 90 Z" fill="#82bc78" opacity="0.85"/>
-    {/* 바깥 겹 */}
-    <g>
-      {[0, 60, 120, 180, 240, 300].map((deg) => (
-        <path key={`o${deg}`}
-          d="M50 50 Q34 36 38 22 Q44 16 50 22 Q56 16 62 22 Q66 36 50 50 Z"
-          fill="url(#cn-petal)" opacity="0.85"
-          transform={`rotate(${deg} 50 50)`}/>
-      ))}
-    </g>
-    {/* 중간 겹 */}
-    <g transform="rotate(30 50 50)">
-      {[0, 72, 144, 216, 288].map((deg) => (
-        <path key={`m${deg}`}
-          d="M50 50 Q38 38 40 28 Q46 22 50 28 Q54 22 60 28 Q62 38 50 50 Z"
-          fill="url(#cn-petal)" opacity="0.95"
-          transform={`rotate(${deg} 50 50)`}/>
-      ))}
-    </g>
-    {/* 안쪽 겹 */}
-    <g>
-      {[0, 90, 180, 270].map((deg) => (
-        <path key={`i${deg}`}
-          d="M50 50 Q42 44 44 36 Q48 32 50 36 Q52 32 56 36 Q58 44 50 50 Z"
-          fill="#c8557e" opacity="0.8"
-          transform={`rotate(${deg} 50 50)`}/>
-      ))}
-    </g>
-    <circle cx="50" cy="50" r="3" fill="#fff5b8"/>
+
+    {/* 줄기 — 벚나무 특유의 갈색빛 */}
+    <path d="M50 62 Q50 80 50 96" stroke="#b08890" strokeWidth="2.4" strokeLinecap="round" fill="none"/>
+
+    {/* 잎 2장 */}
+    <path d="M50 78 Q63 72 68 84 Q60 84 50 80 Z" fill="url(#cn-leaf)" opacity="0.9"/>
+    <path d="M50 86 Q39 80 34 90 Q42 90 50 88 Z" fill="url(#cn-leaf)" opacity="0.85"/>
+
+    {/* 꽃잎 5장 — 끝에 V자 홈(노치)이 있는 벚꽃 모양 */}
+    {[0, 72, 144, 216, 288].map((deg, i) => (
+      <path key={i}
+        d="M 50 42
+           Q 36 37 37 22
+           Q 39 8 46 6
+           Q 50 13 54 6
+           Q 61 8 63 22
+           Q 64 37 50 42
+           Z"
+        fill="url(#cn-petal)"
+        stroke="#e898c0" strokeWidth="0.6" strokeLinejoin="round"
+        opacity="0.94"
+        transform={`rotate(${deg} 50 42)`}
+      />
+    ))}
+
+    {/* 수술 — 10개 가는 선 + 끝에 둥근 점 */}
+    {Array.from({ length: 10 }).map((_, i) => {
+      const a = (i / 10) * Math.PI * 2
+      const x2 = 50 + Math.cos(a) * 9
+      const y2 = 42 + Math.sin(a) * 9
+      return (
+        <g key={i}>
+          <line x1="50" y1="42" x2={x2} y2={y2} stroke="#f4c038" strokeWidth="0.7" opacity="0.85"/>
+          <circle cx={x2} cy={y2} r="1.3" fill="#ffd858"/>
+        </g>
+      )
+    })}
+
+    {/* 중심 */}
+    <circle cx="50" cy="42" r="3.5" fill="url(#cn-center)" stroke="#d09028" strokeWidth="0.5"/>
+    <circle cx="48.5" cy="40.8" r="1" fill="#fff" opacity="0.45"/>
   </svg>
 )
 
@@ -86,23 +108,64 @@ export const FlowerDaisy = ({ size = 60, style }: FlowerProps) => (
 export const FlowerTulip = ({ size = 60, style }: FlowerProps) => (
   <svg viewBox="0 0 100 100" width={size} height={size} style={style} xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="tl-petal" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#ffc6d8"/>
-        <stop offset="60%" stopColor="#f490b0"/>
-        <stop offset="100%" stopColor="#c95c82"/>
+      {/* 꽃 본체 — 핑크 수채화 */}
+      <linearGradient id="tl-body" x1="25%" y1="0%" x2="75%" y2="100%">
+        <stop offset="0%"   stopColor="#ffd8ea"/>
+        <stop offset="50%"  stopColor="#f4a0c2"/>
+        <stop offset="100%" stopColor="#d87098"/>
       </linearGradient>
-      <linearGradient id="tl-leaf" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#9ed18e"/>
+      {/* 수채화 하이라이트 */}
+      <radialGradient id="tl-hi" cx="36%" cy="28%" r="46%">
+        <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.65"/>
+        <stop offset="100%" stopColor="#ffffff" stopOpacity="0"/>
+      </radialGradient>
+      {/* 꽃받침 */}
+      <linearGradient id="tl-calyx" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%"   stopColor="#b8e0c8"/>
+        <stop offset="100%" stopColor="#68b888"/>
+      </linearGradient>
+      <linearGradient id="tl-leaf" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"  stopColor="#a0d090"/>
         <stop offset="100%" stopColor="#5a9858"/>
       </linearGradient>
     </defs>
-    <path d="M50 70 Q30 60 26 88 Q42 82 50 75 Z" fill="url(#tl-leaf)" opacity="0.9"/>
-    <path d="M50 70 Q70 62 76 86 Q60 82 50 75 Z" fill="url(#tl-leaf)" opacity="0.85"/>
-    <path d="M50 50 Q49 78 50 96" stroke="#5a9858" strokeWidth="2.4" strokeLinecap="round" fill="none"/>
-    <path d="M34 50 Q32 28 50 22 Q68 28 66 50 Q60 56 50 56 Q40 56 34 50 Z" fill="url(#tl-petal)"/>
-    <path d="M40 48 Q38 30 50 26 Q50 42 50 56 Q44 54 40 48 Z" fill="#ffd0e0" opacity="0.6"/>
-    <path d="M60 48 Q62 30 50 26 Q50 42 50 56 Q56 54 60 48 Z" fill="#b34870" opacity="0.4"/>
-    <path d="M50 28 Q50 42 50 54" stroke="#a04a6c" strokeWidth="0.6" fill="none" opacity="0.5"/>
+
+    {/* 줄기 */}
+    <path d="M50 70 Q50 83 50 96" stroke="#5a9858" strokeWidth="2.4" strokeLinecap="round" fill="none"/>
+
+    {/* 잎 */}
+    <path d="M50 78 Q32 70 26 84 Q40 88 50 80 Z" fill="url(#tl-leaf)" opacity="0.9"/>
+    <path d="M50 84 Q68 76 74 90 Q60 92 50 86 Z" fill="url(#tl-leaf)" opacity="0.85"/>
+
+    {/* 꽃받침 세팔 */}
+    <path d="M50 68 Q43 62 40 54 Q46 60 50 66 Z" fill="#7ab890" opacity="0.85"/>
+    <path d="M50 68 Q57 62 60 54 Q54 60 50 66 Z" fill="#7ab890" opacity="0.85"/>
+
+    {/* 꽃받침 컵 */}
+    <path d="M 38 65 Q 36 73 44 75 Q 50 77 56 75 Q 64 73 62 65
+             Q 56 67 50 67 Q 44 67 38 65 Z"
+      fill="url(#tl-calyx)" stroke="#4e9868" strokeWidth="0.3"/>
+
+    {/* 튤립 본체 — 컵 형태, 꽃잎 3개 포인트 */}
+    <path d="M 40 64
+             Q 26 58 26 38
+             Q 26 20 34 13
+             Q 39 7  43 13
+             Q 46 19 50 11
+             Q 54 19 57 13
+             Q 61 7  66 13
+             Q 74 20 74 38
+             Q 74 58 60 64
+             Q 50 66 40 64 Z"
+      fill="url(#tl-body)" stroke="#c07090" strokeWidth="0.5"/>
+
+    {/* 꽃잎 구분선 */}
+    <path d="M 43 64 Q 40 42 34 13" stroke="#c87898" strokeWidth="0.9" fill="none" opacity="0.4" strokeLinecap="round"/>
+    <path d="M 57 64 Q 60 42 66 13" stroke="#c87898" strokeWidth="0.9" fill="none" opacity="0.4" strokeLinecap="round"/>
+
+    {/* 수채화 하이라이트 */}
+    <path d="M 40 64 Q 26 58 26 38 Q 26 20 34 13 Q 39 7 43 13 Q 46 19 50 11 Q 50 35 43 64 Z"
+      fill="url(#tl-hi)"/>
   </svg>
 )
 
@@ -154,67 +217,79 @@ export const FlowerStar = ({ size = 60, style }: FlowerProps) => (
 export const FlowerSunflower = ({ size = 60, style }: FlowerProps) => (
   <svg viewBox="0 0 100 100" width={size} height={size} style={style} xmlns="http://www.w3.org/2000/svg">
     <defs>
+      {/* 꽃잎 — 노랑이 메인, 안쪽 끝에서만 주황으로 살짝 빠지는 톤 */}
       <linearGradient id="sf-petal" x1="50%" y1="0%" x2="50%" y2="100%">
-        <stop offset="0%" stopColor="#ffd84a"/>
-        <stop offset="60%" stopColor="#f5a820"/>
-        <stop offset="100%" stopColor="#c8770e"/>
+        <stop offset="0%"  stopColor="#fff084"/>
+        <stop offset="40%" stopColor="#ffd84a"/>
+        <stop offset="90%" stopColor="#f0a820"/>
+        <stop offset="100%" stopColor="#d68a18"/>
       </linearGradient>
-      <radialGradient id="sf-disk" cx="48%" cy="42%" r="55%">
-        <stop offset="0%" stopColor="#7a4818"/>
-        <stop offset="55%" stopColor="#4a2a0c"/>
-        <stop offset="100%" stopColor="#28160a"/>
+      {/* 씨앗 원반 — 갈색이지만 너무 어둡지 않게 */}
+      <radialGradient id="sf-disk" cx="50%" cy="45%" r="55%">
+        <stop offset="0%"  stopColor="#9a5818"/>
+        <stop offset="60%" stopColor="#6a3818"/>
+        <stop offset="100%" stopColor="#3e2010"/>
       </radialGradient>
+      {/* 잎 */}
       <linearGradient id="sf-leaf" x1="50%" y1="0%" x2="50%" y2="100%">
-        <stop offset="0%" stopColor="#9bd08a"/>
+        <stop offset="0%"   stopColor="#9bd08a"/>
         <stop offset="100%" stopColor="#467a3e"/>
       </linearGradient>
     </defs>
-    <path d="M50 70 Q49 84 50 96" stroke="#467a3e" strokeWidth="3" strokeLinecap="round" fill="none"/>
-    <path d="M50 80 Q30 70 22 88 Q34 92 46 86 Z" fill="url(#sf-leaf)" stroke="#3a6630" strokeWidth="0.7"/>
-    <path d="M50 86 Q70 78 78 94 Q66 96 52 90 Z" fill="url(#sf-leaf)" stroke="#3a6630" strokeWidth="0.7" opacity="0.95"/>
-    {/* 뒷줄 꽃잎 */}
-    <g transform="rotate(12.85 50 45)">
-      {Array.from({ length: 14 }).map((_, i) => {
-        const a = (i / 14) * Math.PI * 2
-        const cx = 50 + Math.cos(a) * 28
-        const cy = 45 + Math.sin(a) * 28
-        const rot = (a * 180) / Math.PI + 90
+
+    {/* 줄기 — 굵고 곧게 */}
+    <path d="M50 58 Q50 80 50 96" stroke="#467a3e" strokeWidth="3.2" strokeLinecap="round" fill="none"/>
+
+    {/* 잎 2장 — 양쪽 비대칭 */}
+    <path d="M50 76 Q34 70 26 86 Q38 90 48 82 Z"
+          fill="url(#sf-leaf)" stroke="#3a6630" strokeWidth="0.6"/>
+    <path d="M50 82 Q66 76 74 92 Q62 94 52 86 Z"
+          fill="url(#sf-leaf)" stroke="#3a6630" strokeWidth="0.6" opacity="0.93"/>
+
+    {/* 뒷줄 꽃잎 — 20장, 살짝 회전해서 깊이감 */}
+    <g transform="rotate(9 50 42)">
+      {Array.from({ length: 20 }).map((_, i) => {
+        const deg = (i * 360) / 20
         return (
           <path key={`b${i}`}
-            d={`M${cx} ${cy} q -4 -6 -3 -14 q 0 -4 3 -4 q 3 0 3 4 q 1 8 -3 14 Z`}
-            fill="#c8770e" opacity="0.9"
-            transform={`rotate(${rot} ${cx} ${cy})`}/>
+            d="M50 42 Q46 30 47 14 Q50 10 50 10 Q50 10 53 14 Q54 30 50 42 Z"
+            fill="#d68a18" opacity="0.75"
+            transform={`rotate(${deg} 50 42)`}/>
         )
       })}
     </g>
-    {/* 앞줄 꽃잎 */}
+
+    {/* 앞줄 꽃잎 — 20장, 길쭉한 뾰족 모양 */}
     <g>
-      {Array.from({ length: 14 }).map((_, i) => {
-        const a = (i / 14) * Math.PI * 2
-        const cx = 50 + Math.cos(a) * 26
-        const cy = 45 + Math.sin(a) * 26
-        const rot = (a * 180) / Math.PI + 90
+      {Array.from({ length: 20 }).map((_, i) => {
+        const deg = (i * 360) / 20
         return (
           <path key={`f${i}`}
-            d={`M${cx} ${cy} q -5 -8 -3 -18 q 0 -5 3 -5 q 3 0 3 5 q 2 10 -3 18 Z`}
-            fill="url(#sf-petal)" stroke="#a0640e" strokeWidth="0.5" strokeLinejoin="round"
-            transform={`rotate(${rot} ${cx} ${cy})`}/>
+            d="M50 42 Q45 28 46 12 Q50 8 50 8 Q50 8 54 12 Q55 28 50 42 Z"
+            fill="url(#sf-petal)" stroke="#c8770e" strokeWidth="0.3"
+            strokeLinejoin="round" opacity="0.97"
+            transform={`rotate(${deg} 50 42)`}/>
         )
       })}
     </g>
-    {/* 씨앗 원반 */}
-    <circle cx="50" cy="45" r="14" fill="url(#sf-disk)" stroke="#1c0e04" strokeWidth="0.8"/>
-    <g fill="#1c0e04">
-      {Array.from({ length: 60 }).map((_, i) => {
+
+    {/* 씨앗 원반 — 큼직하게 (r=17) */}
+    <circle cx="50" cy="42" r="17" fill="url(#sf-disk)" stroke="#3a2010" strokeWidth="0.5"/>
+
+    {/* 씨앗 패턴 — 황금비 분포, 톤 부드럽게 */}
+    <g fill="#2a1608">
+      {Array.from({ length: 90 }).map((_, i) => {
         const golden = Math.PI * (3 - Math.sqrt(5))
-        const r = Math.sqrt(i / 60) * 12
+        const r = Math.sqrt(i / 90) * 15
         const a = i * golden
         const x = 50 + Math.cos(a) * r
-        const y = 45 + Math.sin(a) * r
-        return <circle key={i} cx={x} cy={y} r="0.7" opacity="0.85"/>
+        const y = 42 + Math.sin(a) * r
+        return <circle key={i} cx={x} cy={y} r="0.85" opacity="0.55"/>
       })}
     </g>
-    <circle cx="50" cy="45" r="2" fill="#1c0e04"/>
+
+    {/* 중심부 살짝 밝게 — 햇빛 받는 느낌 */}
+    <circle cx="47" cy="39" r="3.5" fill="#b87028" opacity="0.35"/>
   </svg>
 )
 

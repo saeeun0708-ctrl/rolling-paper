@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import bcrypt from 'bcryptjs'
 import { supabase } from '../../lib/supabase'
-import { getStoredAuthor, type StoredAuthor } from '../message-write/utils'
+import { getStoredAuthorsList, type StoredAuthor } from '../message-write/utils'
 import WrapModal from '../gift-wrap/WrapModal'
 import ShareModal from '../../components/ShareModal'
 import MeadowView from '../viewer/MeadowView'
@@ -87,7 +87,7 @@ export default function HostPage() {
   // 풀숲/리스트 뷰 + 만든이 본인이 작성한 꽃 식별
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [isListMode, setIsListMode]   = useState(false)
-  const [storedAuthor, setStoredAuthor] = useState<StoredAuthor | null>(null)
+  const [storedList, setStoredList] = useState<StoredAuthor[]>([])
 
   // 모달 상태
   const [showManage, setShowManage] = useState(false)
@@ -122,7 +122,7 @@ export default function HostPage() {
         if (error || !data) { setErrorMsg('존재하지 않는 롤링페이퍼예요.'); setView('error'); return }
         setRoom(data)
         // 만든이 본인이 작성자일 수도 있음 → 자기 꽃 강조용
-        setStoredAuthor(getStoredAuthor(slug))
+        setStoredList(getStoredAuthorsList(slug))
         if (sessionStorage.getItem(sessionKey(slug)) === 'ok') {
           loadMessages(data.id)
           setView('dashboard')
@@ -183,6 +183,18 @@ export default function HostPage() {
     } finally { setIsWrapping(false) }
   }
 
+  async function handleUnwrap() {
+    if (!slug) return
+    const confirmed = window.confirm(
+      '포장을 취소하면, 전달한 롤링페이퍼를 볼 수 없게 돼요. 정말 포장을 취소할까요?'
+    )
+    if (!confirmed) return
+    const { error } = await supabase.rpc('unwrap_room', { p_slug: slug })
+    if (error) { alert('포장 취소 중 오류가 발생했어요.'); return }
+    setRoom(prev => prev ? { ...prev, status: 'collecting' } : null)
+    setOpenKey('')
+  }
+
   const name         = room?.recipient_name ?? ''
   const honorific    = name.endsWith('님') ? '께' : '님께'
   const writeUrl     = `${window.location.origin}/r/${slug}`
@@ -230,7 +242,7 @@ export default function HostPage() {
   )
 
   // ─── 대시보드 — 풀숲 메인 + 만든이 관리 시트 ─────────────────────────────
-  // 리스트 모드
+  // 리스트 모드 — 만든이는 onDelete로 메시지 삭제 가능
   if (isListMode) {
     return (
       <>
@@ -239,6 +251,7 @@ export default function HostPage() {
           messages={messages}
           recipientName={name}
           onClose={() => setIsListMode(false)}
+          onDelete={handleDeleteMsg}
         />
         <HostControls
           isWrapped={isWrapped}
@@ -259,7 +272,7 @@ export default function HostPage() {
         recipientName={name}
         onFlowerClick={setSelectedIdx}
         onListMode={() => setIsListMode(true)}
-        myMessageId={storedAuthor?.messageId}
+        myMessageIds={storedList.map(s => s.messageId)}
       />
 
       {/* 만든이 컨트롤 (관리 / 이미지 저장 FAB) */}
@@ -277,7 +290,7 @@ export default function HostPage() {
   function renderModals() {
     return (
       <>
-        {/* 메시지 모달 — 만든이는 삭제 권한 노출 */}
+        {/* 메시지 모달 — 만든이는 삭제 권한 + 본인 메시지면 수정도 가능 */}
         <AnimatePresence>
           {selectedIdx !== null && (
             <MessageModal
@@ -286,6 +299,8 @@ export default function HostPage() {
               onNavigate={setSelectedIdx}
               onClose={() => setSelectedIdx(null)}
               onDelete={handleDeleteMsg}
+              myMessageIds={storedList.map(s => s.messageId)}
+              onEdit={(messageId) => navigate(`/r/${slug}`, { state: { editMessageId: messageId } })}
             />
           )}
         </AnimatePresence>
@@ -297,7 +312,6 @@ export default function HostPage() {
               name={name}
               honorific={honorific}
               isWrapped={isWrapped}
-              messages={messages}
               openUrl={openUrl}
               expiresAt={room?.expires_at}
               onClose={() => setShowManage(false)}
@@ -306,8 +320,7 @@ export default function HostPage() {
               onShareOpen={() => { setShowManage(false); setShowShareOpen(true) }}
               onCopyOpen={() => copyToClipboard(openUrl)}
               onWrap={() => { setShowManage(false); setShowWrap(true) }}
-              onListMode={() => { setShowManage(false); setIsListMode(true) }}
-              onDeleteMessage={handleDeleteMsg}
+              onUnwrap={handleUnwrap}
             />
           )}
         </AnimatePresence>
@@ -342,18 +355,7 @@ export default function HostPage() {
           />
         )}
 
-        {/* 이미지 저장 모달 */}
-        <AnimatePresence>
-          {showExport && (
-            <ExportModal
-              recipientName={name}
-              messages={messages}
-              meadowRef={meadowRef}
-              listRef={listRef}
-              onClose={() => setShowExport(false)}
-            />
-          )}
-        </AnimatePresence>
+        {/* 이미지 저장 모달 — 완성도 개선 후 노출 예정 */}
       </>
     )
   }
@@ -368,30 +370,28 @@ interface HostControlsProps {
 function HostControls({ isWrapped, onOpenManage, onOpenExport }: HostControlsProps) {
   return (
     <>
-      {/* 만든이 관리 진입 — 우상단 톱니 FAB (라벨은 시트 내부에서 노출) */}
+      {/* 만든이 관리 진입 — 우하단 톱니 FAB. 우상단은 카운트 배지 자리이므로 충돌 방지 */}
       <button
         onClick={onOpenManage}
         data-export-hide
-        className="fixed top-5 right-5 z-30 w-11 h-11 flex items-center justify-center
-                   bg-white/95 hover:bg-white rounded-full shadow-lg
-                   text-[20px]
-                   border border-black/10 backdrop-blur-sm transition-all"
+        className="fixed bottom-[74px] left-5 z-30 w-9 h-9 flex items-center justify-center
+                   bg-white/40 hover:bg-white/65 rounded-full
+                   shadow-sm border border-white/30
+                   text-black/60 hover:text-black/80
+                   backdrop-blur-sm transition-all"
         aria-label={isWrapped ? '포장 완료 — 관리 메뉴 열기' : '만든이 관리 메뉴 열기'}
       >
-        <span aria-hidden>⚙️</span>
+        {/* 설정 아이콘 — Feather settings */}
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" strokeWidth="2"
+             strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
       </button>
 
-      {/* 이미지 저장 — 우하단 */}
-      <button
-        onClick={onOpenExport}
-        data-export-hide
-        className="fixed bottom-20 right-5 z-20 flex items-center gap-2
-                   px-4 py-2.5 bg-white/90 rounded-full shadow-lg
-                   text-[13px] font-bold text-black/70 hover:text-black
-                   border border-black/10 backdrop-blur-sm transition-all"
-      >
-        📥 저장
-      </button>
+      {/* 이미지 저장 — 완성도 개선 후 노출 예정 */}
+      {/* <button onClick={onOpenExport} data-export-hide ...> 📥 저장 </button> */}
     </>
   )
 }
@@ -401,7 +401,6 @@ interface ManageSheetProps {
   name:           string
   honorific:      string
   isWrapped:      boolean
-  messages:       Message[]
   openUrl:        string
   expiresAt?:     string
   onClose:        () => void
@@ -410,12 +409,11 @@ interface ManageSheetProps {
   onShareOpen:    () => void
   onCopyOpen:     () => void
   onWrap:         () => void
-  onListMode:     () => void
-  onDeleteMessage:(id: string) => void
+  onUnwrap:       () => void
 }
 function ManageSheet({
-  name, honorific, isWrapped, messages, openUrl, expiresAt,
-  onClose, onWriteSelf, onShareWrite, onShareOpen, onCopyOpen, onWrap, onListMode, onDeleteMessage,
+  name, honorific, isWrapped, openUrl, expiresAt,
+  onClose, onWriteSelf, onShareWrite, onShareOpen, onCopyOpen, onWrap, onUnwrap,
 }: ManageSheetProps) {
   // 호이스팅된 부수 정보를 시트 안에서 그대로 사용. 화면을 가린 채로 컨트롤만 모은다.
   return (
@@ -440,17 +438,11 @@ function ManageSheet({
         {/* 핸들 */}
         <div className="w-10 h-1 bg-black/15 rounded-full mx-auto mb-4" aria-hidden/>
 
-        {/* 헤더 */}
+        {/* 헤더 — 타이틀 한 줄만 */}
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.1em] text-black/40">
-              {isWrapped ? '포장 완료' : '만든이 관리'}
-            </p>
-            <h2 className="text-[18px] font-black text-black mt-0.5">
-              {name}{honorific} 롤링페이퍼
-            </h2>
-            <p className="text-[12px] text-black/40 mt-0.5">{messages.length}명이 마음을 남겼어요</p>
-          </div>
+          <h2 className="text-[17px] font-black text-black">
+            {isWrapped ? '포장 완료 🎁' : '만든이 관리'}
+          </h2>
           <button
             onClick={onClose}
             className="w-9 h-9 flex items-center justify-center
@@ -482,7 +474,7 @@ function ManageSheet({
                            bg-white text-black/80 hover:text-black text-[14px] font-semibold
                            rounded-full transition-colors"
               >
-                나도 한 마디 남기기
+                메시지 작성하기
               </button>
             </div>
 
@@ -502,81 +494,35 @@ function ManageSheet({
           </>
         ) : (
           <>
-            {/* 포장 완료 — 열람 링크 공유 */}
-            <div className="mt-4 rounded-2xl bg-[#dceeb1] px-4 py-4 space-y-2">
-              <p className="text-[13px] font-bold text-black">
-                {name}{honorific} 열람 링크를 전달하세요
-              </p>
-              <p className="text-[12px] text-black/55">
-                링크를 받으면 모든 메시지를 볼 수 있어요
-              </p>
-              <p className="font-mono text-[11px] text-black/40 break-all pt-1">
-                {maskUrl(openUrl)}
-              </p>
-            </div>
-
-            <div className="mt-3 space-y-2.5">
+            {/* 포장 완료 — 전달 + 작성 링크 공유 + 메시지 작성 */}
+            <div className="mt-4 space-y-2.5">
               <button
                 onClick={onShareOpen}
                 className="w-full py-3 bg-black hover:bg-black/80 text-white text-[14px] font-bold
                            rounded-full transition-colors"
               >
-                열람 링크 공유하기
+                롤링페이퍼 전달하기
               </button>
               <button
-                onClick={onCopyOpen}
+                onClick={onShareWrite}
                 className="w-full py-3 border border-[#d4d4d4] hover:border-black
                            bg-white text-black/80 hover:text-black text-[14px] font-semibold
                            rounded-full transition-colors"
               >
-                열람 링크 복사
+                작성 링크 공유하기
+              </button>
+              <button
+                onClick={onWriteSelf}
+                className="w-full py-3 border border-[#d4d4d4] hover:border-black
+                           bg-white text-black/80 hover:text-black text-[14px] font-semibold
+                           rounded-full transition-colors"
+              >
+                메시지 작성하기
               </button>
             </div>
           </>
         )}
 
-        {/* 메시지 빠른 점검 — 리스트 진입 */}
-        {messages.length > 0 && (
-          <div className="mt-5 pt-5 border-t border-black/5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[11px] font-mono uppercase tracking-[0.1em] text-black/40">
-                메시지 목록
-              </p>
-              <button
-                onClick={onListMode}
-                className="text-[12px] font-semibold text-black/55 hover:text-black"
-              >
-                전체 리스트로 보기 →
-              </button>
-            </div>
-            {/* 간이 미리보기 — 최근 3개 + 삭제 */}
-            <ul className="space-y-1.5">
-              {messages.slice(-3).reverse().map(msg => (
-                <li key={msg.id} className="flex items-center justify-between gap-2 py-1.5">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-bold text-black truncate">{msg.author_name}</p>
-                    <p className="text-[12px] text-black/50 truncate">{msg.body}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (window.confirm(`${msg.author_name}님의 메시지를 삭제할까요?`)) {
-                        onDeleteMessage(msg.id)
-                      }
-                    }}
-                    className="shrink-0 text-[11px] text-black/30 hover:text-red-500 transition-colors"
-                  >
-                    삭제
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {messages.length > 3 && (
-              <p className="text-[11px] text-black/30 mt-2 text-center">
-                전체 {messages.length}개 — 모두 보려면 위의 '전체 리스트로 보기'
-              </p>
-            )}
-          </div>
-        )}
 
       </motion.div>
     </motion.div>

@@ -8,7 +8,7 @@ import MessageModal    from './MessageModal'
 import ListMode        from './ListMode'
 import ExportModal     from '../image-export/ExportModal'
 import ShareModal      from '../../components/ShareModal'
-import { getStoredAuthor, type StoredAuthor } from '../message-write/utils'
+import { getStoredAuthorsList, storeAuthorsList, type StoredAuthor } from '../message-write/utils'
 
 interface Room { id: string; recipient_name: string; expires_at: string; status: string; open_key: string }
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
@@ -31,8 +31,8 @@ export default function ViewerPage({ isPreview = false }: Props) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [isListMode, setIsListMode] = useState(false)
   const [showExport, setShowExport] = useState(false)
-  // 참여자(작성 완료자) 정보 — preview 모드에서 자기 꽃 강조 + '더 많은 마음 모으기' 트리거용
-  const [storedAuthor, setStoredAuthor] = useState<StoredAuthor | null>(null)
+  // 참여자가 이 기기에서 작성한 메시지 목록 — 꽃 강조 + 수정·삭제 권한 판단용
+  const [storedList, setStoredList] = useState<StoredAuthor[]>([])
   const [showShare, setShowShare] = useState(false)
 
   // 캡처 대상 ref — forwardRef로 MeadowView/ListMode root에 직접 부착.
@@ -47,13 +47,12 @@ export default function ViewerPage({ isPreview = false }: Props) {
     // 미리보기 모드: 만든이 세션 또는 참여자 토큰 중 하나는 있어야 진입 가능.
     if (isPreview) {
       const isHost = sessionStorage.getItem(`rp_host_${slug}`) === 'ok'
-      const author = getStoredAuthor(slug)
-      if (!isHost && !author) {
+      const list   = getStoredAuthorsList(slug)
+      if (!isHost && list.length === 0) {
         navigate(`/r/${slug}`, { replace: true })
         return
       }
-      // 참여자면 자기 꽃 식별용으로 보관
-      if (author) setStoredAuthor(author)
+      if (list.length > 0) setStoredList(list)
     }
 
     const { data, error } = await supabase.from('rooms')
@@ -101,6 +100,21 @@ export default function ViewerPage({ isPreview = false }: Props) {
     </main>
   )
 
+  // ─── 참여자 본인 메시지 삭제 ──────────────────────────────────────────────
+  async function handleDeleteMyMessage(messageId: string) {
+    if (!slug) return
+    if (!window.confirm('내 메시지를 삭제할까요?')) return
+    const { error } = await supabase.from('messages')
+      .delete()
+      .eq('id', messageId)
+    if (error) { alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.'); return }
+    const newList = storedList.filter(s => s.messageId !== messageId)
+    storeAuthorsList(slug, newList)
+    setStoredList(newList)
+    setMessages(prev => prev.filter(m => m.id !== messageId))
+    setSelectedIdx(null)
+  }
+
   // ─── 전체 리스트 모드 ─────────────────────────────────────────────────────
   if (isListMode) return (
     <>
@@ -110,28 +124,7 @@ export default function ViewerPage({ isPreview = false }: Props) {
         recipientName={room?.recipient_name ?? ''}
         onClose={() => setIsListMode(false)}
       />
-      {/* 이미지 저장 버튼 */}
-      <button
-        onClick={() => setShowExport(true)}
-        data-export-hide
-        className="fixed bottom-5 right-5 z-20 flex items-center gap-2
-                   px-4 py-2.5 bg-white rounded-full shadow-lg
-                   text-[13px] font-bold text-black/70 hover:text-black
-                   border border-black/10 hover:border-black/20 transition-all"
-      >
-        📥 이미지 저장
-      </button>
-      <AnimatePresence>
-        {showExport && (
-          <ExportModal
-            recipientName={room?.recipient_name ?? ''}
-            messages={messages}
-            meadowRef={meadowRef}
-            listRef={listRef}
-            onClose={() => setShowExport(false)}
-          />
-        )}
-      </AnimatePresence>
+      {/* 이미지 저장 — 완성도 개선 후 노출 예정 */}
     </>
   )
 
@@ -162,32 +155,18 @@ export default function ViewerPage({ isPreview = false }: Props) {
               recipientName={room?.recipient_name ?? ''}
               onFlowerClick={setSelectedIdx}
               onListMode={() => setIsListMode(true)}
-              myMessageId={storedAuthor?.messageId}
+              myMessageIds={storedList.map(s => s.messageId)}
             />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 이미지 저장 버튼 (풀숲 모드) */}
-      {viewState === 'meadow' && (
-        <button
-          onClick={() => setShowExport(true)}
-          data-export-hide
-          className="fixed bottom-20 right-5 z-20 flex items-center gap-2
-                     px-4 py-2.5 bg-white/90 rounded-full shadow-lg
-                     text-[13px] font-bold text-black/70 hover:text-black
-                     border border-black/10 backdrop-blur-sm transition-all"
-        >
-          📥 저장
-        </button>
-      )}
-
       {/* 참여자(작성 완료자) — 더 많은 마음 모으기. 작성 링크를 친구에게 공유 */}
-      {viewState === 'meadow' && isPreview && storedAuthor && (
+      {viewState === 'meadow' && isPreview && storedList.length > 0 && (
         <button
           onClick={() => setShowShare(true)}
           data-export-hide
-          className="fixed bottom-20 left-5 z-20 flex items-center gap-2
+          className="fixed bottom-5 right-5 z-20 flex items-center gap-2
                      px-4 py-2.5 bg-[#5cb054] hover:bg-[#4a9543] rounded-full shadow-lg
                      text-[13px] font-bold text-white
                      border border-black/5 transition-all"
@@ -196,7 +175,7 @@ export default function ViewerPage({ isPreview = false }: Props) {
         </button>
       )}
 
-      {/* 메시지 모달 */}
+      {/* 메시지 모달 — 본인 메시지일 땐 '수정' 버튼 노출 */}
       <AnimatePresence>
         {selectedIdx !== null && viewState === 'meadow' && (
           <MessageModal
@@ -204,13 +183,16 @@ export default function ViewerPage({ isPreview = false }: Props) {
             currentIndex={selectedIdx}
             onNavigate={setSelectedIdx}
             onClose={() => setSelectedIdx(null)}
+            myMessageIds={storedList.map(s => s.messageId)}
+            onEdit={(messageId) => navigate(`/r/${slug}`, { state: { editMessageId: messageId } })}
+            onMyDelete={storedList.length > 0 ? handleDeleteMyMessage : undefined}
           />
         )}
       </AnimatePresence>
 
-      {/* 이미지 저장 모달 */}
+      {/* 이미지 저장 모달 — 완성도 개선 후 노출 예정 */}
       <AnimatePresence>
-        {showExport && (
+        {false && showExport && (
           <ExportModal
             recipientName={room?.recipient_name ?? ''}
             messages={messages}

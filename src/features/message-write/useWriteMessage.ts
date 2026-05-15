@@ -101,7 +101,7 @@ export function useWriteMessage(roomId: string, slug: string) {
       if (editingId && existingToken) {
         const { error } = await supabase
           .from('messages')
-          .update({ body: trimmedBody, shape: finalShape })
+          .update({ author_name: trimmedName, body: trimmedBody, shape: finalShape })
           .eq('id', editingId)
           .eq('author_token', existingToken)
 
