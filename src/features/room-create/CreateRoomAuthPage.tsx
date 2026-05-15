@@ -40,14 +40,6 @@ export default function CreateRoomAuthPage() {
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 진행 단계 바 — 2 / 2 */}
-        <div className="mb-8">
-          <div className="w-full h-1 bg-black/8 rounded-full overflow-hidden">
-            <div className="h-full bg-black rounded-full w-full transition-all" />
-          </div>
-          <p className="text-[11px] text-black/25 mt-1.5 text-right">2 / 2</p>
-        </div>
-
         {/* 헤딩 */}
         <h1 className="text-[2.2rem] font-black text-black leading-[1.15] tracking-tight mb-8">
           비밀번호를<br />설정해주세요
@@ -57,7 +49,7 @@ export default function CreateRoomAuthPage() {
 
           {/* 비밀번호 */}
           <div>
-            <label className="block text-[13px] font-semibold text-black mb-1.5">
+            <label className="block text-[13px] font-medium text-black/50 mb-1.5">
               비밀번호
             </label>
             <input
@@ -76,7 +68,7 @@ export default function CreateRoomAuthPage() {
                             ? 'border-red-400 bg-red-50'
                             : 'border-transparent focus:border-black/10'}`}
             />
-            <p className="mt-1.5 text-[11px] text-black/25">
+            <p className="mt-2 text-[12px] text-black/30">
               잊어버리면 복구가 어려워요. 꼭 기억해두세요.
             </p>
             {errors.pin && (
@@ -86,8 +78,8 @@ export default function CreateRoomAuthPage() {
 
           {/* 이메일 (선택) */}
           <div>
-            <label className="block text-[13px] font-semibold text-black mb-1.5">
-              이메일 <span className="text-black/30 font-normal text-[12px]">(선택)</span>
+            <label className="block text-[13px] font-medium text-black/50 mb-1.5">
+              이메일 <span className="text-black/30 font-normal">(선택)</span>
             </label>
             <input
               type="email"
@@ -105,7 +97,7 @@ export default function CreateRoomAuthPage() {
                             ? 'border-red-400 bg-red-50'
                             : 'border-transparent focus:border-black/10'}`}
             />
-            <p className="mt-1.5 text-[11px] text-black/25">
+            <p className="mt-2 text-[12px] text-black/30">
               이메일을 입력하면 다른 기기에서도 볼 수 있어요.
             </p>
             {errors.email && (
