@@ -19,6 +19,13 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
   const completedRef = useRef(false)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
+  // onComplete를 ref에 보관해 useEffect 의존성에서 빼낸다.
+  // 부모(ViewerPage)가 inline arrow를 내려보내고 있어, 의존성에 onComplete를
+  // 그대로 두면 부모 re-render마다 타이머가 cleanup→재등록되어 phase 전환이
+  // 다시 일어나면서 인트로 문구가 또 한 번 잠깐 뜨는 잔상이 생긴다.
+  const onCompleteRef = useRef(onComplete)
+  useEffect(() => { onCompleteRef.current = onComplete }, [onComplete])
+
   useEffect(() => {
     const clearTimers = () => {
       timersRef.current.forEach(clearTimeout)
@@ -29,7 +36,7 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
       if (completedRef.current) return
       completedRef.current = true
       clearTimers()
-      onComplete()
+      onCompleteRef.current()
     }
 
     timersRef.current = [
@@ -40,7 +47,7 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
     ]
 
     return clearTimers
-  }, [onComplete])
+  }, [])
 
   function skip() {
     if (completedRef.current) return
@@ -51,7 +58,7 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
     const t = setTimeout(() => {
       if (completedRef.current) return
       completedRef.current = true
-      onComplete()
+      onCompleteRef.current()
     }, 400)
     timersRef.current.push(t)
   }
