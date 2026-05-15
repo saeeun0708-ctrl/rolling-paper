@@ -6,7 +6,7 @@ interface Props {
   onComplete: () => void
 }
 
-type Phase = 'intro' | 'open' | 'sparkle'
+type Phase = 'intro' | 'sparkle'
 
 const SPARKLES = ['🌸', '🌼', '🌿', '⭐', '🍀', '🌷', '✨', '💐']
 
@@ -40,9 +40,8 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
     // timing이 어긋나면 motion이 완전히 사라지기 전에 부모가 viewState를 바꾸어
     // UnwrapAnimation이 unmount되면서 마지막 프레임에 잔상이 생기는 일이 있었다.
     timersRef.current = [
-      setTimeout(() => setPhase('open'),    900),
-      setTimeout(() => setPhase('sparkle'), 1900),
-      setTimeout(() => setExiting(true),    2900),
+      setTimeout(() => setPhase('sparkle'), 1200),
+      setTimeout(() => setExiting(true),    2500),
     ]
 
     return () => {
@@ -103,19 +102,6 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
                   <div className="text-8xl mb-5">📜</div>
                   <p className="text-white/70 text-xl font-bold">{recipientName}님께</p>
                   <p className="text-white/40 text-sm mt-1">롤링페이퍼가 도착했어요</p>
-                </motion.div>
-              )}
-
-              {phase === 'open' && (
-                <motion.div
-                  key="open"
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: [0.5, 1.2, 0.9, 1.1, 1], opacity: 1, rotate: [0, -8, 8, -4, 0] }}
-                  exit={{ scale: 1.2, opacity: 0, transition: PHASE_EXIT_TRANSITION }}
-                  transition={{ duration: 0.9 }}
-                >
-                  <div className="text-8xl mb-5">🌸</div>
-                  <p className="text-white/60 text-lg">열리고 있어요...</p>
                 </motion.div>
               )}
 
