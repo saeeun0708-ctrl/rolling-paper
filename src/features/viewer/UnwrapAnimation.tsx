@@ -41,7 +41,7 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
     // UnwrapAnimation이 unmount되면서 마지막 프레임에 잔상이 생기는 일이 있었다.
     timersRef.current = [
       setTimeout(() => setPhase('sparkle'), 1200),
-      setTimeout(() => setExiting(true),    2500),
+      setTimeout(() => setExiting(true),    3100),
     ]
 
     return () => {
