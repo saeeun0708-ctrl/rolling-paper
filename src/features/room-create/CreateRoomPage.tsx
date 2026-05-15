@@ -157,11 +157,20 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
                 새로 만들기
               </p>
             )}
+
+            {/* 진행 단계 바 — 1 / 2 */}
+            <div className="mb-6">
+              <div className="w-full h-1 bg-black/8 rounded-full overflow-hidden">
+                <div className="h-full bg-black rounded-full w-1/2 transition-all" />
+              </div>
+              <p className="text-[11px] text-black/25 mt-1.5 text-right">1 / 2</p>
+            </div>
+
             <form onSubmit={handleNext} className="space-y-4">
 
               {/* 받는 분 이름 */}
               <div>
-                <label className="block text-[13px] font-medium text-black/50 mb-1.5">
+                <label className="block text-[13px] font-semibold text-black mb-1.5">
                   받으실 분
                 </label>
                 <input
@@ -188,7 +197,7 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
 
               {/* 만든이 이름 */}
               <div>
-                <label className="block text-[13px] font-medium text-black/50 mb-1.5">
+                <label className="block text-[13px] font-semibold text-black mb-1.5">
                   내 이름
                 </label>
                 <input
