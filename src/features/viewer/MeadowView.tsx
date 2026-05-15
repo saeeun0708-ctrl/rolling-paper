@@ -144,12 +144,19 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
       ? `drop-shadow(0 0 14px rgba(92,176,84,0.7)) drop-shadow(0 3px 5px rgba(0,0,0,0.18))`
       : `drop-shadow(0 3px 5px rgba(0,0,0,0.18))`
 
+  // 등장 애니메이션 파라미터 — 풀숲에 봉오리가 천천히 피어나는 느낌.
+  // 기존 spring(stiffness 200)은 한꺼번에 튕겨 부자연스러웠고,
+  // delay가 (idx % 20)이라 20송이마다 동시에 시작해 우르르 올라왔다.
+  // easeOutExpo tween + 더 긴 stagger로 부드럽게 분산한다.
+  const appearDelay = 0.15 + (animDelayIdx % 30) * 0.06
+  const APPEAR_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
+
   return (
     <motion.button
       onClick={() => onClick(f.originalIndex)}
       onHoverStart={() => setIsHover(true)}
       onHoverEnd={() => setIsHover(false)}
-      initial={{ scale: 0, opacity: 0, y: 16 }}
+      initial={{ scale: 0.55, opacity: 0, y: 10 }}
       animate={
         isMine
           ? { scale: [1, 1.06, 1], opacity: 1, y: 0 }
@@ -157,8 +164,13 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
       }
       transition={
         isMine
-          ? { scale: { repeat: Infinity, duration: 2.4, ease: 'easeInOut' }, opacity: { delay: (animDelayIdx % 20) * 0.07 }, y: { delay: (animDelayIdx % 20) * 0.07 } }
-          : { delay: (animDelayIdx % 20) * 0.07, type: 'spring', stiffness: 200, damping: 14 }
+          ? {
+              // 본인 꽃은 펄스(scale 무한 반복)와 등장(opacity·y)을 분리해 적용
+              scale:   { repeat: Infinity, duration: 2.4, ease: 'easeInOut' },
+              opacity: { delay: appearDelay, duration: 0.7, ease: APPEAR_EASE },
+              y:       { delay: appearDelay, duration: 0.9, ease: APPEAR_EASE },
+            }
+          : { delay: appearDelay, duration: 0.9, ease: APPEAR_EASE }
       }
       style={{
         position: 'absolute',
