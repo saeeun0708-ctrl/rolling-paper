@@ -72,8 +72,9 @@ export default function ViewerPage({ isPreview = false }: Props) {
       .eq('room_id', data.id)
       .order('created_at', { ascending: true })
     setMessages(msgs ?? [])
-    // 미리보기에서도 포장 풀기 애니메이션을 동일하게 보여준다
-    setViewState('animating')
+    // 포장 풀기 애니메이션은 받는 분 페이지에서만 재생한다.
+    // 미리보기(만든이/참여자)는 바로 풀숲으로 진입한다.
+    setViewState(isPreview ? 'meadow' : 'animating')
   }, [slug, openKey, isPreview, navigate])
 
   useEffect(() => {
