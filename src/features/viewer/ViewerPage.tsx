@@ -161,7 +161,6 @@ export default function ViewerPage({ isPreview = false }: Props) {
               <MeadowView
                 messages={messages}
                 recipientName={room?.recipient_name ?? ''}
-                expiresAt={room?.expires_at ?? ''}
                 onFlowerClick={setSelectedIdx}
                 onListMode={() => setIsListMode(true)}
                 myMessageId={storedAuthor?.messageId}

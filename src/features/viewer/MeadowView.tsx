@@ -8,7 +8,6 @@ interface Message { id: string; author_name: string; shape: string; body: string
 interface Props {
   messages:      Message[]
   recipientName: string
-  expiresAt:     string
   onFlowerClick: (index: number) => void
   onListMode:    () => void
   /** 참여자 본인이 쓴 메시지 id — 일치하는 꽃에 강조 표시 */
@@ -63,13 +62,10 @@ function distributeFlowers(messages: Message[], seed = 7): PlacedFlower[] {
   return placed.sort((a, b) => a.depth - b.depth)
 }
 
-function fmtExpiry(d: string) {
-  return new Date(d).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
-}
-
 // ── 카운트 배지의 인라인 스타일도 상수화 ──────────────────────────────────
+// 우상단은 만든이 FAB(HostPage) 자리이므로 카운트 배지는 더 아래에 위치시켜 시각 충돌 방지.
 const COUNT_BADGE_STYLE: React.CSSProperties = {
-  position: 'absolute', top: 28, right: 20, zIndex: 10,
+  position: 'absolute', top: 80, right: 20, zIndex: 10,
   display: 'flex', alignItems: 'center', gap: 8,
   padding: '7px 14px 7px 10px',
   background: '#fffdf8',
@@ -176,18 +172,18 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
         </div>
       )}
 
-      {/* 이름 레이블 */}
+      {/* 이름 레이블 — 본인 여부와 무관하게 평소 톤 (강조는 상단 '내 꽃' 뱃지로 충분) */}
       <div style={{
         position: 'absolute', left: '50%', bottom: -2,
         transform: 'translateX(-50%)',
         fontSize: Math.max(9, f.size * 0.18),
-        color: isMine ? '#fff' : '#2d4a2d',
-        fontWeight: isMine ? 700 : 600,
+        color: '#2d4a2d',
+        fontWeight: 600,
         whiteSpace: 'nowrap',
-        background: isMine ? '#5cb054' : 'rgba(255,255,255,0.78)',
+        background: 'rgba(255,255,255,0.78)',
         padding: '1px 6px',
         borderRadius: 999,
-        opacity: isHover || isMine ? 1 : 0.75,
+        opacity: isHover ? 1 : 0.75,
         transition: 'opacity 200ms',
         pointerEvents: 'none',
       }}>
@@ -213,15 +209,6 @@ const BOTTOM_BAR_STYLE: React.CSSProperties = {
   position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10,
   display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 20px 20px',
 }
-const EXPIRY_STYLE: React.CSSProperties = {
-  margin: 0, fontSize: 11, lineHeight: 1.6,
-  color: 'rgba(255,255,255,0.85)',
-  background: 'rgba(40,60,40,0.3)',
-  padding: '8px 12px', borderRadius: 10,
-  backdropFilter: 'blur(4px)',
-  maxWidth: '60%',
-  textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-}
 const LIST_BUTTON_STYLE: React.CSSProperties = {
   width: 44, height: 44, borderRadius: '50%',
   background: 'rgba(255,255,255,0.45)',
@@ -233,7 +220,7 @@ const LIST_BUTTON_STYLE: React.CSSProperties = {
 }
 
 // ── 메인 컴포넌트 ──────────────────────────────────────────────────────────
-export default function MeadowView({ messages, recipientName, expiresAt, onFlowerClick, onListMode, myMessageId }: Props) {
+export default function MeadowView({ messages, recipientName, onFlowerClick, onListMode, myMessageId }: Props) {
   const placed  = useMemo(() => distributeFlowers(messages), [messages])
   const honorific = recipientName.endsWith('님') ? '께' : '님께'
 
@@ -273,13 +260,8 @@ export default function MeadowView({ messages, recipientName, expiresAt, onFlowe
         ))}
       </div>
 
-      {/* ── 하단 바 ── */}
+      {/* ── 하단 바 — 리스트 토글만. 만료 안내는 관리 시트(만든이)/별도 위치에서 처리 ── */}
       <div style={BOTTOM_BAR_STYLE}>
-        {expiresAt && (
-          <p style={EXPIRY_STYLE}>
-            {fmtExpiry(expiresAt)}에 사라져요.<br/>이미지로 저장해 보관하세요.
-          </p>
-        )}
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={onListMode}

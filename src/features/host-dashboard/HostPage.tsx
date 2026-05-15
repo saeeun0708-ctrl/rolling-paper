@@ -258,7 +258,6 @@ export default function HostPage() {
         <MeadowView
           messages={messages}
           recipientName={name}
-          expiresAt={room?.expires_at ?? ''}
           onFlowerClick={setSelectedIdx}
           onListMode={() => setIsListMode(true)}
           myMessageId={storedAuthor?.messageId}
@@ -371,18 +370,17 @@ interface HostControlsProps {
 function HostControls({ isWrapped, onOpenManage, onOpenExport }: HostControlsProps) {
   return (
     <>
-      {/* 만든이 라벨 + 관리 진입 — 우측 상단 sticky */}
+      {/* 만든이 관리 진입 — 우상단 톱니 FAB (라벨은 시트 내부에서 노출) */}
       <button
         onClick={onOpenManage}
         data-export-hide
-        className="fixed top-5 right-5 z-30 flex items-center gap-2
-                   px-4 py-2.5 bg-white/95 hover:bg-white rounded-full shadow-lg
-                   text-[13px] font-bold text-black/80 hover:text-black
+        className="fixed top-5 right-5 z-30 w-11 h-11 flex items-center justify-center
+                   bg-white/95 hover:bg-white rounded-full shadow-lg
+                   text-[20px]
                    border border-black/10 backdrop-blur-sm transition-all"
-        aria-label="만든이 관리 메뉴 열기"
+        aria-label={isWrapped ? '포장 완료 — 관리 메뉴 열기' : '만든이 관리 메뉴 열기'}
       >
-        <span className="w-2 h-2 rounded-full bg-[#5cb054]" aria-hidden/>
-        {isWrapped ? '포장 완료 · 관리' : '만든이 · 관리'}
+        <span aria-hidden>⚙️</span>
       </button>
 
       {/* 이미지 저장 — 우하단 */}
