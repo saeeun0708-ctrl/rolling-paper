@@ -9,7 +9,6 @@ import ShareModal from '../../components/ShareModal'
 import MeadowView from '../viewer/MeadowView'
 import MessageModal from '../viewer/MessageModal'
 import ListMode from '../viewer/ListMode'
-import ExportModal from '../image-export/ExportModal'
 
 // 스토리지 키 헬퍼 — slug별로 안정적으로 같은 키를 생성한다.
 const sessionKey  = (slug: string) => `rp_host_${slug}`
@@ -26,11 +25,6 @@ type HostView = 'loading' | 'error' | 'auth' | 'dashboard'
 
 const MAX_ATTEMPTS = 5
 const LOCKOUT_MS   = 10 * 60 * 1000
-
-/** URL에서 open_key 값을 ****로 마스킹 (시트 내 미리보기용) */
-function maskUrl(url: string) {
-  return url.replace(/k=.+$/, 'k=••••••••')
-}
 
 /** 만료까지 남은 일수 계산 */
 function daysUntilExpiry(expiresAt?: string): number | null {
@@ -60,14 +54,6 @@ function ExpiryNotice({ expiresAt }: { expiresAt?: string }) {
   )
 }
 
-async function copyToClipboard(text: string) {
-  try {
-    await navigator.clipboard.writeText(text)
-    alert('복사됐어요!')
-  } catch {
-    alert(`링크를 직접 복사해주세요:\n${text}`)
-  }
-}
 
 export default function HostPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -96,7 +82,6 @@ export default function HostPage() {
   const [openKey, setOpenKey]       = useState('')
   const [showShareWrite, setShowShareWrite] = useState(false)  // 작성 링크 공유
   const [showShareOpen, setShowShareOpen]   = useState(false)  // 열람 링크 공유
-  const [showExport, setShowExport]         = useState(false)
 
   // 이미지 저장용 ref — forwardRef로 MeadowView/ListMode root에 직접 부착
   const meadowRef = useRef<HTMLDivElement>(null)
@@ -183,17 +168,6 @@ export default function HostPage() {
     } finally { setIsWrapping(false) }
   }
 
-  async function handleUnwrap() {
-    if (!slug) return
-    const confirmed = window.confirm(
-      '포장을 취소하면, 전달한 롤링페이퍼를 볼 수 없게 돼요. 정말 포장을 취소할까요?'
-    )
-    if (!confirmed) return
-    const { error } = await supabase.rpc('unwrap_room', { p_slug: slug })
-    if (error) { alert('포장 취소 중 오류가 발생했어요.'); return }
-    setRoom(prev => prev ? { ...prev, status: 'collecting' } : null)
-    setOpenKey('')
-  }
 
   const name         = room?.recipient_name ?? ''
   const honorific    = name.endsWith('님') ? '께' : '님께'
@@ -256,7 +230,6 @@ export default function HostPage() {
         <HostControls
           isWrapped={isWrapped}
           onOpenManage={() => setShowManage(true)}
-          onOpenExport={() => setShowExport(true)}
         />
         {renderModals()}
       </>
@@ -275,11 +248,10 @@ export default function HostPage() {
         myMessageIds={storedList.map(s => s.messageId)}
       />
 
-      {/* 만든이 컨트롤 (관리 / 이미지 저장 FAB) */}
+      {/* 만든이 컨트롤 (관리 FAB) */}
       <HostControls
         isWrapped={isWrapped}
         onOpenManage={() => setShowManage(true)}
-        onOpenExport={() => setShowExport(true)}
       />
 
       {renderModals()}
@@ -309,18 +281,13 @@ export default function HostPage() {
         <AnimatePresence>
           {showManage && (
             <ManageSheet
-              name={name}
-              honorific={honorific}
               isWrapped={isWrapped}
-              openUrl={openUrl}
               expiresAt={room?.expires_at}
               onClose={() => setShowManage(false)}
               onWriteSelf={() => navigate(`/r/${slug}`)}
               onShareWrite={() => { setShowManage(false); setShowShareWrite(true) }}
               onShareOpen={() => { setShowManage(false); setShowShareOpen(true) }}
-              onCopyOpen={() => copyToClipboard(openUrl)}
               onWrap={() => { setShowManage(false); setShowWrap(true) }}
-              onUnwrap={handleUnwrap}
             />
           )}
         </AnimatePresence>
@@ -365,9 +332,8 @@ export default function HostPage() {
 interface HostControlsProps {
   isWrapped: boolean
   onOpenManage: () => void
-  onOpenExport: () => void
 }
-function HostControls({ isWrapped, onOpenManage, onOpenExport }: HostControlsProps) {
+function HostControls({ isWrapped, onOpenManage }: HostControlsProps) {
   return (
     <>
       {/* 만든이 관리 진입 — 우하단 톱니 FAB. 우상단은 카운트 배지 자리이므로 충돌 방지 */}
@@ -398,22 +364,17 @@ function HostControls({ isWrapped, onOpenManage, onOpenExport }: HostControlsPro
 
 // ─── 만든이 관리 시트 ───────────────────────────────────────────────────────
 interface ManageSheetProps {
-  name:           string
-  honorific:      string
-  isWrapped:      boolean
-  openUrl:        string
-  expiresAt?:     string
-  onClose:        () => void
-  onWriteSelf:    () => void
-  onShareWrite:   () => void
-  onShareOpen:    () => void
-  onCopyOpen:     () => void
-  onWrap:         () => void
-  onUnwrap:       () => void
+  isWrapped:    boolean
+  expiresAt?:   string
+  onClose:      () => void
+  onWriteSelf:  () => void
+  onShareWrite: () => void
+  onShareOpen:  () => void
+  onWrap:       () => void
 }
 function ManageSheet({
-  name, honorific, isWrapped, openUrl, expiresAt,
-  onClose, onWriteSelf, onShareWrite, onShareOpen, onCopyOpen, onWrap, onUnwrap,
+  isWrapped, expiresAt,
+  onClose, onWriteSelf, onShareWrite, onShareOpen, onWrap,
 }: ManageSheetProps) {
   // 호이스팅된 부수 정보를 시트 안에서 그대로 사용. 화면을 가린 채로 컨트롤만 모은다.
   return (
