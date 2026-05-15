@@ -47,35 +47,6 @@ export default function CreateRoomAuthPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* 이메일 (선택) */}
-          <div>
-            <label className="block text-[13px] font-medium text-black/50 mb-1.5">
-              이메일 <span className="text-black/30 font-normal">(선택)</span>
-            </label>
-            <input
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              value={values.email}
-              onChange={e => handleChange('email', e.target.value)}
-              placeholder="example@email.com"
-              maxLength={120}
-              className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
-                          bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20
-                          border-2 transition-colors
-                          focus:outline-none focus:bg-white
-                          ${errors.email
-                            ? 'border-red-400 bg-red-50'
-                            : 'border-transparent focus:border-black/10'}`}
-            />
-            <p className="mt-2 text-[12px] text-black/30">
-              이메일을 입력하면 다른 기기에서도 볼 수 있어요.
-            </p>
-            {errors.email && (
-              <p className="mt-1 text-[12px] text-red-500">{errors.email}</p>
-            )}
-          </div>
-
           {/* 비밀번호 */}
           <div>
             <label className="block text-[13px] font-medium text-black/50 mb-1.5">
@@ -102,6 +73,35 @@ export default function CreateRoomAuthPage() {
             </p>
             {errors.pin && (
               <p className="mt-1 text-[12px] text-red-500">{errors.pin}</p>
+            )}
+          </div>
+
+          {/* 이메일 (선택) */}
+          <div>
+            <label className="block text-[13px] font-medium text-black/50 mb-1.5">
+              이메일 <span className="text-black/30 font-normal">(선택)</span>
+            </label>
+            <input
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={values.email}
+              onChange={e => handleChange('email', e.target.value)}
+              placeholder="example@email.com"
+              maxLength={120}
+              className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
+                          bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20
+                          border-2 transition-colors
+                          focus:outline-none focus:bg-white
+                          ${errors.email
+                            ? 'border-red-400 bg-red-50'
+                            : 'border-transparent focus:border-black/10'}`}
+            />
+            <p className="mt-2 text-[12px] text-black/30">
+              이메일을 입력하면 다른 기기에서도 볼 수 있어요.
+            </p>
+            {errors.email && (
+              <p className="mt-1 text-[12px] text-red-500">{errors.email}</p>
             )}
           </div>
 
