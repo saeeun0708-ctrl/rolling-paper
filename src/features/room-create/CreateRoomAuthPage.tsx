@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useCreateRoom } from './useCreateRoom'
 
 /** 1단계에서 router state로 넘긴 값 */
@@ -129,8 +129,9 @@ export default function CreateRoomAuthPage() {
                 '롤링페이퍼 만들기'
               )}
             </button>
-            <Link
-              to="/create"
+            <button
+              type="button"
+              onClick={() => navigate('/create', { state: { recipientName, hostName } })}
               className="block w-full py-4 text-center
                          bg-white border border-[#d4d4d4]
                          text-black/70 hover:border-black hover:text-black
@@ -138,7 +139,7 @@ export default function CreateRoomAuthPage() {
                          rounded-full transition-colors"
             >
               ← 이전
-            </Link>
+            </button>
           </div>
         </form>
 

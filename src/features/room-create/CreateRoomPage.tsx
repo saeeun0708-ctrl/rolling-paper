@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { getMyRooms, removeMyRoom, type MyRoom } from '../../lib/myRooms'
 
 /** 생성일자를 "오늘", "어제", "n일 전" 형태로 가볍게 포맷 */
@@ -33,9 +33,14 @@ interface CreateRoomPageProps {
 
 export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPageProps = {}) {
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // 2단계(CreateRoomAuthPage)에서 이전 버튼으로 돌아온 경우 입력값 복원
+  const backState = (location.state ?? {}) as { recipientName?: string; hostName?: string }
+
   // 1단계: 받는 분 이름·내 이름만 페이지 내부 state 로 관리한다.
-  const [recipientName, setRecipientName] = useState('')
-  const [hostName, setHostName]           = useState('')
+  const [recipientName, setRecipientName] = useState(backState.recipientName ?? '')
+  const [hostName, setHostName]           = useState(backState.hostName ?? '')
   const [errors, setErrors]               = useState<StepOneErrors>({})
 
   const [myRooms, setMyRooms] = useState<MyRoom[]>([])
