@@ -5,16 +5,20 @@ import { FLOWER_EMOJIS, type FlowerShape } from '../message-write/utils'
 
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
 interface Props {
-  messages:      Message[]
-  recipientName: string
-  onClose:       () => void
-  /** 만든이 권한일 때만 — 메시지 삭제 콜백. 있으면 카드 우상단에 '삭제' 노출 */
-  onDelete?:     (messageId: string) => void
+  messages:       Message[]
+  recipientName:  string
+  onClose:        () => void
+  /** 만든이 권한일 때만 — 메시지 삭제 콜백 */
+  onDelete?:      (messageId: string) => void
+  /** 내가 작성한 메시지 ID 목록 — 수정 버튼 노출 판단용 */
+  myMessageIds?:  string[]
+  /** 수정 버튼 클릭 시 — 해당 메시지 ID 전달 */
+  onEdit?:        (messageId: string) => void
 }
 
 // forwardRef로 root에 ref를 노출해 이미지 캡처가 정확한 dimensions를 얻을 수 있게 한다.
 const ListMode = forwardRef<HTMLElement, Props>(function ListMode(
-  { messages, recipientName, onClose, onDelete },
+  { messages, recipientName, onClose, onDelete, myMessageIds, onEdit },
   ref,
 ) {
   const honorific = recipientName.endsWith('님') ? '께' : '님께'
@@ -76,21 +80,32 @@ const ListMode = forwardRef<HTMLElement, Props>(function ListMode(
                       </p>
                     </div>
                   </div>
-                  {/* 만든이 권한일 때만 — 메시지 삭제 */}
-                  {onDelete && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (window.confirm(`${msg.author_name}님의 메시지를 삭제할까요?`)) {
-                          onDelete(msg.id)
-                        }
-                      }}
-                      className="shrink-0 text-[12px] text-black/35 hover:text-red-500 transition-colors"
-                      aria-label={`${msg.author_name}님의 메시지 삭제`}
-                    >
-                      삭제
-                    </button>
-                  )}
+                  {/* 내 메시지 수정 / 만든이 삭제 */}
+                  <div className="flex gap-3 shrink-0">
+                    {onEdit && myMessageIds?.includes(msg.id) && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(msg.id)}
+                        className="text-[12px] text-black/35 hover:text-black transition-colors"
+                      >
+                        수정
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm(`${msg.author_name}님의 메시지를 삭제할까요?`)) {
+                            onDelete(msg.id)
+                          }
+                        }}
+                        className="text-[12px] text-black/35 hover:text-red-500 transition-colors"
+                        aria-label={`${msg.author_name}님의 메시지 삭제`}
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <p className="text-[16px] text-black leading-relaxed whitespace-pre-wrap">
                   {msg.body}

@@ -124,6 +124,8 @@ export default function ViewerPage({ isPreview = false }: Props) {
         messages={messages}
         recipientName={room?.recipient_name ?? ''}
         onClose={() => setIsListMode(false)}
+        myMessageIds={storedList.map(s => s.messageId)}
+        onEdit={(messageId) => navigate(`/r/${slug}`, { state: { editMessageId: messageId } })}
       />
       {/* 이미지 저장 — 완성도 개선 후 노출 예정 */}
     </>

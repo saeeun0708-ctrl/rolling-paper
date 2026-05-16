@@ -31,28 +31,30 @@ export default function SuccessView({ name, body, shape, messageId, authorToken,
 
       {/* 작성한 메시지 미리보기 + 수정·삭제 */}
       <div className="rounded-2xl bg-[#f5f5f5] px-5 py-4 mb-4">
-        <p className="text-[12px] font-mono uppercase tracking-[0.1em] text-black/30 mb-2">
-          {name}의 메시지
-        </p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[12px] font-mono uppercase tracking-[0.1em] text-black/30">
+            {name}의 메시지
+          </p>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onEdit}
+              className="text-[12px] text-black/40 hover:text-black transition-colors"
+            >
+              수정
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="text-[12px] text-black/40 hover:text-red-500 transition-colors"
+            >
+              삭제
+            </button>
+          </div>
+        </div>
         <p className="text-[15px] text-black leading-relaxed whitespace-pre-wrap line-clamp-4">
           {body}
         </p>
-        <div className="flex gap-4 mt-3 pt-3 border-t border-black/5">
-          <button
-            type="button"
-            onClick={onEdit}
-            className="text-[12px] text-black/40 hover:text-black transition-colors"
-          >
-            수정
-          </button>
-          <button
-            type="button"
-            onClick={onDelete}
-            className="text-[12px] text-black/40 hover:text-red-500 transition-colors"
-          >
-            삭제
-          </button>
-        </div>
       </div>
 
       {/* 받는 분 화면 미리보기 — 다른 사람들이 작성한 메시지까지 풀숲 뷰로 확인 */}
