@@ -52,7 +52,7 @@ export default function SuccessView({ name, body, shape, messageId, authorToken,
             </button>
           </div>
         </div>
-        <p className="text-[15px] text-black leading-relaxed whitespace-pre-wrap line-clamp-4">
+        <p className="font-handwritten text-[15px] text-black leading-relaxed whitespace-pre-wrap line-clamp-4">
           {body}
         </p>
       </div>

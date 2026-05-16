@@ -268,7 +268,7 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
                   <p className="text-[13px] font-bold text-black">
                     {storedList.length > 1 ? `메시지 ${idx + 1}` : '이미 작성하셨어요'}
                   </p>
-                  <p className="text-[12px] text-black/50 mt-0.5 truncate">{s.body}</p>
+                  <p className="font-handwritten text-[12px] text-black/50 mt-0.5 truncate">{s.body}</p>
                 </div>
                 <span
                   role="button"
@@ -344,7 +344,7 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
               placeholder="한 줄이어도 괜찮아요. 지금 떠오르는 마음을 적어주세요"
               maxLength={MAX_CHARS}
               rows={5}
-              className={`w-full px-4 py-3.5 rounded-xl text-[16px] text-black leading-relaxed
+              className={`font-handwritten w-full px-4 py-3.5 rounded-xl text-[16px] text-black leading-relaxed
                           bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20 resize-none
                           border-2 transition-colors
                           focus:outline-none focus:bg-white focus:border-black/10

@@ -46,11 +46,13 @@ export default {
         },
       },
       fontFamily: {
-        // 나눔바른고딕 (본문·헤딩)
-        sans:    ['NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
-        display: ['NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
+        // 기본 UI·본문·헤딩 — Pretendard
+        sans:        ['Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'],
+        display:     ['Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'],
+        // 메시지·따뜻한 카피·인용구 — 손글씨 톤
+        handwritten: ['"Gowun Dodum"', '"Noto Serif KR"', 'serif'],
         // 시스템 모노 (아이브로우·캡션 — figmaMono 대체)
-        mono:    ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        mono:        ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
     },
   },

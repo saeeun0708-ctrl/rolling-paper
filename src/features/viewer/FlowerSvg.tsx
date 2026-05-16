@@ -108,64 +108,55 @@ export const FlowerDaisy = ({ size = 60, style }: FlowerProps) => (
 export const FlowerTulip = ({ size = 60, style }: FlowerProps) => (
   <svg viewBox="0 0 100 100" width={size} height={size} style={style} xmlns="http://www.w3.org/2000/svg">
     <defs>
-      {/* 꽃 본체 — 핑크 수채화 */}
-      <linearGradient id="tl-body" x1="25%" y1="0%" x2="75%" y2="100%">
-        <stop offset="0%"   stopColor="#ffd8ea"/>
-        <stop offset="50%"  stopColor="#f4a0c2"/>
-        <stop offset="100%" stopColor="#d87098"/>
+      {/* 바깥쪽 꽃잎 — 진한 핑크 톤 */}
+      <linearGradient id="tl-outer" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stopColor="#ffd6e4"/>
+        <stop offset="50%"  stopColor="#f8a6c2"/>
+        <stop offset="100%" stopColor="#d06a92"/>
       </linearGradient>
-      {/* 수채화 하이라이트 */}
-      <radialGradient id="tl-hi" cx="36%" cy="28%" r="46%">
-        <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.65"/>
-        <stop offset="100%" stopColor="#ffffff" stopOpacity="0"/>
-      </radialGradient>
-      {/* 꽃받침 */}
-      <linearGradient id="tl-calyx" x1="50%" y1="0%" x2="50%" y2="100%">
-        <stop offset="0%"   stopColor="#b8e0c8"/>
-        <stop offset="100%" stopColor="#68b888"/>
+      {/* 안쪽 꽃잎 — 살짝 밝은 톤 */}
+      <linearGradient id="tl-inner" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stopColor="#ffe8f0"/>
+        <stop offset="60%"  stopColor="#fbb8d0"/>
+        <stop offset="100%" stopColor="#e088a8"/>
       </linearGradient>
-      <linearGradient id="tl-leaf" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%"  stopColor="#a0d090"/>
-        <stop offset="100%" stopColor="#5a9858"/>
+      {/* 줄기 */}
+      <linearGradient id="tl-stem" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stopColor="#9bd084"/>
+        <stop offset="100%" stopColor="#4a8a48"/>
+      </linearGradient>
+      {/* 잎 */}
+      <linearGradient id="tl-leaf" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stopColor="#a8d896"/>
+        <stop offset="100%" stopColor="#3e7a3a"/>
       </linearGradient>
     </defs>
 
+    {/* 잎 — 왼쪽으로 길게 뻗은 한 장 */}
+    <path d="M50 64 Q24 56 18 90 Q34 80 46 70 Z"
+      fill="url(#tl-leaf)" stroke="#3a6a3a" strokeWidth="0.6" opacity="0.9"/>
+
     {/* 줄기 */}
-    <path d="M50 70 Q50 83 50 96" stroke="#5a9858" strokeWidth="2.4" strokeLinecap="round" fill="none"/>
+    <path d="M50 50 Q49 78 50 96" stroke="url(#tl-stem)" strokeWidth="3" strokeLinecap="round" fill="none"/>
 
-    {/* 잎 */}
-    <path d="M50 78 Q32 70 26 84 Q40 88 50 80 Z" fill="url(#tl-leaf)" opacity="0.9"/>
-    <path d="M50 84 Q68 76 74 90 Q60 92 50 86 Z" fill="url(#tl-leaf)" opacity="0.85"/>
+    {/* 바깥쪽 꽃잎(컵 형태) */}
+    <path d="M40 52 C 36 38, 38 22, 50 16 C 62 22, 64 38, 60 52 C 56 56, 44 56, 40 52 Z"
+      fill="url(#tl-outer)" stroke="#b85580" strokeWidth="0.6"/>
 
-    {/* 꽃받침 세팔 */}
-    <path d="M50 68 Q43 62 40 54 Q46 60 50 66 Z" fill="#7ab890" opacity="0.85"/>
-    <path d="M50 68 Q57 62 60 54 Q54 60 50 66 Z" fill="#7ab890" opacity="0.85"/>
+    {/* 왼쪽 안쪽 꽃잎 */}
+    <path d="M40 52 C 32 42, 30 24, 44 14 C 48 12, 50 14, 50 18 C 50 32, 46 46, 44 52 C 43 54, 41 54, 40 52 Z"
+      fill="url(#tl-inner)" stroke="#c66a90" strokeWidth="0.6"/>
 
-    {/* 꽃받침 컵 */}
-    <path d="M 38 65 Q 36 73 44 75 Q 50 77 56 75 Q 64 73 62 65
-             Q 56 67 50 67 Q 44 67 38 65 Z"
-      fill="url(#tl-calyx)" stroke="#4e9868" strokeWidth="0.3"/>
+    {/* 오른쪽 안쪽 꽃잎 */}
+    <path d="M60 52 C 68 42, 70 24, 56 14 C 52 12, 50 14, 50 18 C 50 32, 54 46, 56 52 C 57 54, 59 54, 60 52 Z"
+      fill="url(#tl-inner)" stroke="#c66a90" strokeWidth="0.6" opacity="0.95"/>
 
-    {/* 튤립 본체 — 컵 형태, 꽃잎 3개 포인트 */}
-    <path d="M 40 64
-             Q 26 58 26 38
-             Q 26 20 34 13
-             Q 39 7  43 13
-             Q 46 19 50 11
-             Q 54 19 57 13
-             Q 61 7  66 13
-             Q 74 20 74 38
-             Q 74 58 60 64
-             Q 50 66 40 64 Z"
-      fill="url(#tl-body)" stroke="#c07090" strokeWidth="0.5"/>
+    {/* 중심선 */}
+    <path d="M50 18 Q50 36 50 50" stroke="#b85580" strokeWidth="0.5" opacity="0.4" fill="none"/>
 
-    {/* 꽃잎 구분선 */}
-    <path d="M 43 64 Q 40 42 34 13" stroke="#c87898" strokeWidth="0.9" fill="none" opacity="0.4" strokeLinecap="round"/>
-    <path d="M 57 64 Q 60 42 66 13" stroke="#c87898" strokeWidth="0.9" fill="none" opacity="0.4" strokeLinecap="round"/>
-
-    {/* 수채화 하이라이트 */}
-    <path d="M 40 64 Q 26 58 26 38 Q 26 20 34 13 Q 39 7 43 13 Q 46 19 50 11 Q 50 35 43 64 Z"
-      fill="url(#tl-hi)"/>
+    {/* 수채 하이라이트 */}
+    <path d="M44 22 Q42 32 44 42" stroke="#fff" strokeWidth="2" fill="none" opacity="0.55" strokeLinecap="round"/>
+    <ellipse cx="56" cy="28" rx="2" ry="5" fill="#fff" opacity="0.4"/>
   </svg>
 )
 

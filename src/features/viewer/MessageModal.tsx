@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import type { PanInfo } from 'framer-motion'
-import { FLOWER_EMOJIS, type FlowerShape } from '../message-write/utils'
+import { FLOWER_SVG_COMPONENTS, type FlowerSvgShape } from './FlowerSvg'
 
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
 interface Props {
@@ -21,7 +21,7 @@ interface Props {
 export default function MessageModal({ messages, currentIndex, onNavigate, onClose, onDelete, myMessageIds, onEdit, onMyDelete }: Props) {
   const msg    = messages[currentIndex]
   const isMine = !!myMessageIds?.includes(msg.id)
-  const emoji = FLOWER_EMOJIS[msg.shape as FlowerShape] ?? '🌸'
+  const FlowerComponent = FLOWER_SVG_COMPONENTS[msg.shape as FlowerSvgShape] ?? FLOWER_SVG_COMPONENTS.carnation
   const hasPrev = currentIndex > 0
   const hasNext = currentIndex < messages.length - 1
 
@@ -33,7 +33,7 @@ export default function MessageModal({ messages, currentIndex, onNavigate, onClo
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center px-5"
-      style={{ backgroundColor: 'rgba(0,0,0,0.72)' }}
+      style={{ backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(12px)' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -42,17 +42,6 @@ export default function MessageModal({ messages, currentIndex, onNavigate, onClo
       aria-modal="true"
       aria-label={`${msg.author_name}님의 메시지`}
     >
-      {/* 닫기 */}
-      <button
-        onClick={onClose}
-        className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center
-                   text-white/70 hover:text-white text-2xl rounded-full
-                   hover:bg-white/10 transition-colors"
-        aria-label="메시지 닫기"
-      >
-        ✕
-      </button>
-
       {/* 진행 점 표시 */}
       <div className="absolute top-8 left-1/2 -translate-x-1/2 flex gap-1.5" aria-hidden>
         {messages.map((_, i) => (
@@ -67,7 +56,7 @@ export default function MessageModal({ messages, currentIndex, onNavigate, onClo
         ))}
       </div>
 
-      {/* 메시지 카드 */}
+      {/* 메시지 카드 — overflow-visible로 이모지가 카드 상단 위로 나오도록 */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
@@ -79,60 +68,91 @@ export default function MessageModal({ messages, currentIndex, onNavigate, onClo
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -40 }}
           transition={{ duration: 0.2 }}
-          className="bg-white rounded-3xl px-7 py-8 w-full max-w-sm text-center
-                     cursor-grab active:cursor-grabbing shadow-2xl"
+          className="relative w-full max-w-sm cursor-grab active:cursor-grabbing"
+          style={{ overflow: 'visible' }}
         >
-          <div className="text-6xl leading-none">{emoji}</div>
+          {/* 꽃 SVG — 카드 상단 중앙에서 튀어나오며 위아래 흔들림 */}
+          {/* 위치 div와 애니메이션 div 분리 (transform 충돌 방지) */}
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-10 pointer-events-none select-none">
+            <motion.div
+              animate={{ y: [0, -7, 0] }}
+              transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <FlowerComponent size={76} />
+            </motion.div>
+          </div>
 
-          <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-black/40 mt-4 mb-1">
-            From
-          </p>
-          <p className="text-[17px] font-black text-black mb-5">{msg.author_name}</p>
+          {/* 카드 본체 */}
+          <div className="relative bg-[#F8F8F4] rounded-3xl pt-14 pb-7 px-7 text-center shadow-xl">
+            {/* 닫기 버튼 — 카드 내부 우측 상단 */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center
+                         rounded-full text-black/35 hover:text-black/60 transition-colors text-sm"
+              style={{ backgroundColor: 'rgba(0,0,0,0.07)' }}
+              aria-label="메시지 닫기"
+            >
+              ✕
+            </button>
 
-          <p className="text-[16px] text-black leading-relaxed whitespace-pre-wrap min-h-[60px]">
-            {msg.body}
-          </p>
+            {/* FROM + 발신자명 */}
+            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-black/40 mb-1">
+              From
+            </p>
+            <p className="text-[18px] font-black text-black mb-4">{msg.author_name}</p>
 
-          {/* 액션 라인 — 수정 / 삭제 */}
-          {(isMine && onEdit) || (isMine && onMyDelete) || onDelete ? (
-            <div className="mt-5 flex items-center justify-center gap-4">
-              {isMine && onEdit && (
-                <button
-                  type="button"
-                  onClick={() => onEdit(msg.id)}
-                  className="text-[12px] font-semibold text-black/55 hover:text-black transition-colors"
-                >
-                  수정
-                </button>
-              )}
-              {isMine && onMyDelete && (
-                <button
-                  type="button"
-                  onClick={() => onMyDelete(msg.id)}
-                  className="text-[12px] text-black/35 hover:text-red-500 transition-colors"
-                >
-                  삭제
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (window.confirm(`${msg.author_name}님의 메시지를 삭제할까요?`)) {
-                      onDelete(msg.id)
-                    }
-                  }}
-                  className="text-[12px] text-black/35 hover:text-red-500 transition-colors"
-                >
-                  삭제
-                </button>
-              )}
-            </div>
-          ) : null}
+            {/* 점선 구분선 */}
+            <div className="border-t border-dashed border-black/15 mb-4" />
+
+            {/* 본문 — 손글씨 톤(Gowun Dodum) */}
+            <p className="font-handwritten text-[15px] text-black/75 leading-relaxed whitespace-pre-wrap min-h-[60px]">
+              {msg.body}
+            </p>
+
+            {/* 하단 점선 구분선 */}
+            <div className="border-t border-dashed border-black/15 mt-4" />
+
+            {/* 액션 라인 — 수정 / 삭제 */}
+            {(isMine && onEdit) || (isMine && onMyDelete) || onDelete ? (
+              <div className="mt-4 flex items-center justify-center gap-4">
+                {isMine && onEdit && (
+                  <button
+                    type="button"
+                    onClick={() => onEdit(msg.id)}
+                    className="text-[12px] font-semibold text-black/55 hover:text-black transition-colors"
+                  >
+                    수정
+                  </button>
+                )}
+                {isMine && onMyDelete && (
+                  <button
+                    type="button"
+                    onClick={() => onMyDelete(msg.id)}
+                    className="text-[12px] text-black/35 hover:text-red-500 transition-colors"
+                  >
+                    삭제
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm(`${msg.author_name}님의 메시지를 삭제할까요?`)) {
+                        onDelete(msg.id)
+                      }
+                    }}
+                    className="text-[12px] text-black/35 hover:text-red-500 transition-colors"
+                  >
+                    삭제
+                  </button>
+                )}
+              </div>
+            ) : null}
+          </div>
         </motion.div>
       </AnimatePresence>
 
-      {/* 방향 버튼 — 글래스모피즘 + SVG chevron */}
+      {/* 방향 버튼 — 글래스모피즘 */}
       {hasPrev && (
         <button
           onClick={() => onNavigate(currentIndex - 1)}

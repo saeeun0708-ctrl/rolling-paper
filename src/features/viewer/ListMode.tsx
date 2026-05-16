@@ -107,7 +107,7 @@ const ListMode = forwardRef<HTMLElement, Props>(function ListMode(
                     )}
                   </div>
                 </div>
-                <p className="text-[16px] text-black leading-relaxed whitespace-pre-wrap">
+                <p className="font-handwritten text-[16px] text-black leading-relaxed whitespace-pre-wrap">
                   {msg.body}
                 </p>
               </motion.article>

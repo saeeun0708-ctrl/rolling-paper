@@ -1,40 +1,3 @@
-/* ─── 나눔바른고딕 로컬 폰트 등록 ───────────────────────────────────── */
-@font-face {
-  font-family: 'NanumBarunGothic';
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NanumBarunGothicUltraLight.otf') format('opentype'),
-       url('/fonts/NanumBarunGothicUltraLight.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'NanumBarunGothic';
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NanumBarunGothicLight.otf') format('opentype'),
-       url('/fonts/NanumBarunGothicLight.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'NanumBarunGothic';
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NanumBarunGothic.otf') format('opentype'),
-       url('/fonts/NanumBarunGothic.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'NanumBarunGothic';
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-  src: url('/fonts/NanumBarunGothicBold.otf') format('opentype'),
-       url('/fonts/NanumBarunGothicBold.ttf') format('truetype');
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -47,15 +10,37 @@
 
   html,
   body {
-    font-family: 'NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    color: #2d4a2d;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    color: #0e0f0c;
   }
 
   /* 모바일 스크롤 바운스 시 배경 공백 방지 */
   body {
     overscroll-behavior-y: none;
   }
+}
+
+/* ─── 꽃 살랑임 — 줄기 바닥 기준으로 부드러운 좌우 흔들림 ───────────── */
+/* 각 꽃마다 인라인 animationDuration/Delay로 phase를 다양화한다. */
+@keyframes flower-sway {
+  0%   { transform: rotate(-1.8deg); }
+  50%  { transform: rotate( 1.8deg); }
+  100% { transform: rotate(-1.8deg); }
+}
+
+.flower-sway {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  animation-name: flower-sway;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  will-change: transform;
+}
+
+/* 시스템에서 모션 감소를 선호하면 흔들림 끄기 */
+@media (prefers-reduced-motion: reduce) {
+  .flower-sway { animation: none; }
 }
