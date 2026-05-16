@@ -286,6 +286,20 @@ export default function HostPage() {
         myMessageIds={storedList.map(s => s.messageId)}
       />
 
+      {/* 마음 더 모으기 — 포장 전 주최자에게 항상 노출 */}
+      {!isWrapped && (
+        <button
+          onClick={() => setShowShareWrite(true)}
+          data-export-hide
+          className="fixed bottom-5 right-5 z-20 flex items-center gap-2
+                     px-4 py-2.5 bg-[#5cb054] hover:bg-[#4a9543] rounded-full shadow-lg
+                     text-[13px] font-bold text-white
+                     border border-black/5 transition-all"
+        >
+          🌿 더 많은 마음 모으기
+        </button>
+      )}
+
       {/* 만든이 컨트롤 (관리 FAB) */}
       <HostControls
         isWrapped={isWrapped}
