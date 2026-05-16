@@ -28,18 +28,6 @@ const ListMode = forwardRef<HTMLElement, Props>(function ListMode(
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      {/* 상단 브랜드 워드마크 */}
-      <button
-        type="button"
-        onClick={() => navigate('/create')}
-        aria-label="홈으로"
-        className="fixed top-0 inset-x-0 z-10 flex justify-center pt-3"
-      >
-        <p className="text-[10px] font-light tracking-[0.2em] text-black/20 select-none">
-          Rolling paper&nbsp;&nbsp;|&nbsp;&nbsp;Pium
-        </p>
-      </button>
-
       <div className="w-full max-w-md mx-auto">
 
         {/* 헤더 */}
@@ -111,6 +99,19 @@ const ListMode = forwardRef<HTMLElement, Props>(function ListMode(
             )
           })}
         </div>
+
+        {/* 푸터 워드마크 */}
+        <button
+          type="button"
+          onClick={() => navigate('/create')}
+          aria-label="홈으로"
+          className="w-full mt-12 mb-2 flex justify-center"
+        >
+          <p className="text-[10px] font-light tracking-[0.2em] text-black/20 select-none">
+            Rolling paper&nbsp;&nbsp;|&nbsp;&nbsp;Pium
+          </p>
+        </button>
+
       </div>
     </motion.main>
   )

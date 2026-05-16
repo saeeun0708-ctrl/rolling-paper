@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { FlowerShape, FLOWER_EMOJIS } from '../utils'
 import PinSetupSection from './PinSetupSection'
-import PiumLogo from '../../../components/PiumLogo'
 
 interface Props {
   name: string
@@ -65,12 +64,17 @@ export default function SuccessView({ name, body, shape, messageId, authorToken,
       {/* PIN 설정 섹션 */}
       <PinSetupSection messageId={messageId} authorToken={authorToken} />
 
-      {/* PIUM 브랜딩 — 클릭 시 홈으로 */}
-      <div className="mt-10 flex justify-center">
-        <button type="button" onClick={() => navigate('/create')} aria-label="홈으로">
-          <PiumLogo className="h-6 w-auto opacity-30 -ml-1.5" />
-        </button>
-      </div>
+      {/* 푸터 워드마크 — 클릭 시 홈으로 */}
+      <button
+        type="button"
+        onClick={() => navigate('/create')}
+        aria-label="홈으로"
+        className="w-full mt-10 mb-2 flex justify-center"
+      >
+        <p className="text-[10px] font-light tracking-[0.2em] text-black/20 select-none">
+          Rolling paper&nbsp;&nbsp;|&nbsp;&nbsp;Pium
+        </p>
+      </button>
     </div>
   )
 }
