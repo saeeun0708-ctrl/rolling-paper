@@ -247,6 +247,8 @@ export default function HostPage() {
           recipientName={name}
           onClose={() => setIsListMode(false)}
           onDelete={handleDeleteMsg}
+          myMessageIds={storedList.map(s => s.messageId)}
+          onEdit={(messageId) => navigate(`/r/${slug}`, { state: { editMessageId: messageId } })}
         />
         <HostControls
           isWrapped={isWrapped}
