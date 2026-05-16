@@ -114,7 +114,9 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
 
         {/* 브랜드 로고 + 서비스 소개 */}
         <div className="mb-6">
-          <PiumLogo className="h-40 w-auto mb-4 -ml-10" />
+          <button type="button" onClick={() => navigate('/create')} aria-label="홈으로">
+            <PiumLogo className="h-40 w-auto -ml-10" />
+          </button>
           <p className="text-black/40 text-[14px] leading-relaxed">
             소중한 사람에게 꽃처럼 피어나는<br /><span className="text-[#5cb054]">롤링페이퍼</span>를 전달해보세요
           </p>
