@@ -52,8 +52,6 @@ export default function CreateRoomAuthPage() {
           </p>
         </div>
 
-        {/* 단계 라벨 */}
-        <p className="text-[13px] font-semibold text-black mb-4">비밀번호 설정</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
