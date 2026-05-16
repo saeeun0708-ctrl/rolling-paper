@@ -237,9 +237,9 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
                              bg-white border border-[#d4d4d4]
                              text-black/70 hover:border-black hover:text-black
                              font-semibold text-[15px]
-                             rounded-full transition-colors"
+                             rounded-full transition-colors whitespace-nowrap"
                 >
-                  <span className="whitespace-nowrap">내 롤링페이퍼 찾기</span>
+                  내 롤링페이퍼 찾기
                 </Link>
               </div>
             </form>
