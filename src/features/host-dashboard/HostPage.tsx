@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import bcrypt from 'bcryptjs'
 import { supabase } from '../../lib/supabase'
 import { removeMyRoom } from '../../lib/myRooms'
-import { celebrateConfetti } from '../../lib/celebrateConfetti'
+import { celebrateConfetti, initConfetti } from '../../lib/celebrateConfetti'
 import { getStoredAuthorsList, type StoredAuthor } from '../message-write/utils'
 import WrapModal from '../gift-wrap/WrapModal'
 import ShareModal from '../../components/ShareModal'
@@ -88,6 +88,9 @@ export default function HostPage() {
   // 이미지 저장용 ref — forwardRef로 MeadowView/ListMode root에 직접 부착
   const meadowRef = useRef<HTMLDivElement>(null)
   const listRef   = useRef<HTMLElement>(null)
+
+  // 컨페티 캔버스 미리 초기화 — 포장 완료 시 지연 없이 즉시 실행
+  useEffect(() => { initConfetti() }, [])
 
   // 메시지 로더 — 시간 오름차순(풀숲 뷰의 자연스러운 등장 순서와 일치)
   const loadMessages = useCallback(async (roomId: string) => {
@@ -180,10 +183,11 @@ export default function HostPage() {
       // room.status를 wrapped로 갱신 → 시트의 액션이 자동으로 열람 링크 공유로 전환
       setRoom(prev => prev ? { ...prev, status: 'wrapped', open_key: data } : null)
       setShowWrap(false)
-      // 포장 완료 축하 컨페티 (Web Worker 모드 — React 렌더와 독립 실행)
-      celebrateConfetti()
-      // 포장 직후 사용자가 즉시 열람 링크를 공유할 수 있도록 안내 시트를 자동으로 띄움
-      setTimeout(() => setShowManage(true), 600)
+      // 모달과 컨페티를 동시에 — 시트 스프링 애니메이션이 올라오면서 컨페티가 터짐
+      setTimeout(() => {
+        setShowManage(true)
+        celebrateConfetti()
+      }, 200)
     } catch (err) {
       console.error('포장 오류:', err); alert('포장 중 오류가 발생했어요.')
     } finally { setIsWrapping(false) }

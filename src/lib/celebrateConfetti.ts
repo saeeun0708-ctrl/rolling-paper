@@ -2,28 +2,29 @@ import confetti from 'canvas-confetti'
 
 /**
  * 포장 완료 시 중앙에서 빵빠레처럼 터지는 컨페티 효과
- * useWorker: true → Web Worker에서 실행, React 렌더 사이클과 완전 분리
+ * - 컴포넌트 마운트 시 initConfetti()로 미리 준비해두면 지연 없이 즉시 실행
  */
 
-let _confetti: confetti.CreateTypes | null = null
+let _canvas: HTMLCanvasElement | null = null
+let _fire: confetti.CreateTypes | null = null
 
-function getConfetti(): confetti.CreateTypes {
-  if (!_confetti) {
-    const canvas = document.createElement('canvas')
-    canvas.style.cssText =
-      'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999'
-    document.body.appendChild(canvas)
-    _confetti = confetti.create(canvas, { resize: true, useWorker: true })
-  }
-  return _confetti
+/** HostPage 마운트 시 미리 호출 — 첫 실행 지연 방지 */
+export function initConfetti(): void {
+  if (_fire) return
+  _canvas = document.createElement('canvas')
+  _canvas.style.cssText =
+    'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999'
+  document.body.appendChild(_canvas)
+  _fire = confetti.create(_canvas, { resize: true })
 }
 
 export function celebrateConfetti(): void {
-  const fire = getConfetti()
+  if (!_fire) initConfetti()
+  const fire = _fire!
   const origin = { x: 0.5, y: 0.55 }
   const colors = ['#5cb054', '#86c982', '#dceeb1', '#FEE500', '#ffffff', '#ffd6e0']
 
-  // 1차 — 크고 화려한 첫 번째 폭발
+  // 1차 — 중앙 폭발
   fire({
     particleCount: 120,
     spread: 80,
@@ -59,7 +60,7 @@ export function celebrateConfetti(): void {
     })
   }, 150)
 
-  // 3차 — 마무리 잔여 파티클
+  // 3차 — 마무리
   setTimeout(() => {
     fire({
       particleCount: 40,
