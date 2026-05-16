@@ -141,16 +141,19 @@ export default function ViewerPage({ isPreview = false }: Props) {
         )}
       </AnimatePresence>
 
-      {/* 상단 브랜드 워드마크 */}
+      {/* 상단 브랜드 워드마크 — 클릭 시 홈으로 */}
       {viewState === 'meadow' && (
-        <div
+        <button
+          type="button"
           data-export-hide
-          className="fixed top-0 inset-x-0 z-10 flex justify-center pt-3 pointer-events-none"
+          onClick={() => navigate('/create')}
+          className="fixed top-0 inset-x-0 z-10 flex justify-center pt-3"
+          aria-label="홈으로"
         >
           <p className="text-[10px] font-light tracking-[0.2em] text-black/20 select-none">
             Rolling paper&nbsp;&nbsp;|&nbsp;&nbsp;Pium
           </p>
-        </div>
+        </button>
       )}
 
       <AnimatePresence>
