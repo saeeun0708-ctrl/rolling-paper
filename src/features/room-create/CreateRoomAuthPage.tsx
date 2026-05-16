@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCreateRoom } from './useCreateRoom'
+import PiumLogo from '../../components/PiumLogo'
 
 /** 1단계에서 router state로 넘긴 값 */
 interface LocationState {
@@ -43,10 +44,16 @@ export default function CreateRoomAuthPage() {
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 헤딩 */}
-        <h1 className="text-[2.2rem] font-black text-black leading-[1.15] tracking-tight mb-8">
-          비밀번호를<br />설정해주세요
-        </h1>
+        {/* 브랜드 로고 + 서비스 소개 — 1단계와 동일하게 유지 */}
+        <div className="mb-8 flex flex-col items-center text-center">
+          <PiumLogo className="h-24 w-auto mb-4" />
+          <p className="text-black/40 text-[14px] leading-relaxed">
+            소중한 사람에게 꽃처럼 피어나는<br />롤링페이퍼를 전달해보세요
+          </p>
+        </div>
+
+        {/* 단계 라벨 */}
+        <p className="text-[13px] font-semibold text-black mb-4">비밀번호 설정</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
