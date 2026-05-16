@@ -57,15 +57,15 @@ export default function SuccessView({ name, body, shape, messageId, authorToken,
                    font-semibold text-[14px]
                    rounded-full transition-colors"
       >
-        롤링페이퍼 보기 →
+        롤링페이퍼 보기
       </button>
 
       {/* PIN 설정 섹션 */}
       <PinSetupSection messageId={messageId} authorToken={authorToken} />
 
-      {/* PIUM 브랜딩 */}
+      {/* PIUM 브랜딩 — SVG 내부 좌측 여백 보정으로 시각적 가운데 정렬 */}
       <div className="mt-10 flex justify-center">
-        <PiumLogo className="h-6 w-auto opacity-30" />
+        <PiumLogo className="h-6 w-auto opacity-30 -ml-1.5" />
       </div>
     </div>
   )

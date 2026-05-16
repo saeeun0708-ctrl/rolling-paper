@@ -54,7 +54,7 @@ export default function PinSetupSection({ messageId, authorToken }: Props) {
           className="w-full py-3 text-[13px] text-black/40 hover:text-black/70
                      transition-colors text-center"
         >
-          다른 기기에서도 수정하고 싶으신가요?
+          다른 기기에서 수정하기
         </button>
       )}
 
