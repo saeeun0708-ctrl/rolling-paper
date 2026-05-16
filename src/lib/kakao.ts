@@ -38,7 +38,8 @@ export async function shareKakao(title: string, description: string, url: string
         objectType: 'feed',
         content: {
           title,
-          description,
+          // 설명 바로 아래 줄에 URL을 같이 노출 — 버튼 외에도 링크가 텍스트로 보이게
+          description: `${description}\n${url}`,
           imageUrl: `${window.location.origin}/og-meadow.png`,
           link: { mobileWebUrl: url, webUrl: url },
         },
@@ -56,9 +57,10 @@ export async function shareKakao(title: string, description: string, url: string
   }
 
   // ── 2. Web Share API ──────────────────────────────────────────────────────
+  // text 필드에 URL을 명시적으로 포함 — 카카오톡 등 일부 앱이 url 필드를 무시하기 때문
   if (navigator.share) {
     try {
-      await navigator.share({ title, text: description, url })
+      await navigator.share({ title, text: `${description}\n${url}`, url })
       return
     } catch (e) {
       // 사용자가 취소한 경우 (AbortError) 조용히 무시
