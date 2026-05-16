@@ -262,6 +262,19 @@ export default function HostPage() {
   // 풀숲 메인 뷰
   return (
     <>
+      {/* 상단 브랜드 워드마크 */}
+      <button
+        type="button"
+        data-export-hide
+        onClick={() => navigate('/create')}
+        aria-label="홈으로"
+        className="fixed top-0 inset-x-0 z-10 flex justify-center pt-3"
+      >
+        <p className="text-[10px] font-light tracking-[0.2em] text-black/20 select-none">
+          Rolling paper&nbsp;&nbsp;|&nbsp;&nbsp;Pium
+        </p>
+      </button>
+
       <MeadowView
         ref={meadowRef}
         messages={messages}
