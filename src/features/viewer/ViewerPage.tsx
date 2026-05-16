@@ -174,6 +174,11 @@ export default function ViewerPage({ isPreview = false }: Props) {
               onFlowerClick={setSelectedIdx}
               onListMode={() => setIsListMode(true)}
               myMessageIds={storedList.map(s => s.messageId)}
+              onWriteMessage={
+                isPreview && room?.status !== 'wrapped'
+                  ? () => navigate(`/r/${slug}`)
+                  : undefined
+              }
             />
           </motion.div>
         )}
