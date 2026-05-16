@@ -95,9 +95,9 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
 
         {/* 브랜드 로고 + 서비스 소개 */}
         <div className="mb-10">
-          <PiumLogo className="h-12 w-auto mb-3" />
+          <PiumLogo className="h-16 w-auto mb-4 -ml-1" />
           <p className="text-black/40 text-[14px] leading-relaxed">
-            소중한 분께 꽃처럼 피어나는 롤링페이퍼를<br />함께 만들어보세요
+            소중한 분께 꽃처럼 피어나는<br />롤링페이퍼를 함께 만들어보세요
           </p>
         </div>
 

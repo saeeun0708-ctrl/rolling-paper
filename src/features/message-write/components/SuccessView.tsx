@@ -1,5 +1,6 @@
 import { FlowerShape, FLOWER_EMOJIS } from '../utils'
 import PinSetupSection from './PinSetupSection'
+import PiumLogo from '../../../components/PiumLogo'
 
 interface Props {
   name: string
@@ -61,6 +62,11 @@ export default function SuccessView({ name, body, shape, messageId, authorToken,
 
       {/* PIN 설정 섹션 */}
       <PinSetupSection messageId={messageId} authorToken={authorToken} />
+
+      {/* PIUM 브랜딩 */}
+      <div className="mt-10 flex justify-center">
+        <PiumLogo className="h-6 w-auto opacity-30" />
+      </div>
     </div>
   )
 }

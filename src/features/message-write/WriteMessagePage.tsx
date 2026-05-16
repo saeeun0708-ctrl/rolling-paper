@@ -10,7 +10,6 @@ import HeartGauge    from './components/HeartGauge'
 import FlowerPicker  from './components/FlowerPicker'
 import SuccessView   from './components/SuccessView'
 import FindMyMessage from './components/FindMyMessage'
-import PiumLogo      from '../../components/PiumLogo'
 
 interface Room { id: string; recipient_name: string; status: string }
 type PageView = 'loading' | 'error' | 'form' | 'success'
@@ -219,9 +218,7 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
 
   if (view === 'success' && successData) {
     return (
-      <>
-        <WritePageHeader />
-        <main className="min-h-dvh bg-white flex items-start justify-center px-5 pt-[68px] pb-14">
+      <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
         <div className="w-full max-w-md">
           <SuccessView
             name={successData.name}
@@ -234,7 +231,6 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
           />
         </div>
       </main>
-      </>
     )
   }
 
@@ -244,9 +240,7 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
   const isNewMode     = activeIdx === null
 
   return (
-    <>
-    <WritePageHeader />
-    <main className="min-h-dvh bg-white flex items-start justify-center px-5 pt-[68px] pb-12">
+    <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-12">
       <div className="w-full max-w-md">
 
         {/* 인트로 헤딩 */}
@@ -433,16 +427,5 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
         </div>
       </div>
     </main>
-    </>
-  )
-}
-
-// ─── 상단 고정 브랜드 헤더 ───────────────────────────────────────────────────
-function WritePageHeader() {
-  return (
-    <header className="fixed top-0 inset-x-0 z-20 h-12 flex items-center justify-center
-                       bg-white/80 backdrop-blur-md border-b border-black/[0.06]">
-      <PiumLogo className="h-7 w-auto" />
-    </header>
   )
 }
