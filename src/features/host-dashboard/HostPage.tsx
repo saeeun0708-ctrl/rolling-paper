@@ -180,8 +180,12 @@ export default function HostPage() {
       // room.status를 wrapped로 갱신 → 시트의 액션이 자동으로 열람 링크 공유로 전환
       setRoom(prev => prev ? { ...prev, status: 'wrapped', open_key: data } : null)
       setShowWrap(false)
-      // 포장 완료 축하 컨페티
-      celebrateConfetti()
+      // 모달 언마운트 렌더가 끝난 뒤 confetti 실행 (rAF 두 번 → paint 완료 보장)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          celebrateConfetti()
+        })
+      })
       // 포장 직후 사용자가 즉시 열람 링크를 공유할 수 있도록 안내 시트를 자동으로 띄움
       setTimeout(() => setShowManage(true), 600)
     } catch (err) {
