@@ -98,7 +98,7 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
   const hasMyRooms = myRooms.length > 0
 
   return (
-    <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
+    <main className="font-legacy min-h-dvh bg-white flex items-start justify-center px-5 py-14">
 
       {/* 삭제 완료 토스트 */}
       {showDeleted && (

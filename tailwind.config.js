@@ -51,6 +51,8 @@ export default {
         display:     ['Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'],
         // 메시지·따뜻한 카피·인용구 — 손글씨 톤
         handwritten: ['"Gowun Dodum"', '"Noto Serif KR"', 'serif'],
+        // 레거시 — /create*, /my-rooms 등 일부 화면에서만 사용
+        legacy:      ['NanumBarunGothic', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
         // 시스템 모노 (아이브로우·캡션 — figmaMono 대체)
         mono:        ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },

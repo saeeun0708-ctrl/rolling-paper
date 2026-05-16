@@ -93,12 +93,12 @@ export default function FindMyRoomsPage() {
   }
 
   return (
-    <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
+    <main className="font-legacy min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 헤딩 */}
-        <h1 className="text-[2.2rem] font-black text-black leading-[1.15] tracking-tight mb-2">
-          내 롤링페이퍼<br />찾기
+        {/* 헤딩 — 한 줄 표시 (좁은 화면 안전을 위해 폰트 크기 살짝 축소) */}
+        <h1 className="text-[1.85rem] font-black text-black leading-[1.15] tracking-tight mb-2 whitespace-nowrap">
+          내 롤링페이퍼 찾기
         </h1>
         <p className="text-black/40 text-[14px] mb-8">
           롤링페이퍼를 만들 때 사용한 이메일을 입력해주세요.
