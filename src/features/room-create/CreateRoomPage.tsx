@@ -97,7 +97,7 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
         <div className="mb-10">
           <PiumLogo className="h-16 w-auto mb-4 -ml-1" />
           <p className="text-black/40 text-[14px] leading-relaxed">
-            소중한 분께 꽃처럼 피어나는<br />롤링페이퍼를 함께 만들어보세요
+            소중한 사람에게 꽃처럼 피어나는<br />롤링페이퍼를 함께 만들어보세요
           </p>
         </div>
 
