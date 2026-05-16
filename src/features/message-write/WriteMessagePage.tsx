@@ -227,6 +227,7 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
             messageId={successData.messageId}
             authorToken={successData.authorToken}
             onEdit={onEdit}
+            onDelete={() => activeIdx !== null && onDeleteStored(activeIdx)}
             onPreview={() => navigate(meadowPath)}
           />
         </div>

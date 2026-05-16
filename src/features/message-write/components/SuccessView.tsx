@@ -9,11 +9,12 @@ interface Props {
   messageId: string
   authorToken: string
   onEdit: () => void
+  onDelete: () => void
   /** '받는 분 화면으로 보기' 클릭 시 호출 — WriteMessagePage가 미리보기 페이지로 라우팅 */
   onPreview: () => void
 }
 
-export default function SuccessView({ name, body, shape, messageId, authorToken, onEdit, onPreview }: Props) {
+export default function SuccessView({ name, body, shape, messageId, authorToken, onEdit, onDelete, onPreview }: Props) {
   const navigate = useNavigate()
   return (
     <div className="animate-[fadeIn_0.4s_ease]">
@@ -28,25 +29,31 @@ export default function SuccessView({ name, body, shape, messageId, authorToken,
         </p>
       </div>
 
-      {/* 작성한 메시지 미리보기 */}
-      <div className="rounded-2xl bg-[#f5f5f5] px-5 py-4 mb-2">
+      {/* 작성한 메시지 미리보기 + 수정·삭제 */}
+      <div className="rounded-2xl bg-[#f5f5f5] px-5 py-4 mb-4">
         <p className="text-[12px] font-mono uppercase tracking-[0.1em] text-black/30 mb-2">
           {name}의 메시지
         </p>
         <p className="text-[15px] text-black leading-relaxed whitespace-pre-wrap line-clamp-4">
           {body}
         </p>
+        <div className="flex gap-4 mt-3 pt-3 border-t border-black/5">
+          <button
+            type="button"
+            onClick={onEdit}
+            className="text-[12px] text-black/40 hover:text-black transition-colors"
+          >
+            수정
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="text-[12px] text-black/40 hover:text-red-500 transition-colors"
+          >
+            삭제
+          </button>
+        </div>
       </div>
-
-      {/* 수정 버튼 */}
-      <button
-        type="button"
-        onClick={onEdit}
-        className="w-full py-3 text-[13px] text-black/40 hover:text-black
-                   transition-colors text-center"
-      >
-        내용 수정하기
-      </button>
 
       {/* 받는 분 화면 미리보기 — 다른 사람들이 작성한 메시지까지 풀숲 뷰로 확인 */}
       <button
