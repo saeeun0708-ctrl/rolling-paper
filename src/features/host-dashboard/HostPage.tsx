@@ -372,7 +372,7 @@ function HostControls({ isWrapped, onOpenManage }: HostControlsProps) {
         aria-label={isWrapped ? '포장 완료 — 관리 메뉴 열기' : '만든이 관리 메뉴 열기'}
       >
         {/* 설정 아이콘 — Feather settings */}
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" strokeWidth="2"
              strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <circle cx="12" cy="12" r="3"/>
