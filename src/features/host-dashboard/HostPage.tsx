@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, startTransition } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import bcrypt from 'bcryptjs'
@@ -183,8 +183,9 @@ export default function HostPage() {
       // room.status를 wrapped로 갱신 → 시트의 액션이 자동으로 열람 링크 공유로 전환
       setRoom(prev => prev ? { ...prev, status: 'wrapped', open_key: data } : null)
       setShowWrap(false)
-      setShowManage(true)
+      // confetti 먼저 실행 후, 모달 렌더는 낮은 우선순위로 처리 (rAF 차단 방지)
       celebrateConfetti()
+      startTransition(() => setShowManage(true))
     } catch (err) {
       console.error('포장 오류:', err); alert('포장 중 오류가 발생했어요.')
     } finally { setIsWrapping(false) }
