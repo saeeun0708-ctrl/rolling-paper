@@ -46,7 +46,7 @@ export default function CreateRoomAuthPage() {
 
         {/* 브랜드 로고 + 서비스 소개 — 1단계와 동일하게 유지 */}
         <div className="mb-8">
-          <PiumLogo className="h-40 w-auto mb-4 -ml-8" />
+          <PiumLogo className="h-40 w-auto mb-4 -ml-10" />
           <p className="text-black/40 text-[14px] leading-relaxed">
             소중한 사람에게 꽃처럼 피어나는<br />롤링페이퍼를 전달해보세요
           </p>
