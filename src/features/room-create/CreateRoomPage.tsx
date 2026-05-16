@@ -239,7 +239,7 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
                              font-semibold text-[15px]
                              rounded-full transition-colors"
                 >
-                  내 롤링페이퍼 찾기
+                  <span className="whitespace-nowrap">내 롤링페이퍼 찾기</span>
                 </Link>
               </div>
             </form>
