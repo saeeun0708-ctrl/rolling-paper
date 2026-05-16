@@ -183,11 +183,8 @@ export default function HostPage() {
       // room.status를 wrapped로 갱신 → 시트의 액션이 자동으로 열람 링크 공유로 전환
       setRoom(prev => prev ? { ...prev, status: 'wrapped', open_key: data } : null)
       setShowWrap(false)
-      // 모달과 컨페티를 동시에 — 시트 스프링 애니메이션이 올라오면서 컨페티가 터짐
-      setTimeout(() => {
-        setShowManage(true)
-        celebrateConfetti()
-      }, 200)
+      setShowManage(true)
+      celebrateConfetti()
     } catch (err) {
       console.error('포장 오류:', err); alert('포장 중 오류가 발생했어요.')
     } finally { setIsWrapping(false) }
