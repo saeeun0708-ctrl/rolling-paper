@@ -6,6 +6,8 @@ import { useCreateRoom } from './useCreateRoom'
 interface LocationState {
   recipientName?: string
   hostName?: string
+  /** 1단계 경로 — 이전 버튼 클릭 시 복귀 경로 (기본값: /create) */
+  from?: string
 }
 
 export default function CreateRoomAuthPage() {
@@ -14,6 +16,7 @@ export default function CreateRoomAuthPage() {
   const state    = (location.state ?? {}) as LocationState
   const recipientName = state.recipientName ?? ''
   const hostName      = state.hostName      ?? ''
+  const backPath      = state.from          ?? '/create'
 
   // 1단계 값 없이 직접 접근(새로고침 포함)한 경우 1단계로 돌려보낸다.
   useEffect(() => {
@@ -131,7 +134,7 @@ export default function CreateRoomAuthPage() {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/create', { state: { recipientName, hostName } })}
+              onClick={() => navigate(backPath, { state: { recipientName, hostName } })}
               className="block w-full py-4 text-center
                          bg-white border border-[#d4d4d4]
                          text-black/70 hover:border-black hover:text-black

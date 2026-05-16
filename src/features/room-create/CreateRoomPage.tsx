@@ -80,6 +80,8 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
       state: {
         recipientName: recipientName.trim(),
         hostName:      hostName.trim(),
+        // 이전 버튼으로 돌아올 경로 — /create/new 에서 온 경우 목록 페이지가 아닌 폼 단독 화면으로 복귀
+        from: location.pathname,
       },
     })
   }
