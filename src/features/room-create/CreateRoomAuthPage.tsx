@@ -41,14 +41,17 @@ export default function CreateRoomAuthPage() {
   if (!recipientName || !hostName) return null
 
   return (
-    <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
+    <main className="font-legacy min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 브랜드 로고 + 서비스 소개 — 1단계와 동일하게 유지 */}
-        <div className="mb-8">
-          <PiumLogo className="h-40 w-auto mb-4 -ml-10" />
+        {/* 브랜드 로고 + 서비스 소개 — 1단계(CreateRoomPage)와 마크업 동일 유지
+            (페이지 전환 시 상단 로고·텍스트 위치가 흔들리지 않도록 mb·wrap·강조 색까지 일치) */}
+        <div className="mb-6">
+          <button type="button" onClick={() => navigate('/create')} aria-label="홈으로">
+            <PiumLogo className="h-40 w-auto -ml-10" />
+          </button>
           <p className="text-black/40 text-[14px] leading-relaxed">
-            소중한 사람에게 꽃처럼 피어나는<br />롤링페이퍼를 전달해보세요
+            소중한 사람에게 꽃처럼 피어나는<br /><span className="text-[#5cb054]">롤링페이퍼</span>를 전달해보세요
           </p>
         </div>
 
