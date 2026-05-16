@@ -153,6 +153,11 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
   const appearDelay = 0.15 + (animDelayIdx % 30) * 0.06
   const APPEAR_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
+  // 살랑임 — 꽃마다 duration/delay를 살짝 다르게 줘서 동기화된 느낌을 깨뜨린다.
+  // f.sway 값(-3~3) 기반으로 phase를 어긋나게.
+  const swayDuration = 3.4 + Math.abs(f.sway) * 0.28           // 3.4~4.24s
+  const swayDelay    = -(Math.abs(f.sway) * 0.7 + animDelayIdx * 0.05) // 음수 delay로 시작 시점 분산
+
   return (
     <motion.button
       onClick={() => onClick(f.originalIndex)}
@@ -190,7 +195,16 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
       }}
       aria-label={`${f.author_name}님의 메시지 보기${isMine ? ' (내 꽃)' : ''}`}
     >
-      <FlowerComp size={f.size}/>
+      {/* 살랑임 wrapper — motion.button의 transform과 분리해 충돌 방지 */}
+      <span
+        className="flower-sway"
+        style={{
+          animationDuration: `${swayDuration}s`,
+          animationDelay:    `${swayDelay}s`,
+        }}
+      >
+        <FlowerComp size={f.size}/>
+      </span>
 
       {/* 이름 레이블 — 본인 여부와 무관하게 평소 톤 (강조는 글로우 + 펄스로) */}
       <div style={{
@@ -284,34 +298,35 @@ const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
         ))}
       </div>
 
-      {/* ── 하단 바 — 리스트 토글 + 참여자 연필 버튼 ── */}
+      {/* ── 하단 바 — 리스트 토글 (+ 참여자 연필 버튼은 위에 쌓임) ── */}
       <div style={BOTTOM_BAR_STYLE}>
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={onListMode}
-          style={LIST_BUTTON_STYLE}
-          aria-label="전체 메시지 목록 보기"
-        >
-          ☰
-        </motion.button>
-
-        {/* 참여자 전용 — 메시지 작성·수정 */}
-        {onWriteMessage && (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+          {/* 참여자 전용 — 메시지 작성·수정 (리스트 버튼 위) */}
+          {onWriteMessage && (
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={onWriteMessage}
+              style={LIST_BUTTON_STYLE}
+              aria-label="메시지 작성하기"
+              data-export-hide
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" strokeWidth="2"
+                   strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </motion.button>
+          )}
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={onWriteMessage}
+            onClick={onListMode}
             style={LIST_BUTTON_STYLE}
-            aria-label="메시지 작성하기"
-            data-export-hide
+            aria-label="전체 메시지 목록 보기"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" strokeWidth="2"
-                 strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
+            ☰
           </motion.button>
-        )}
+        </div>
       </div>
     </div>
   )
