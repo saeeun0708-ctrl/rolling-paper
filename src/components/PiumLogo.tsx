@@ -21,7 +21,7 @@ export default function PiumLogo({ className }: { className?: string }) {
       </defs>
 
       {/* 꽃 장식 — U 위쪽 (translate(160, 38)) */}
-      <g transform="translate(160, 38)">
+      <g transform="translate(120, 38)">
         <ellipse cx="12"      cy="0"      rx="5" ry="9" fill="#ff8aa0" transform="rotate(90 12 0)"                                   />
         <ellipse cx="8.485"   cy="8.485"  rx="5" ry="9" fill="#ff8aa0" transform="rotate(135 8.485 8.485)"                           />
         <ellipse cx="0"       cy="12"     rx="5" ry="9" fill="#ff8aa0" transform="rotate(180 0 12)"                                   />
