@@ -218,22 +218,19 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
 
   if (view === 'success' && successData) {
     return (
-      <>
-        <PageHeader />
-        <main className="min-h-dvh bg-white flex items-start justify-center px-5 pt-[68px] pb-14">
-          <div className="w-full max-w-md">
-            <SuccessView
-              name={successData.name}
-              body={successData.body}
-              shape={successData.shape}
-              messageId={successData.messageId}
-              authorToken={successData.authorToken}
-              onEdit={onEdit}
-              onPreview={() => navigate(meadowPath)}
-            />
-          </div>
-        </main>
-      </>
+      <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
+        <div className="w-full max-w-md">
+          <SuccessView
+            name={successData.name}
+            body={successData.body}
+            shape={successData.shape}
+            messageId={successData.messageId}
+            authorToken={successData.authorToken}
+            onEdit={onEdit}
+            onPreview={() => navigate(meadowPath)}
+          />
+        </div>
+      </main>
     )
   }
 
@@ -243,9 +240,7 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
   const isNewMode     = activeIdx === null
 
   return (
-    <>
-      <PageHeader />
-      <main className="min-h-dvh bg-white flex items-start justify-center px-5 pt-[68px] pb-12">
+    <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-12">
       <div className="w-full max-w-md">
 
         {/* 인트로 헤딩 */}
@@ -432,18 +427,5 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
         </div>
       </div>
     </main>
-    </>
-  )
-}
-
-// ─── 상단 브랜드 헤더 ────────────────────────────────────────────────────────
-function PageHeader() {
-  return (
-    <header className="fixed top-0 inset-x-0 z-20 h-12 flex items-center justify-center
-                       bg-white/80 backdrop-blur-md border-b border-black/[0.06]">
-      <p className="text-[13px] font-semibold tracking-widest text-black/40 select-none">
-        Rolling Paper&nbsp;<span className="font-light text-black/20">|</span>&nbsp;PIUM
-      </p>
-    </header>
   )
 }
