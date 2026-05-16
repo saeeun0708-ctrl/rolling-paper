@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { getMyRooms, removeMyRoom, type MyRoom } from '../../lib/myRooms'
+import PiumLogo from '../../components/PiumLogo'
 
 /** 생성일자를 "오늘", "어제", "n일 전" 형태로 가볍게 포맷 */
 function fmtCreated(iso: string): string {
@@ -92,13 +93,13 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
       <div className="w-full max-w-md">
 
-        {/* 헤딩 */}
-        <h1 className="text-[2.4rem] font-black text-black leading-[1.15] tracking-[-0.5px] mb-2">
-          소중한 분께<br />마음을 모아요
-        </h1>
-        <p className="text-black/40 text-[15px] mb-10">
-          메시지를 모아 특별한 롤링페이퍼를 만들어보세요
-        </p>
+        {/* 브랜드 로고 + 서비스 소개 */}
+        <div className="mb-10">
+          <PiumLogo className="h-12 w-auto mb-3" />
+          <p className="text-black/40 text-[14px] leading-relaxed">
+            소중한 분께 꽃처럼 피어나는 롤링페이퍼를<br />함께 만들어보세요
+          </p>
+        </div>
 
         {/* 내가 만든 롤링페이퍼 — 같은 기기 재방문자의 핵심 동선 */}
         {hasMyRooms && (
