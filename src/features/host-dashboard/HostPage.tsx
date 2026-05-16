@@ -153,6 +153,22 @@ export default function HostPage() {
     }
   }
 
+  async function handleDeleteRoom() {
+    if (!slug) return
+    try {
+      const { error } = await supabase.rpc('delete_room', { p_slug: slug })
+      if (error) throw error
+      // 로컬 데이터 정리 후 메인으로 이동
+      sessionStorage.removeItem(sessionKey(slug))
+      localStorage.removeItem(attemptsKey(slug))
+      localStorage.removeItem(lockoutKey(slug))
+      navigate('/create', { replace: true })
+    } catch (err) {
+      console.error('삭제 오류:', err)
+      alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.')
+    }
+  }
+
   async function handleWrap() {
     setIsWrapping(true)
     try {
@@ -291,6 +307,7 @@ export default function HostPage() {
               onShareWrite={() => { setShowManage(false); setShowShareWrite(true) }}
               onShareOpen={() => { setShowManage(false); setShowShareOpen(true) }}
               onWrap={() => { setShowManage(false); setShowWrap(true) }}
+              onDelete={handleDeleteRoom}
             />
           )}
         </AnimatePresence>
@@ -374,12 +391,14 @@ interface ManageSheetProps {
   onShareWrite: () => void
   onShareOpen:  () => void
   onWrap:       () => void
+  onDelete:     () => void
 }
 function ManageSheet({
   isWrapped, expiresAt,
-  onClose, onWriteSelf, onShareWrite, onShareOpen, onWrap,
+  onClose, onWriteSelf, onShareWrite, onShareOpen, onWrap, onDelete,
 }: ManageSheetProps) {
-  // 호이스팅된 부수 정보를 시트 안에서 그대로 사용. 화면을 가린 채로 컨트롤만 모은다.
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
   return (
     <motion.div
       className="fixed inset-0 z-40 flex items-end justify-center"
@@ -420,8 +439,34 @@ function ManageSheet({
         {/* 만료 임박 안내 */}
         <ExpiryNotice expiresAt={expiresAt}/>
 
+        {/* 삭제 확인 화면 */}
+        {confirmDelete ? (
+          <div className="mt-4 rounded-2xl bg-red-50 border border-red-200 px-4 py-4">
+            <p className="text-[13px] font-bold text-red-700 mb-1">정말 삭제할까요?</p>
+            <p className="text-[12px] text-red-500/80 mb-4 leading-relaxed">
+              롤링페이퍼와 모든 메시지가 영구 삭제돼요. 복구가 불가능해요.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="flex-1 py-2.5 rounded-full border border-[#d4d4d4]
+                           text-[13px] text-black/60 font-semibold"
+              >
+                취소
+              </button>
+              <button
+                onClick={onDelete}
+                className="flex-1 py-2.5 rounded-full bg-red-500 hover:bg-red-600
+                           text-white text-[13px] font-bold transition-colors"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         {/* 액션 영역 — 포장 전/후로 다르게 */}
-        {!isWrapped ? (
+        {!confirmDelete && !isWrapped ? (
           <>
             {/* 미포장 — 작성 링크 공유 + 메시지 작성 */}
             <div className="mt-4 space-y-2.5">
@@ -456,37 +501,48 @@ function ManageSheet({
               </button>
             </div>
           </>
-        ) : (
-          <>
-            {/* 포장 완료 — 전달 + 작성 링크 공유 + 메시지 작성 */}
-            <div className="mt-4 space-y-2.5">
-              <button
-                onClick={onShareOpen}
-                className="w-full py-3 bg-black hover:bg-black/80 text-white text-[14px] font-bold
-                           rounded-full transition-colors"
-              >
-                롤링페이퍼 전달하기
-              </button>
-              <button
-                onClick={onShareWrite}
-                className="w-full py-3 border border-[#d4d4d4] hover:border-black
-                           bg-white text-black/80 hover:text-black text-[14px] font-semibold
-                           rounded-full transition-colors"
-              >
-                작성 링크 공유하기
-              </button>
-              <button
-                onClick={onWriteSelf}
-                className="w-full py-3 border border-[#d4d4d4] hover:border-black
-                           bg-white text-black/80 hover:text-black text-[14px] font-semibold
-                           rounded-full transition-colors"
-              >
-                메시지 작성하기
-              </button>
-            </div>
-          </>
+        ) : null}
+
+        {/* 포장 완료 — 전달 + 작성 링크 공유 + 메시지 작성 */}
+        {!confirmDelete && isWrapped && (
+          <div className="mt-4 space-y-2.5">
+            <button
+              onClick={onShareOpen}
+              className="w-full py-3 bg-black hover:bg-black/80 text-white text-[14px] font-bold
+                         rounded-full transition-colors"
+            >
+              롤링페이퍼 전달하기
+            </button>
+            <button
+              onClick={onShareWrite}
+              className="w-full py-3 border border-[#d4d4d4] hover:border-black
+                         bg-white text-black/80 hover:text-black text-[14px] font-semibold
+                         rounded-full transition-colors"
+            >
+              작성 링크 공유하기
+            </button>
+            <button
+              onClick={onWriteSelf}
+              className="w-full py-3 border border-[#d4d4d4] hover:border-black
+                         bg-white text-black/80 hover:text-black text-[14px] font-semibold
+                         rounded-full transition-colors"
+            >
+              메시지 작성하기
+            </button>
+          </div>
         )}
 
+        {/* 롤링페이퍼 삭제 — 하단 위험 영역 */}
+        {!confirmDelete && (
+          <div className="mt-6 pt-5 border-t border-black/5 text-center">
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="text-[12px] text-black/30 hover:text-red-500 transition-colors"
+            >
+              롤링페이퍼 삭제
+            </button>
+          </div>
+        )}
 
       </motion.div>
     </motion.div>
