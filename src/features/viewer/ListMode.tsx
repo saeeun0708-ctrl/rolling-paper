@@ -1,4 +1,5 @@
 import { forwardRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FLOWER_EMOJIS, type FlowerShape } from '../message-write/utils'
 
@@ -17,15 +18,28 @@ const ListMode = forwardRef<HTMLElement, Props>(function ListMode(
   ref,
 ) {
   const honorific = recipientName.endsWith('님') ? '께' : '님께'
+  const navigate  = useNavigate()
 
   return (
     <motion.main
       ref={ref}
-      className="min-h-dvh bg-white px-5 py-12"
+      className="min-h-dvh bg-white px-5 pt-10 pb-12"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
+      {/* 상단 브랜드 워드마크 */}
+      <button
+        type="button"
+        onClick={() => navigate('/create')}
+        aria-label="홈으로"
+        className="fixed top-0 inset-x-0 z-10 flex justify-center pt-3"
+      >
+        <p className="text-[10px] font-light tracking-[0.2em] text-black/20 select-none">
+          Rolling paper&nbsp;&nbsp;|&nbsp;&nbsp;Pium
+        </p>
+      </button>
+
       <div className="w-full max-w-md mx-auto">
 
         {/* 헤더 */}
