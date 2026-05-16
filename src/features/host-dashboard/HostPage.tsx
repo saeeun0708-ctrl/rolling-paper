@@ -405,7 +405,7 @@ function ManageSheet({
         {/* 헤더 — 타이틀 한 줄만 */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[17px] font-black text-black">
-            {isWrapped ? '포장 완료 🎁' : '만든이 관리'}
+            {isWrapped ? '포장이 완료되었습니다 🎁' : '만든이 관리'}
           </h2>
           <button
             onClick={onClose}
