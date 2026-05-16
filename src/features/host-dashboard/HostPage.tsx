@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import bcrypt from 'bcryptjs'
 import { supabase } from '../../lib/supabase'
+import { removeMyRoom } from '../../lib/myRooms'
 import { celebrateConfetti } from '../../lib/celebrateConfetti'
 import { getStoredAuthorsList, type StoredAuthor } from '../message-write/utils'
 import WrapModal from '../gift-wrap/WrapModal'
@@ -162,6 +163,7 @@ export default function HostPage() {
       sessionStorage.removeItem(sessionKey(slug))
       localStorage.removeItem(attemptsKey(slug))
       localStorage.removeItem(lockoutKey(slug))
+      removeMyRoom(slug)   // 홈 목록에서도 제거
       navigate('/create', { replace: true })
     } catch (err) {
       console.error('삭제 오류:', err)
