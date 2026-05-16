@@ -95,7 +95,7 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
 
         {/* 브랜드 로고 + 서비스 소개 */}
         <div className="mb-10">
-          <PiumLogo className="h-16 w-auto mb-4 -ml-1" />
+          <PiumLogo className="h-16 w-auto mb-4 -ml-4" />
           <p className="text-black/40 text-[14px] leading-relaxed">
             소중한 사람에게 꽃처럼 피어나는<br />롤링페이퍼를 전달해보세요
           </p>
@@ -239,7 +239,7 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
                              font-semibold text-[15px]
                              rounded-full transition-colors"
                 >
-                  내 롤링페이퍼 찾기 →
+                  내 롤링페이퍼 찾기
                 </Link>
               </div>
             </form>
