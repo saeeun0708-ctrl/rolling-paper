@@ -364,7 +364,7 @@ function HostControls({ isWrapped, onOpenManage }: HostControlsProps) {
       <button
         onClick={onOpenManage}
         data-export-hide
-        className="fixed bottom-[74px] left-5 z-30 w-9 h-9 flex items-center justify-center
+        className="fixed bottom-[74px] left-5 z-30 w-11 h-11 flex items-center justify-center
                    bg-white/40 hover:bg-white/65 rounded-full
                    shadow-sm border border-white/30
                    text-black/60 hover:text-black/80
