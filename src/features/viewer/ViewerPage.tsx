@@ -184,8 +184,8 @@ export default function ViewerPage({ isPreview = false }: Props) {
         )}
       </AnimatePresence>
 
-      {/* 참여자(작성 완료자) — 더 많은 마음 모으기. 작성 링크를 친구에게 공유 */}
-      {viewState === 'meadow' && isPreview && storedList.length > 0 && room?.status !== 'wrapped' && (
+      {/* 작성 완료자(주최자·참여자 공통) — 더 많은 마음 모으기. 작성 링크를 친구에게 공유 */}
+      {viewState === 'meadow' && storedList.length > 0 && room?.status !== 'wrapped' && (
         <button
           onClick={() => setShowShare(true)}
           data-export-hide

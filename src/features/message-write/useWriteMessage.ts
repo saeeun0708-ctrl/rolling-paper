@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { containsProfanity } from '../../lib/profanity'
+import { getMyRooms } from '../../lib/myRooms'
 import {
   FlowerShape,
   StoredAuthor,
@@ -8,6 +9,7 @@ import {
   randomFlower,
   storeAuthor,
   removeStoredAuthor,
+  getStoredAuthorsList,
 } from './utils'
 
 interface FormValues {
@@ -28,8 +30,16 @@ interface SubmitResult {
   shape:       FlowerShape
 }
 
+/** 이름 초기값: 기존 작성 이름 → 방 생성 시 입력한 이름 → 빈 문자열 순으로 탐색 */
+function getInitialName(slug: string): string {
+  const authors = getStoredAuthorsList(slug)
+  if (authors.length > 0) return authors[authors.length - 1].name
+  const room = getMyRooms().find(r => r.slug === slug)
+  return room?.hostName ?? ''
+}
+
 export function useWriteMessage(roomId: string, slug: string) {
-  const [values, setValues]         = useState<FormValues>({ name: '', body: '', shape: null })
+  const [values, setValues]         = useState<FormValues>(() => ({ name: getInitialName(slug), body: '', shape: null }))
   const [errors, setErrors]         = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [editingId, setEditingId]   = useState<string | null>(null)
@@ -52,9 +62,9 @@ export function useWriteMessage(roomId: string, slug: string) {
     setErrors({})
   }
 
-  /** 폼 리셋 */
+  /** 폼 리셋 — 이름은 다시 찾아서 채움 */
   function resetForm() {
-    setValues({ name: '', body: '', shape: null })
+    setValues({ name: getInitialName(slug), body: '', shape: null })
     setErrors({})
     setEditingId(null)
     // 다음 제출을 위해 idempotency 토큰도 초기화

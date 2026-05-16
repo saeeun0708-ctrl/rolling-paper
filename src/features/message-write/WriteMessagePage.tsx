@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { getMyRooms } from '../../lib/myRooms'
 import {
   getStoredAuthorsList, storeAuthorsList,
   StoredAuthor, FlowerShape,
@@ -59,9 +60,11 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
     name: string; body: string
   } | null>(null)
 
-  const isHostSession = typeof window !== 'undefined'
-    && sessionStorage.getItem(`rp_host_${slug}`) === 'ok'
-  const meadowPath = isHostSession ? `/r/${slug}/host` : `/r/${slug}/preview`
+  // sessionStorage 플래그 또는 localStorage 방 목록 중 하나라도 주최자임을 증명하면 host로 이동
+  const isHost = (typeof window !== 'undefined')
+    && (sessionStorage.getItem(`rp_host_${slug}`) === 'ok'
+        || getMyRooms().some(r => r.slug === slug))
+  const meadowPath = isHost ? `/r/${slug}/host` : `/r/${slug}/preview`
 
   const form = useWriteMessage(room?.id ?? '', slug)
 
