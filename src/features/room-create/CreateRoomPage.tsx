@@ -36,13 +36,14 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
   const navigate = useNavigate()
   const location = useLocation()
 
-  // 2단계(CreateRoomAuthPage)에서 이전 버튼으로 돌아온 경우 입력값 복원
-  const backState = (location.state ?? {}) as { recipientName?: string; hostName?: string }
+  // 2단계 이전 버튼 복원 또는 삭제 완료 알림
+  const pageState = (location.state ?? {}) as { recipientName?: string; hostName?: string; deleted?: boolean }
 
   // 1단계: 받는 분 이름·내 이름만 페이지 내부 state 로 관리한다.
-  const [recipientName, setRecipientName] = useState(backState.recipientName ?? '')
-  const [hostName, setHostName]           = useState(backState.hostName ?? '')
+  const [recipientName, setRecipientName] = useState(pageState.recipientName ?? '')
+  const [hostName, setHostName]           = useState(pageState.hostName ?? '')
   const [errors, setErrors]               = useState<StepOneErrors>({})
+  const [showDeleted, setShowDeleted]     = useState(pageState.deleted ?? false)
 
   const [myRooms, setMyRooms] = useState<MyRoom[]>([])
   // 카드가 있을 땐 폼을 디스클로저로 접어 핵심 동선(기존 방으로 들어가기)에 집중
@@ -56,6 +57,13 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
     // 저장된 방이 없으면 폼은 처음부터 펼쳐서 보여준다
     setShowForm(list.length === 0)
   }, [forceFormOnly])
+
+  // 삭제 완료 토스트 — 2.5초 후 자동으로 숨김
+  useEffect(() => {
+    if (!showDeleted) return
+    const t = setTimeout(() => setShowDeleted(false), 2500)
+    return () => clearTimeout(t)
+  }, [showDeleted])
 
   /** 이 기기 목록에서 제거 (Supabase 데이터는 그대로 둠) */
   function handleRemoveLocal(slug: string) {
@@ -91,6 +99,17 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
 
   return (
     <main className="min-h-dvh bg-white flex items-start justify-center px-5 py-14">
+
+      {/* 삭제 완료 토스트 */}
+      {showDeleted && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50
+                        bg-black text-white text-[13px] font-medium
+                        px-5 py-3 rounded-full shadow-lg
+                        animate-[fadeIn_0.2s_ease]">
+          롤링페이퍼가 삭제되었습니다
+        </div>
+      )}
+
       <div className="w-full max-w-md">
 
         {/* 브랜드 로고 + 서비스 소개 */}

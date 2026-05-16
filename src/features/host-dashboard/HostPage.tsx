@@ -164,7 +164,7 @@ export default function HostPage() {
       localStorage.removeItem(attemptsKey(slug))
       localStorage.removeItem(lockoutKey(slug))
       removeMyRoom(slug)   // 홈 목록에서도 제거
-      navigate('/create', { replace: true })
+      navigate('/create', { replace: true, state: { deleted: true } })
     } catch (err) {
       console.error('삭제 오류:', err)
       alert('삭제 중 오류가 발생했어요. 다시 시도해주세요.')
