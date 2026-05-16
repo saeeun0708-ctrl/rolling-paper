@@ -82,6 +82,18 @@ export default function SharePage() {
           롤링페이퍼 보기
         </button>
 
+        {/* 푸터 워드마크 */}
+        <button
+          type="button"
+          onClick={() => navigate('/create')}
+          aria-label="홈으로"
+          className="w-full mt-14 flex justify-center"
+        >
+          <p className="text-[10px] font-light tracking-[0.2em] text-black/20 select-none">
+            Rolling paper&nbsp;&nbsp;|&nbsp;&nbsp;Pium
+          </p>
+        </button>
+
       </div>
 
       {/* 공유 방법 선택 모달 — HostPage와 동일한 흐름 */}
