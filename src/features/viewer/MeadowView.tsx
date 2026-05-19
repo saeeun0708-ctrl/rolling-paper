@@ -56,7 +56,12 @@ function distributeFlowers(messages: Message[], seed = 7): PlacedFlower[] {
   const rows  = Math.ceil(n / cols)
   // 좌측 FAB(⚙️·☰)으로 인해 꽃이 시각적으로 우측 치우쳐 보이는 것을 보정:
   // 왼쪽 마진을 줄이고 오른쪽 마진을 늘려 분포 중심을 좌로 이동
-  const yMin = 60, yMax = 85
+  const yMax = 85
+  // 메시지가 35명을 넘으면 풀숲 영역을 점진적으로 위로 확장한다.
+  // 35명까지는 기존 60%(화면 하단 25%)를 유지하고,
+  // 36명부터 1명당 0.67%씩 위로 올라가되 50%에서 멈춘다.
+  // (그 이상 올라가면 풀밭 배경을 벗어나 산·하늘에 꽃이 떠 보임)
+  const yMin = Math.max(50, 60 - Math.max(0, n - 35) * 0.67)
   const xLeft  = 7    // 왼쪽 마진(%) — FAB 보정으로 좌측 여유 줄임
   const xRight = 13   // 오른쪽 마진(%)
   const xRange = 100 - xLeft - xRight
