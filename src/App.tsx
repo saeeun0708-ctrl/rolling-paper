@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { testSupabaseConnection } from './lib/supabase'
-import { trackPageView } from './lib/analytics'
+import { trackPageView, resolvePageTitle } from './lib/analytics'
 import CreateRoomPage     from './features/room-create/CreateRoomPage'
 import CreateRoomAuthPage from './features/room-create/CreateRoomAuthPage'
 import SharePage          from './features/room-create/SharePage'
@@ -14,10 +14,14 @@ import FindMyRoomsPage   from './pages/FindMyRoomsPage'
 import MeadowTestPage    from './pages/MeadowTestPage'
 
 // 라우트 변경마다 GA4 page_view 전송
+// page_title을 화면별 한국어 이름으로 보내, GA 보고서에서 화면 단위로 묶여 보이게 한다.
 function RouteTracker() {
   const location = useLocation()
   useEffect(() => {
-    trackPageView(location.pathname + location.search)
+    const title = resolvePageTitle(location.pathname)
+    // 브라우저 탭 제목도 화면 이름을 앞에 붙여 노출 (브랜드는 뒤로)
+    document.title = `${title} · PIUM`
+    trackPageView(location.pathname + location.search, title)
   }, [location.pathname, location.search])
   return null
 }
