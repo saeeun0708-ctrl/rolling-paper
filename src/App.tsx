@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { testSupabaseConnection } from './lib/supabase'
+import { trackPageView } from './lib/analytics'
 import CreateRoomPage     from './features/room-create/CreateRoomPage'
 import CreateRoomAuthPage from './features/room-create/CreateRoomAuthPage'
 import SharePage          from './features/room-create/SharePage'
@@ -10,6 +11,16 @@ import ViewerPage        from './features/viewer/ViewerPage'
 import Terms             from './pages/Terms'
 import Privacy           from './pages/Privacy'
 import FindMyRoomsPage   from './pages/FindMyRoomsPage'
+import MeadowTestPage    from './pages/MeadowTestPage'
+
+// 라우트 변경마다 GA4 page_view 전송
+function RouteTracker() {
+  const location = useLocation()
+  useEffect(() => {
+    trackPageView(location.pathname + location.search)
+  }, [location.pathname, location.search])
+  return null
+}
 
 function App() {
   useEffect(() => {
@@ -19,6 +30,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <RouteTracker />
       <Routes>
         {/* 방 만들기 1단계 — 받는 분/내 이름 */}
         <Route path="/create"          element={<CreateRoomPage />} />
@@ -38,6 +50,8 @@ function App() {
         <Route path="/r/:slug/open"    element={<ViewerPage />} />
         {/* 만든이 미리보기 — 받는 분과 같은 UI, 포장 검증·애니메이션 생략 */}
         <Route path="/r/:slug/preview" element={<ViewerPage isPreview />} />
+        {/* dev 전용 — mock 데이터로 풀숲 미리보기 (?n=40 형태로 개수 조절) */}
+        <Route path="/dev/meadow-test" element={<MeadowTestPage />} />
         {/* 법적 고지 */}
         <Route path="/terms"           element={<Terms />} />
         <Route path="/privacy"         element={<Privacy />} />

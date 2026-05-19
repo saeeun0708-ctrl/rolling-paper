@@ -34,6 +34,16 @@
     <meta name="twitter:title"       content="PIUM(피움) | 모바일 롤링페이퍼"/>
     <meta name="twitter:description" content="소중한 사람에게 꽃처럼 피어나는 롤링페이퍼를 전달해보세요"/>
     <meta name="twitter:image"       content="https://rolling-paper-lake.vercel.app/og-pium.png"/>
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4EVVBYSRXC"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      // SPA 라우팅을 직접 트래킹하므로 자동 page_view는 끈다
+      gtag('config', 'G-4EVVBYSRXC', { send_page_view: false });
+    </script>
   </head>
   <body>
     <div id="root"></div>

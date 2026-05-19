@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { containsProfanity } from '../../lib/profanity'
 import { getMyRooms } from '../../lib/myRooms'
+import { trackEvent } from '../../lib/analytics'
 import {
   FlowerShape,
   StoredAuthor,
@@ -156,6 +157,8 @@ export function useWriteMessage(roomId: string, slug: string) {
         body:      trimmedBody,
         shape:     finalShape,
       })
+
+      trackEvent('message_submitted', { slug, shape: finalShape })
 
       // 성공했으니 다음 제출을 위해 토큰 비움
       pendingTokenRef.current = null

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import bcrypt from 'bcryptjs'
 import { supabase } from '../../lib/supabase'
 import { addMyRoom } from '../../lib/myRooms'
+import { trackEvent } from '../../lib/analytics'
 import { generateSlug, generateOpenKey } from './utils'
 
 interface FormValues {
@@ -106,6 +107,8 @@ export function useCreateRoom(options: UseCreateRoomOptions = {}) {
         recipientName: values.recipientName.trim(),
         hostName:      values.hostName.trim(),
       })
+
+      trackEvent('room_created', { slug })
 
       // 성공 → 공유 페이지로 이동 (recipient_name을 router state로 전달)
       navigate(`/r/${slug}/share`, {

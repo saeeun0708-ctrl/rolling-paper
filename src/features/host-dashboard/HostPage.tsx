@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import { supabase } from '../../lib/supabase'
 import { removeMyRoom } from '../../lib/myRooms'
 import { celebrateConfetti, initConfetti } from '../../lib/celebrateConfetti'
+import { trackEvent } from '../../lib/analytics'
 import { getStoredAuthorsList, type StoredAuthor } from '../message-write/utils'
 import WrapModal from '../gift-wrap/WrapModal'
 import ShareModal from '../../components/ShareModal'
@@ -183,6 +184,7 @@ export default function HostPage() {
       // room.status를 wrapped로 갱신 → 시트의 액션이 자동으로 열람 링크 공유로 전환
       setRoom(prev => prev ? { ...prev, status: 'wrapped', open_key: data } : null)
       setShowWrap(false)
+      trackEvent('gift_wrapped', { slug })
       // confetti 먼저 실행 후, 모달 렌더는 낮은 우선순위로 처리 (rAF 차단 방지)
       celebrateConfetti()
       startTransition(() => setShowManage(true))

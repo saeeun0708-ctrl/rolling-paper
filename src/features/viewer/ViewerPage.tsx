@@ -9,6 +9,7 @@ import ListMode        from './ListMode'
 import ExportModal     from '../image-export/ExportModal'
 import ShareModal      from '../../components/ShareModal'
 import { getStoredAuthorsList, storeAuthorsList, type StoredAuthor } from '../message-write/utils'
+import { trackEvent } from '../../lib/analytics'
 
 interface Room { id: string; recipient_name: string; expires_at: string; status: string; open_key: string }
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
@@ -138,7 +139,10 @@ export default function ViewerPage({ isPreview = false }: Props) {
         {viewState === 'animating' && (
           <UnwrapAnimation
             recipientName={room?.recipient_name ?? ''}
-            onComplete={() => setViewState('meadow')}
+            onComplete={() => {
+              trackEvent('gift_unwrapped', { slug })
+              setViewState('meadow')
+            }}
           />
         )}
       </AnimatePresence>
