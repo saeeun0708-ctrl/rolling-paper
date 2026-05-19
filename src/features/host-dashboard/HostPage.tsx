@@ -364,6 +364,7 @@ export default function HostPage() {
             description="한 마디 남겨주세요 🌿"
             url={writeUrl}
             onClose={() => setShowShareWrite(false)}
+            surface="host_write"
           />
         )}
 
@@ -374,6 +375,7 @@ export default function HostPage() {
             description="소중한 분들의 마음을 담았어요 🌿"
             url={openUrl}
             onClose={() => setShowShareOpen(false)}
+            surface="host_open"
           />
         )}
 

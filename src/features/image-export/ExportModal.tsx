@@ -1,8 +1,12 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { captureAndDownload, downloadAsTxt, makeFilename } from '../../lib/imageExport'
+import { trackEvent } from '../../lib/analytics'
 
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
+
+// 이미지 저장 모달이 떠 있는 화면 — GA 트래킹용
+export type ExportSurface = 'host' | 'viewer'
 
 interface Props {
   recipientName:  string
@@ -10,6 +14,8 @@ interface Props {
   meadowRef:      React.RefObject<HTMLDivElement | null>
   listRef:        React.RefObject<HTMLElement | null>
   onClose:        () => void
+  /** 호출 지점 — image_exported 이벤트 파라미터로 전송 */
+  surface:        ExportSurface
 }
 
 // 'all' 옵션은 allRef를 부착할 적절한 컨테이너가 없어 즉시 텍스트 폴백으로 빠져
@@ -21,7 +27,7 @@ const OPTIONS: { type: ExportType; label: string; icon: string; desc: string }[]
   { type: 'list',   icon: '📋', label: '메시지만', desc: '전체 메시지 세로 이미지' },
 ]
 
-export default function ExportModal({ recipientName, messages, meadowRef, listRef, onClose }: Props) {
+export default function ExportModal({ recipientName, messages, meadowRef, listRef, onClose, surface }: Props) {
   // 기본 선택은 'meadow' — 풀숲 뷰가 가장 선물용 이미지로 보존 가치가 높음
   const [selected, setSelected]   = useState<ExportType>('meadow')
   const [progress, setProgress]   = useState(0)
@@ -52,11 +58,13 @@ export default function ExportModal({ recipientName, messages, meadowRef, listRe
         width:      1080,
         onProgress: setProgress,
       })
+      trackEvent('image_exported', { surface, type: selected, format: 'image' })
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
       if (msg === 'IMAGE_EXPORT_FAILED') {
         // 텍스트 폴백
         downloadAsTxt(recipientName, messages)
+        trackEvent('image_exported', { surface, type: selected, format: 'txt' })
         setError('이미지 저장에 실패해서 텍스트 파일로 저장했어요.')
       } else {
         setError('저장 중 오류가 발생했어요. 다시 시도해주세요.')

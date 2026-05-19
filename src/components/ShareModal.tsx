@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import { shareKakao } from '../lib/kakao'
+import { trackEvent } from '../lib/analytics'
+
+// 공유 모달이 떠 있는 화면 — GA 트래킹에서 호출 지점을 식별
+export type ShareSurface = 'share_page' | 'host_write' | 'host_open' | 'viewer'
 
 interface Props {
   /** 카카오 공유 카드 제목 */
@@ -10,6 +14,8 @@ interface Props {
   url: string
   /** 모달 닫기 콜백 */
   onClose: () => void
+  /** 호출 지점 — share_clicked 이벤트 파라미터로 전송 */
+  surface: ShareSurface
 }
 
 /** 클립보드 복사 — Web API 우선, execCommand 폴백 */
@@ -31,15 +37,17 @@ async function copyToClipboard(text: string): Promise<void> {
  * 카카오톡 공유와 링크 복사 옵션을 명시적으로 제공한다.
  * 카카오 사용자가 아니거나 다른 채널로 보내고 싶은 사용자도 한 흐름에서 선택 가능.
  */
-export default function ShareModal({ title, description, url, onClose }: Props) {
+export default function ShareModal({ title, description, url, onClose, surface }: Props) {
   const [copied, setCopied] = useState(false)
 
   function handleKakao() {
+    trackEvent('share_clicked', { method: 'kakao', surface })
     shareKakao(title, description, url)
     onClose()
   }
 
   async function handleCopy() {
+    trackEvent('share_clicked', { method: 'copy_link', surface })
     await copyToClipboard(url)
     setCopied(true)
     // 짧게 피드백을 보이고 모달 닫기

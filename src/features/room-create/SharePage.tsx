@@ -103,6 +103,7 @@ export default function SharePage() {
           description="한 마디 남겨주세요 🌿"
           url={shareUrl}
           onClose={() => setShowShare(false)}
+          surface="share_page"
         />
       )}
     </main>

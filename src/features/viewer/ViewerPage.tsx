@@ -226,6 +226,7 @@ export default function ViewerPage({ isPreview = false }: Props) {
             meadowRef={meadowRef}
             listRef={listRef}
             onClose={() => setShowExport(false)}
+            surface="viewer"
           />
         )}
       </AnimatePresence>
@@ -237,6 +238,7 @@ export default function ViewerPage({ isPreview = false }: Props) {
           description="한 마디 남겨주세요 🌿"
           url={`${window.location.origin}/r/${slug}`}
           onClose={() => setShowShare(false)}
+          surface="viewer"
         />
       )}
     </>
