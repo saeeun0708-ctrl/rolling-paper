@@ -131,8 +131,8 @@ function SceneryImpl(_props: SceneryProps) {
         {GRASS_BLADES.map(b => <path key={b.key} d={b.d}/>)}
       </g>
 
-      {/* 종이 노이즈 오버레이 */}
-      <rect width="1600" height="900" fill="url(#paper)" opacity="0.15"
+      {/* 종이 노이즈 오버레이 — opacity 낮춰 침침함 완화 */}
+      <rect width="1600" height="900" fill="url(#paper)" opacity="0.06"
         style={PAPER_OVERLAY_STYLE}/>
     </svg>
   )

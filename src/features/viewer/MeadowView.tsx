@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { type FlowerShape } from '../message-write/utils'
 import Scenery from './Scenery'
 import { FLOWER_SVG_COMPONENTS, type FlowerSvgShape } from './FlowerSvg'
+import { honorificSuffix } from '../../lib/honorific'
 
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
 interface Props {
@@ -57,11 +58,13 @@ function distributeFlowers(messages: Message[], seed = 7): PlacedFlower[] {
   // 좌측 FAB(⚙️·☰)으로 인해 꽃이 시각적으로 우측 치우쳐 보이는 것을 보정:
   // 왼쪽 마진을 줄이고 오른쪽 마진을 늘려 분포 중심을 좌로 이동
   const yMax = 85
-  // 메시지가 35명을 넘으면 풀숲 영역을 점진적으로 위로 확장한다.
-  // 35명까지는 기존 60%(화면 하단 25%)를 유지하고,
-  // 36명부터 1명당 0.67%씩 위로 올라가되 50%에서 멈춘다.
-  // (그 이상 올라가면 풀밭 배경을 벗어나 산·하늘에 꽃이 떠 보임)
-  const yMin = Math.max(50, 60 - Math.max(0, n - 35) * 0.67)
+  // 메시지 수에 따라 풀숲 시작 위치(yMin)를 동적으로 조정.
+  // - 1~5명(소수 가족): yMin을 위로 끌어올려 꽃이 화면 중앙에 위치 → 휑한 느낌 완화
+  // - 6~35명: 기본 60% (화면 하단 25% 영역)
+  // - 36명 이상: 1명당 0.67%씩 위로 확장하되 50%에서 멈춤 (그 이상은 풀밭 배경 이탈)
+  const yMin = n <= 5
+    ? 60 - (6 - n) * 4              // 1명=40, 2명=44, 3명=48, 4명=52, 5명=56
+    : Math.max(50, 60 - Math.max(0, n - 35) * 0.67)
   const xLeft  = 7    // 왼쪽 마진(%) — FAB 보정으로 좌측 여유 줄임
   const xRight = 13   // 오른쪽 마진(%)
   const xRange = 100 - xLeft - xRight
@@ -99,7 +102,7 @@ function distributeFlowers(messages: Message[], seed = 7): PlacedFlower[] {
 // ── 카운트 배지의 인라인 스타일도 상수화 ──────────────────────────────────
 // 배지는 헤더(제목·부제) 아래에 위치 — 긴 수신자 이름과 시각적으로 겹치지 않도록.
 const COUNT_BADGE_STYLE: React.CSSProperties = {
-  position: 'absolute', top: 120, left: 20, zIndex: 10,
+  position: 'absolute', top: 28, right: 20, zIndex: 10,
   display: 'flex', alignItems: 'center', gap: 8,
   padding: '7px 14px 7px 10px',
   background: '#fffdf8',
@@ -145,12 +148,10 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
   const svgKey  = SHAPE_MAP[f.shape as FlowerShape] ?? 'daisy'
   const FlowerComp = FLOWER_SVG_COMPONENTS[svgKey]
 
-  // 본인 꽃이면 그린 글로우, hover 시엔 핑크. 평소엔 옅은 그림자.
+  // 본인 꽃도 다른 꽃들과 동일한 시각·애니메이션. (글로우·펄스 제거 — 살랑임만 유지)
   const dropShadow = isHover
     ? `drop-shadow(0 6px 14px rgba(194,90,126,0.45))`
-    : isMine
-      ? `drop-shadow(0 0 14px rgba(92,176,84,0.7)) drop-shadow(0 3px 5px rgba(0,0,0,0.18))`
-      : `drop-shadow(0 3px 5px rgba(0,0,0,0.18))`
+    : `drop-shadow(0 3px 5px rgba(0,0,0,0.18))`
 
   // 등장 애니메이션 파라미터 — 풀숲에 봉오리가 천천히 피어나는 느낌.
   // 기존 spring(stiffness 200)은 한꺼번에 튕겨 부자연스러웠고,
@@ -170,21 +171,8 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
       onHoverStart={() => setIsHover(true)}
       onHoverEnd={() => setIsHover(false)}
       initial={{ scale: 0.55, opacity: 0, y: 10 }}
-      animate={
-        isMine
-          ? { scale: [1, 1.06, 1], opacity: 1, y: 0 }
-          : { scale: 1, opacity: 1, y: 0 }
-      }
-      transition={
-        isMine
-          ? {
-              // 본인 꽃은 펄스(scale 무한 반복)와 등장(opacity·y)을 분리해 적용
-              scale:   { repeat: Infinity, duration: 2.4, ease: 'easeInOut' },
-              opacity: { delay: appearDelay, duration: 0.7, ease: APPEAR_EASE },
-              y:       { delay: appearDelay, duration: 0.9, ease: APPEAR_EASE },
-            }
-          : { delay: appearDelay, duration: 0.9, ease: APPEAR_EASE }
-      }
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      transition={{ delay: appearDelay, duration: 0.9, ease: APPEAR_EASE }}
       style={{
         position: 'absolute',
         left: `${f.x}%`,
@@ -197,9 +185,9 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
         cursor: 'pointer',
         transformOrigin: '50% 95%',
         filter: dropShadow,
-        zIndex: isMine ? Math.floor(f.depth * 100) + 6 : Math.floor(f.depth * 100) + 5,
+        zIndex: Math.floor(f.depth * 100) + 5,
       }}
-      aria-label={`${f.author_name}님의 메시지 보기${isMine ? ' (내 꽃)' : ''}`}
+      aria-label={`${f.author_name}님의 메시지 보기`}
     >
       {/* 살랑임 wrapper — motion.button의 transform과 분리해 충돌 방지 */}
       <span
@@ -244,7 +232,8 @@ const MIST_STYLE: React.CSSProperties = {
   pointerEvents: 'none', zIndex: 2,
 }
 // 배지는 헤더 아래로 분리되었으므로 paddingRight는 제거. 좌우 여백만 유지.
-const HEADER_STYLE: React.CSSProperties = { position: 'absolute', top: 28, left: 20, right: 20, zIndex: 10, color: '#3a5a3a' }
+// 우측 상단 배지(폭 ~150px + right:20)와 제목 겹침 방지용 paddingRight.
+const HEADER_STYLE: React.CSSProperties = { position: 'absolute', top: 28, left: 20, right: 20, paddingRight: 170, zIndex: 10, color: '#3a5a3a' }
 const FLOWERS_LAYER_STYLE: React.CSSProperties = { position: 'absolute', inset: 0, zIndex: 5 }
 const BOTTOM_BAR_STYLE: React.CSSProperties = {
   position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10,
@@ -267,7 +256,7 @@ const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
   ref,
 ) {
   const placed  = useMemo(() => distributeFlowers(messages), [messages])
-  const honorific = recipientName.endsWith('님') ? '께' : '님께'
+  const honorific = honorificSuffix(recipientName)
 
   return (
     <div ref={ref} style={CONTAINER_STYLE}>
@@ -280,9 +269,8 @@ const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
 
       {/* ── 헤더 ── */}
       <div style={HEADER_STYLE}>
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#2d4a2d', lineHeight: 1.2, textShadow: '0 1px 0 rgba(255,255,255,0.5)' }}>
-          <span style={{ color: '#c25a7e' }}>{recipientName}</span>{honorific}<br/>
-          보내는 마음들
+        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#2d4a2d', lineHeight: 1.2, textShadow: '0 1px 0 rgba(255,255,255,0.5)', wordBreak: 'keep-all' }}>
+          <span style={{ color: '#c25a7e' }}>{recipientName}</span>{honorific}{' '}보내는 마음들
         </h1>
         <p style={{ margin: '6px 0 0', fontSize: 13, color: '#5a7a5a' }}>
           풀숲에 꽃이 피어나고 있어요 🌿
