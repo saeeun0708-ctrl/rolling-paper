@@ -12,17 +12,18 @@ interface SceneryProps {
 }
 
 // 단일 봄 팔레트 — 모듈 스코프 상수
+// 흐린 날처럼 보이지 않도록 채도·명도를 살짝 올린 화창한 봄 팔레트.
 const SPRING_PALETTE = {
-  sky: ['#fef6ea', '#e8f3e0', '#d8ecd0'],
-  mtFar: '#b8d4c2',
-  mtMid: '#8fbfa0',
-  mtNear: '#6fae84',
-  hill1:  '#9ed18e',
-  hill2:  '#7cbd76',
-  hill3:  '#5fa861',
-  grass:  '#86c47e',
+  sky: ['#fffaf0', '#f3fbe8', '#dff2cf'],     // 따뜻한 크림 → 연두빛, 전체적으로 밝게
+  mtFar: '#c8e0c8',                             // 먼 산: 더 옅고 푸르게
+  mtMid: '#9ed1a8',
+  mtNear: '#7bc189',
+  hill1:  '#aedb98',                            // 언덕도 살짝 채도 올려 햇살 느낌
+  hill2:  '#88cf7e',
+  hill3:  '#62b063',
+  grass:  '#92ce86',
   mist:   'rgba(255,255,255,0.55)',
-  sunCx: 78, sunCy: 18, sunR: 8, sunColor: '#fff5d4',
+  sunCx: 78, sunCy: 18, sunR: 8, sunColor: '#ffeaa0',  // 햇볕을 더 노랗고 따뜻하게
 } as const
 
 // 풀잎 디테일 path 데이터 — 한 번만 계산하고 모듈 스코프에 캐싱.
@@ -118,9 +119,9 @@ function SceneryImpl(_props: SceneryProps) {
       <path d="M0 680 Q220 640 440 670 Q660 640 880 670 Q1100 645 1320 670 Q1500 660 1600 680 L1600 820 L0 820 Z"
         fill="url(#hill-2)" opacity="0.95"/>
 
-      {/* 안개/미스트 띠 */}
-      <rect x="0" y="540" width="1600" height="60" fill={p.mist} opacity="0.6"/>
-      <rect x="0" y="610" width="1600" height="40" fill={p.mist} opacity="0.4"/>
+      {/* 안개/미스트 띠 — 흐린 느낌 완화를 위해 opacity 축소 */}
+      <rect x="0" y="540" width="1600" height="60" fill={p.mist} opacity="0.3"/>
+      <rect x="0" y="610" width="1600" height="40" fill={p.mist} opacity="0.2"/>
 
       {/* 풀밭 */}
       <path d="M0 720 Q200 690 400 715 Q600 690 800 715 Q1000 690 1200 715 Q1400 695 1600 720 L1600 900 L0 900 Z"

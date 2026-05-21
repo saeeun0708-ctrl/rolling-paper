@@ -226,9 +226,10 @@ const CONTAINER_STYLE: React.CSSProperties = {
   position: 'fixed', inset: 0, overflow: 'hidden', background: '#e8f3e0',
   fontFamily: '"Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif',
 }
+// 안개 띠 — 흐린 날 느낌 완화를 위해 opacity 절반으로 축소
 const MIST_STYLE: React.CSSProperties = {
-  position: 'absolute', left: 0, right: 0, top: '58%', height: 80,
-  background: 'linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0))',
+  position: 'absolute', left: 0, right: 0, top: '58%', height: 60,
+  background: 'linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0))',
   pointerEvents: 'none', zIndex: 2,
 }
 // 배지는 헤더 아래로 분리되었으므로 paddingRight는 제거. 좌우 여백만 유지.
@@ -257,6 +258,11 @@ const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
 ) {
   const placed  = useMemo(() => distributeFlowers(messages), [messages])
   const honorific = honorificSuffix(recipientName)
+  // 제목 첫 줄("이름honorific")이 우측 상단 배지와 겹치지 않도록 글자 수에 따라 폰트 크기 자동 축소.
+  // 가용폭 ≈ 185px (375 - 좌여백 20 - paddingRight 170). 실측 한글 bold char 폭 ≈ fontSize * 0.85.
+  // 따라서 fontSize ≤ 185 / (len * 0.85), 상한 28px·하한 14px(가독성).
+  const firstLineLen  = recipientName.length + honorific.length
+  const titleFontSize = Math.max(14, Math.min(28, Math.floor(185 / (firstLineLen * 0.85))))
 
   return (
     <div ref={ref} style={CONTAINER_STYLE}>
@@ -269,8 +275,13 @@ const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
 
       {/* ── 헤더 ── */}
       <div style={HEADER_STYLE}>
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#2d4a2d', lineHeight: 1.2, textShadow: '0 1px 0 rgba(255,255,255,0.5)', wordBreak: 'keep-all' }}>
-          <span style={{ color: '#c25a7e' }}>{recipientName}</span>{honorific}{' '}보내는 마음들
+        <h1 style={{ margin: 0, fontSize: titleFontSize, fontWeight: 800, color: '#2d4a2d', lineHeight: 1.2, textShadow: '0 1px 0 rgba(255,255,255,0.5)', wordBreak: 'keep-all' }}>
+          {/* 첫 줄: 이름+honorific을 nowrap으로 묶어 항상 한 줄 유지 (폰트가 자동 축소되어 가용폭에 들어감) */}
+          <span style={{ whiteSpace: 'nowrap' }}>
+            <span style={{ color: '#c25a7e' }}>{recipientName}</span>{honorific}
+          </span>
+          <br/>
+          보내는 마음들
         </h1>
         <p style={{ margin: '6px 0 0', fontSize: 13, color: '#5a7a5a' }}>
           풀숲에 꽃이 피어나고 있어요 🌿
