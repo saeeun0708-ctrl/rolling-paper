@@ -97,8 +97,9 @@ function distributeFlowers(messages: Message[], seed = 7): PlacedFlower[] {
 }
 
 // ── 카운트 배지의 인라인 스타일도 상수화 ──────────────────────────────────
+// 배지는 헤더(제목·부제) 아래에 위치 — 긴 수신자 이름과 시각적으로 겹치지 않도록.
 const COUNT_BADGE_STYLE: React.CSSProperties = {
-  position: 'absolute', top: 28, right: 20, zIndex: 10,
+  position: 'absolute', top: 120, left: 20, zIndex: 10,
   display: 'flex', alignItems: 'center', gap: 8,
   padding: '7px 14px 7px 10px',
   background: '#fffdf8',
@@ -242,7 +243,8 @@ const MIST_STYLE: React.CSSProperties = {
   background: 'linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0))',
   pointerEvents: 'none', zIndex: 2,
 }
-const HEADER_STYLE: React.CSSProperties = { position: 'absolute', top: 28, left: 20, zIndex: 10, color: '#3a5a3a' }
+// 배지는 헤더 아래로 분리되었으므로 paddingRight는 제거. 좌우 여백만 유지.
+const HEADER_STYLE: React.CSSProperties = { position: 'absolute', top: 28, left: 20, right: 20, zIndex: 10, color: '#3a5a3a' }
 const FLOWERS_LAYER_STYLE: React.CSSProperties = { position: 'absolute', inset: 0, zIndex: 5 }
 const BOTTOM_BAR_STYLE: React.CSSProperties = {
   position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10,
