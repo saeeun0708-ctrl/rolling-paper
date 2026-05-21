@@ -12,6 +12,7 @@ import ShareModal from '../../components/ShareModal'
 import MeadowView from '../viewer/MeadowView'
 import MessageModal from '../viewer/MessageModal'
 import ListMode from '../viewer/ListMode'
+import { honorificSuffix } from '../../lib/honorific'
 
 // 스토리지 키 헬퍼 — slug별로 안정적으로 같은 키를 생성한다.
 const sessionKey  = (slug: string) => `rp_host_${slug}`
@@ -195,7 +196,7 @@ export default function HostPage() {
 
 
   const name         = room?.recipient_name ?? ''
-  const honorific    = name.endsWith('님') ? '께' : '님께'
+  const honorific    = honorificSuffix(name)
   const writeUrl     = `${window.location.origin}/r/${slug}`
   const resolvedKey  = openKey || room?.open_key || ''
   const openUrl      = `${window.location.origin}/r/${slug}/open?k=${resolvedKey}`

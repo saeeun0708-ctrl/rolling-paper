@@ -2,6 +2,7 @@ import { forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FLOWER_EMOJIS, type FlowerShape } from '../message-write/utils'
+import { honorificSuffix } from '../../lib/honorific'
 
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
 interface Props {
@@ -21,7 +22,7 @@ const ListMode = forwardRef<HTMLElement, Props>(function ListMode(
   { messages, recipientName, onClose, onDelete, myMessageIds, onEdit },
   ref,
 ) {
-  const honorific = recipientName.endsWith('님') ? '께' : '님께'
+  const honorific = honorificSuffix(recipientName)
   const navigate  = useNavigate()
 
   return (

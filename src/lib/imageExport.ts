@@ -3,6 +3,7 @@
 
 import html2canvas from 'html2canvas'
 import domtoimage  from 'dom-to-image'
+import { honorificSuffix } from './honorific'
 
 export interface ExportOptions {
   element:       HTMLElement
@@ -96,7 +97,7 @@ function downloadDataUrl(dataUrl: string, filename: string) {
 /** 이미지 캡처 완전 실패 시 텍스트 파일로 폴백 */
 export function downloadAsTxt(recipientName: string, messages: Array<{ author_name: string; body: string }>) {
   const lines = [
-    `${recipientName}님께 보내는 마음들`,
+    `${recipientName}${honorificSuffix(recipientName)} 보내는 마음들`,
     `저장일: ${new Date().toLocaleDateString('ko-KR')}`,
     '',
     ...messages.map((m, i) => [`[${i + 1}] ${m.author_name}`, m.body, ''].join('\n')),
@@ -105,7 +106,7 @@ export function downloadAsTxt(recipientName: string, messages: Array<{ author_na
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `${recipientName}님께_롤링페이퍼.txt`
+  a.download = `${recipientName}${honorificSuffix(recipientName)}_롤링페이퍼.txt`
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -113,5 +114,5 @@ export function downloadAsTxt(recipientName: string, messages: Array<{ author_na
 /** 파일명 생성 */
 export function makeFilename(recipientName: string) {
   const date = new Date().toISOString().slice(0, 10)
-  return `${recipientName}님께_롤링페이퍼_${date}.png`
+  return `${recipientName}${honorificSuffix(recipientName)}_롤링페이퍼_${date}.png`
 }

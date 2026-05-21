@@ -10,6 +10,7 @@ import ExportModal     from '../image-export/ExportModal'
 import ShareModal      from '../../components/ShareModal'
 import { getStoredAuthorsList, storeAuthorsList, type StoredAuthor } from '../message-write/utils'
 import { trackEvent } from '../../lib/analytics'
+import { honorificSuffix } from '../../lib/honorific'
 
 interface Room { id: string; recipient_name: string; expires_at: string; status: string; open_key: string }
 interface Message { id: string; author_name: string; shape: string; body: string; created_at: string }
@@ -234,7 +235,7 @@ export default function ViewerPage({ isPreview = false }: Props) {
       {/* 작성 링크 공유 모달 (참여자용 '더 많은 마음 모으기') */}
       {showShare && room && (
         <ShareModal
-          title={`${room.recipient_name}${room.recipient_name.endsWith('님') ? '께' : '님께'} 보내는 롤링페이퍼`}
+          title={`${room.recipient_name}${honorificSuffix(room.recipient_name)} 보내는 롤링페이퍼`}
           description="한 마디 남겨주세요 🌿"
           url={`${window.location.origin}/r/${slug}`}
           onClose={() => setShowShare(false)}

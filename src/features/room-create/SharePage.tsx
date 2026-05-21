@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import ShareModal from '../../components/ShareModal'
+import { honorificSuffix } from '../../lib/honorific'
 
 // 필 버튼 공통 클래스 (모바일 터치 타겟 44pt 기준)
 const pillBtn = `w-full py-3 font-bold text-base rounded-full transition-colors
@@ -18,8 +19,8 @@ export default function SharePage() {
   // 공유 방법 선택 모달 (HostPage와 동일한 UX 흐름)
   const [showShare, setShowShare] = useState(false)
 
-  // "부모님" → "부모님께", "엄마" → "엄마님께" (중복 존칭 방지)
-  const honorific = recipientName.endsWith('님') ? '께' : '님께'
+  // "부모님" → "부모님께", "엄마" → "엄마님께" (중복 존칭 방지, 끝의 이모지·공백 보정 포함)
+  const honorific = honorificSuffix(recipientName)
 
   const shareUrl = `${window.location.origin}/r/${slug}`
 

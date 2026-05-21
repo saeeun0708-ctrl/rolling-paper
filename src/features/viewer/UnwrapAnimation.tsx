@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { honorificSuffix } from '../../lib/honorific'
 
 interface Props {
   recipientName: string
@@ -111,7 +112,7 @@ export default function UnwrapAnimation({ recipientName, onComplete }: Props) {
                       exit:    { opacity: 0, y: -6, transition: { duration: 0.3, ease: 'easeIn' } },
                     }}
                   >
-                    {recipientName}님께
+                    {recipientName}{honorificSuffix(recipientName)}
                   </motion.p>
                   <motion.p
                     className="text-white/70 text-xl mt-3"

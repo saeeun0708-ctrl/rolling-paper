@@ -7,6 +7,7 @@ import {
   StoredAuthor, FlowerShape,
 } from './utils'
 import { useWriteMessage } from './useWriteMessage'
+import { honorificSuffix } from '../../lib/honorific'
 import HeartGauge    from './components/HeartGauge'
 import FlowerPicker  from './components/FlowerPicker'
 import SuccessView   from './components/SuccessView'
@@ -240,7 +241,7 @@ function WriteMessagePageInner({ slug, navigate }: InnerProps) {
 
   // ─── 폼 뷰 ──────────────────────────────────────────────────────────────
   const recipientName = room?.recipient_name ?? ''
-  const honorific     = recipientName.endsWith('님') ? '께' : '님께'
+  const honorific     = honorificSuffix(recipientName)
   const isNewMode     = activeIdx === null
 
   return (

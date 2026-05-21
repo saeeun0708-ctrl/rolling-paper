@@ -1,3 +1,5 @@
+import { honorificSuffix } from '../../lib/honorific'
+
 interface Props {
   recipientName: string
   onConfirm: () => Promise<void>
@@ -6,7 +8,7 @@ interface Props {
 }
 
 export default function WrapModal({ recipientName, onConfirm, onCancel, isLoading }: Props) {
-  const honorific = recipientName.endsWith('님') ? '께' : '님께'
+  const honorific = honorificSuffix(recipientName)
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center px-5 z-50">

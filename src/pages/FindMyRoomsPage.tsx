@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { addMyRoom } from '../lib/myRooms'
+import { honorificSuffix } from '../lib/honorific'
 
 /** 이메일 형식 간단 검증 */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -26,11 +27,6 @@ function fmtCreated(iso: string): string {
   if (diffDays === 1) return '어제'
   if (diffDays < 30) return `${diffDays}일 전`
   return `${created.getFullYear()}.${String(created.getMonth() + 1).padStart(2, '0')}.${String(created.getDate()).padStart(2, '0')}`
-}
-
-/** 이름 뒤에 붙일 존칭 ("엄마" → "님께", "부모님" → "께") */
-function honorificSuffix(name: string): string {
-  return name.endsWith('님') ? '께' : '님께'
 }
 
 export default function FindMyRoomsPage() {

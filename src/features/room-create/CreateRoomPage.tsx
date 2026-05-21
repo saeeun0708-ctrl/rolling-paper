@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { getMyRooms, removeMyRoom, type MyRoom } from '../../lib/myRooms'
 import PiumLogo from '../../components/PiumLogo'
+import { honorificSuffix } from '../../lib/honorific'
 
 /** 생성일자를 "오늘", "어제", "n일 전" 형태로 가볍게 포맷 */
 function fmtCreated(iso: string): string {
@@ -15,11 +16,6 @@ function fmtCreated(iso: string): string {
   if (diffDays === 1) return '어제'
   if (diffDays < 30) return `${diffDays}일 전`
   return `${created.getFullYear()}.${String(created.getMonth() + 1).padStart(2, '0')}.${String(created.getDate()).padStart(2, '0')}`
-}
-
-/** 이름 뒤에 붙일 존칭만 반환 ("엄마" → "님께", "부모님" → "께") */
-function honorificSuffix(name: string): string {
-  return name.endsWith('님') ? '께' : '님께'
 }
 
 interface StepOneErrors {
