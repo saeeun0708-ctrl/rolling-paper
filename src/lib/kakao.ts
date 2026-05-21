@@ -34,13 +34,15 @@ export async function shareKakao(title: string, description: string, url: string
   // ── 1. Kakao SDK ──────────────────────────────────────────────────────────
   if (window.Kakao?.isInitialized()) {
     try {
+      // 피드 템플릿: 카드(이미지·제목·설명) 어디를 탭해도 link로 이동
       window.Kakao.Share.sendDefault({
         objectType: 'feed',
         content: {
           title,
-          // 설명 바로 아래 줄에 URL을 같이 노출 — 버튼 외에도 링크가 텍스트로 보이게
-          description: `${description}\n${url}`,
+          description,
           imageUrl: `${window.location.origin}/og-meadow.png`,
+          imageWidth: 800,
+          imageHeight: 800,
           link: { mobileWebUrl: url, webUrl: url },
         },
         buttons: [
