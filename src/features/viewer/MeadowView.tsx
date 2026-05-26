@@ -34,7 +34,7 @@ const SHAPE_MAP: Record<string, FlowerSvgShape> = {
 // 작아 보이고, 카네이션·클로버는 ~56이라 크게 보임.) 보정 계수로 균형을 맞춘다.
 const SHAPE_SIZE_FACTOR: Record<FlowerSvgShape, number> = {
   carnation: 0.95,  // 벚꽃 — 5장 꽃잎이 viewBox를 균등하게 채워 자연스러운 크기
-  daisy:     1.10,
+  daisy:     1.00,  // 10장 꽃잎이 r=22까지 뻗어 viewBox를 잘 채움 → 표준 크기로
   tulip:     0.98,  // 튤립 — 컵 형태
   clover:    1.00,
   sunflower: 0.82,  // 새 디자인이 viewBox를 거의 가득 채워(꽃잎 끝 y=8) 다른 꽃보다 크게 보이므로 보정
