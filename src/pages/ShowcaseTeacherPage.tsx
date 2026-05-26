@@ -22,7 +22,7 @@ interface ShowcaseMessage {
 // 10대 톤: 일부 메시지에 하트·표정 이모지·"ㅋㅋ/ㅠㅠ/ㅎㅎ"를 자연스럽게 섞음
 const STUDENTS: Array<{ name: string; shape: FlowerShape; body: string }> = [
   { name: '지민', shape: 'carnation', body: '선생님 덕분에 수학이 더 이상 무섭지 않아요! 1년 동안 정말 감사했습니다 🌷' },
-  { name: '박서연', shape: 'daisy',     body: '힘들 때마다 해주신 따뜻한 말 한마디가 진짜 큰 힘이 됐어요 ㅠㅠ 평생 기억할게요 🥹' },
+  { name: '박서연', shape: 'daisy',     body: '힘들 때마다 해주신 따뜻한 말 한마디가 진짜 큰 힘이 됐어요 ㅠㅠ 평생 기억할게요 💖' },
   { name: '도현',   shape: 'tulip',     body: '수업 시간이 진짜 기다려졌어요. 선생님 같은 어른이 되고 싶어요!' },
   { name: '하윤',   shape: 'clover',    body: '진로 고민 들어주셔서 감사해요 💕 덕분에 결심했어요. 잊지 않을게요!' },
   { name: '시우',   shape: 'sunflower', body: '선생님 농담 진짜 재미있었어요 ㅋㅋㅋ 보고 싶을 거예요 🌻' },
