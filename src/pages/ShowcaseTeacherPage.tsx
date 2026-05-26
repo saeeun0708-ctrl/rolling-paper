@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import MeadowView from '../features/viewer/MeadowView'
 import MessageModal from '../features/viewer/MessageModal'
 import ListMode from '../features/viewer/ListMode'
+import UnwrapAnimation from '../features/viewer/UnwrapAnimation'
 import type { FlowerShape } from '../features/message-write/utils'
 
 // ── 홍보 영상용 showcase 페이지 ─────────────────────────────────────────────
 // 10대 학생 14명이 선생님께 롤링페이퍼를 쓴 시나리오. 실제 DB 없이 mock 데이터로
-// MeadowView·MessageModal·ListMode를 그대로 렌더링한다. URL `/showcase/teacher`.
+// 받는 분 진입 흐름(포장 풀기 애니메이션 → 풀숲 뷰)을 그대로 재현한다. URL `/showcase/teacher`.
 
 interface ShowcaseMessage {
   id: string
@@ -49,21 +51,46 @@ function buildMessages(): ShowcaseMessage[] {
   }))
 }
 
+type ViewState = 'animating' | 'meadow'
+
 export default function ShowcaseTeacherPage() {
   const messages = useMemo(buildMessages, [])
+  const [viewState, setViewState]     = useState<ViewState>('animating')
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [isListMode,  setIsListMode]  = useState(false)
 
   return (
     <>
-      <MeadowView
-        messages={messages}
-        recipientName={RECIPIENT_NAME}
-        onFlowerClick={setSelectedIdx}
-        onListMode={() => setIsListMode(true)}
-      />
+      {/* ── 포장 풀기 인트로 애니메이션 ── */}
+      <AnimatePresence>
+        {viewState === 'animating' && (
+          <UnwrapAnimation
+            recipientName={RECIPIENT_NAME}
+            onComplete={() => setViewState('meadow')}
+          />
+        )}
+      </AnimatePresence>
 
-      {selectedIdx !== null && (
+      {/* ── 풀숲 뷰 — 페이드 인 ── */}
+      <AnimatePresence>
+        {viewState === 'meadow' && (
+          <motion.div
+            key="meadow"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+          >
+            <MeadowView
+              messages={messages}
+              recipientName={RECIPIENT_NAME}
+              onFlowerClick={setSelectedIdx}
+              onListMode={() => setIsListMode(true)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {viewState === 'meadow' && selectedIdx !== null && (
         <MessageModal
           messages={messages}
           currentIndex={selectedIdx}
@@ -72,7 +99,7 @@ export default function ShowcaseTeacherPage() {
         />
       )}
 
-      {isListMode && (
+      {viewState === 'meadow' && isListMode && (
         <ListMode
           messages={messages}
           recipientName={RECIPIENT_NAME}
