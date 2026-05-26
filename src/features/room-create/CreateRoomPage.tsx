@@ -197,7 +197,8 @@ export default function CreateRoomPage({ forceFormOnly = false }: CreateRoomPage
                     if (errors.recipientName) setErrors(prev => ({ ...prev, recipientName: undefined }))
                   }}
                   placeholder="예: 사랑하는 엄마, 오은영 선생님"
-                  maxLength={30}
+                  // 풀숲 뷰 헤더에서 우측 상단 카운트 배지와 겹치지 않게 띄어쓰기 포함 8자로 제한
+                  maxLength={8}
                   className={`w-full px-4 py-3.5 rounded-xl text-[15px] text-black
                               bg-[#f5f5f5] placeholder:text-[13px] placeholder:text-black/20
                               border-2 transition-colors
