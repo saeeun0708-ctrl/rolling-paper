@@ -33,7 +33,7 @@ export default function ViewerPage({ isPreview = false }: Props) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [isListMode, setIsListMode] = useState(false)
   const [showExport, setShowExport] = useState(false)
-  // 참여자가 이 기기에서 작성한 메시지 목록 — 꽃 강조 + 수정·삭제 권한 판단용
+  // 참여자가 이 기기에서 작성한 메시지 목록 — 모달·리스트 수정·삭제 권한 판단용
   const [storedList, setStoredList] = useState<StoredAuthor[]>([])
   const [showShare, setShowShare] = useState(false)
 
@@ -178,7 +178,6 @@ export default function ViewerPage({ isPreview = false }: Props) {
               recipientName={room?.recipient_name ?? ''}
               onFlowerClick={setSelectedIdx}
               onListMode={() => setIsListMode(true)}
-              myMessageIds={storedList.map(s => s.messageId)}
               onWriteMessage={
                 isPreview && room?.status !== 'wrapped'
                   ? () => navigate(`/r/${slug}`)

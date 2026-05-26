@@ -11,8 +11,6 @@ interface Props {
   recipientName:   string
   onFlowerClick:   (index: number) => void
   onListMode:      () => void
-  /** 이 기기에서 작성한 메시지 id 목록 — 포함된 꽃에 강조 표시 */
-  myMessageIds?:   string[]
   /** 참여자 전용 — 메시지 작성 페이지로 이동 콜백. 있으면 연필 FAB 노출 */
   onWriteMessage?: () => void
 }
@@ -139,16 +137,13 @@ interface FlowerCellProps {
   flower:        PlacedFlower
   animDelayIdx:  number
   onClick:       (originalIndex: number) => void
-  /** 본인 꽃 강조 표시 — 글로우 + 라벨 강조 + 펄스 애니메이션 */
-  isMine?:       boolean
 }
 
-const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, isMine = false }: FlowerCellProps) {
+const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick }: FlowerCellProps) {
   const [isHover, setIsHover] = useState(false)
   const svgKey  = SHAPE_MAP[f.shape as FlowerShape] ?? 'daisy'
   const FlowerComp = FLOWER_SVG_COMPONENTS[svgKey]
 
-  // 본인 꽃도 다른 꽃들과 동일한 시각·애니메이션. (글로우·펄스 제거 — 살랑임만 유지)
   const dropShadow = isHover
     ? `drop-shadow(0 6px 14px rgba(194,90,126,0.45))`
     : `drop-shadow(0 3px 5px rgba(0,0,0,0.18))`
@@ -200,7 +195,7 @@ const FlowerCell = memo(function FlowerCell({ flower: f, animDelayIdx, onClick, 
         <FlowerComp size={f.size}/>
       </span>
 
-      {/* 이름 레이블 — 본인 여부와 무관하게 평소 톤 (강조는 글로우 + 펄스로) */}
+      {/* 이름 레이블 */}
       <div style={{
         position: 'absolute', left: '50%', bottom: -2,
         transform: 'translateX(-50%)',
@@ -253,7 +248,7 @@ const LIST_BUTTON_STYLE: React.CSSProperties = {
 // ── 메인 컴포넌트 ──────────────────────────────────────────────────────────
 // forwardRef로 root div의 ref를 외부에 노출 — 이미지 캡처 시 정확한 dimensions 확보용.
 const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
-  { messages, recipientName, onFlowerClick, onListMode, myMessageIds, onWriteMessage },
+  { messages, recipientName, onFlowerClick, onListMode, onWriteMessage },
   ref,
 ) {
   const placed  = useMemo(() => distributeFlowers(messages), [messages])
@@ -299,7 +294,6 @@ const MeadowView = forwardRef<HTMLDivElement, Props>(function MeadowView(
             flower={f}
             animDelayIdx={i}
             onClick={onFlowerClick}
-            isMine={!!myMessageIds?.includes(f.id)}
           />
         ))}
       </div>

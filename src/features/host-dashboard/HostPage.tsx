@@ -113,7 +113,7 @@ export default function HostPage() {
       .then(({ data, error }) => {
         if (error || !data) { setErrorMsg('존재하지 않는 롤링페이퍼예요.'); setView('error'); return }
         setRoom(data)
-        // 만든이 본인이 작성자일 수도 있음 → 자기 꽃 강조용
+        // 만든이 본인이 작성자일 수도 있음 → 모달·리스트에서 수정/삭제 권한 판단용
         setStoredList(getStoredAuthorsList(slug))
         if (sessionStorage.getItem(sessionKey(slug)) === 'ok') {
           loadMessages(data.id)
@@ -286,7 +286,6 @@ export default function HostPage() {
         recipientName={name}
         onFlowerClick={setSelectedIdx}
         onListMode={() => setIsListMode(true)}
-        myMessageIds={storedList.map(s => s.messageId)}
       />
 
       {/* 마음 더 모으기 — 포장 전 주최자에게 항상 노출 */}
