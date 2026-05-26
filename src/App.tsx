@@ -12,6 +12,7 @@ import Terms             from './pages/Terms'
 import Privacy           from './pages/Privacy'
 import FindMyRoomsPage   from './pages/FindMyRoomsPage'
 import MeadowTestPage    from './pages/MeadowTestPage'
+import ShowcaseTeacherPage from './pages/ShowcaseTeacherPage'
 
 // 라우트 변경마다 GA4 page_view 전송
 // page_title을 화면별 한국어 이름으로 보내, GA 보고서에서 화면 단위로 묶여 보이게 한다.
@@ -56,6 +57,8 @@ function App() {
         <Route path="/r/:slug/preview" element={<ViewerPage isPreview />} />
         {/* dev 전용 — mock 데이터로 풀숲 미리보기 (?n=40 형태로 개수 조절) */}
         <Route path="/dev/meadow-test" element={<MeadowTestPage />} />
+        {/* 홍보 영상용 showcase — 10대 학생 14명이 선생님께 쓴 롤링페이퍼 */}
+        <Route path="/showcase/teacher" element={<ShowcaseTeacherPage />} />
         {/* 법적 고지 */}
         <Route path="/terms"           element={<Terms />} />
         <Route path="/privacy"         element={<Privacy />} />
