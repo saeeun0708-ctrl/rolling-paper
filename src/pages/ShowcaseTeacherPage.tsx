@@ -59,6 +59,18 @@ export default function ShowcaseTeacherPage() {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [isListMode,  setIsListMode]  = useState(false)
 
+  // ── 리스트 모드 — ViewerPage와 동일하게 early return으로 MeadowView를 언마운트.
+  // (MeadowView가 position: fixed라 함께 렌더되면 ListMode를 덮어버린다.)
+  if (viewState === 'meadow' && isListMode) {
+    return (
+      <ListMode
+        messages={messages}
+        recipientName={RECIPIENT_NAME}
+        onClose={() => setIsListMode(false)}
+      />
+    )
+  }
+
   return (
     <>
       {/* ── 포장 풀기 인트로 애니메이션 ── */}
@@ -96,14 +108,6 @@ export default function ShowcaseTeacherPage() {
           currentIndex={selectedIdx}
           onNavigate={setSelectedIdx}
           onClose={() => setSelectedIdx(null)}
-        />
-      )}
-
-      {viewState === 'meadow' && isListMode && (
-        <ListMode
-          messages={messages}
-          recipientName={RECIPIENT_NAME}
-          onClose={() => setIsListMode(false)}
         />
       )}
     </>
